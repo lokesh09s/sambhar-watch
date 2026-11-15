@@ -4,3 +4,11 @@ Format: HH:MM IST | decision | reason | evidence
 
 - 18:12 IST: Terminal 2's decisions were appended here by mistake. They were moved to docs/log/decisions-terminal-2.md.
 - 18:17 IST: Terminal 4's decisions were logged here by mistake. They were moved to docs/log/decisions-terminal-4.md.
+- 17:50 IST | Run with Python 3.12 in .venv, not system Python 3.9 | code uses `str | None` type hints (3.10+) | README "Run it"
+- 18:05 IST | Treat GCOV mask values 0 and 255 as no observation | 0 = partially focused/invalid samples, 255 = outside swath (file's own mask description) | sambhar/config.py INVALID_MASK_VALUES
+- 18:05 IST | Add 12-day interferometric coherence (NISAR GUNW) to the method | HH brightness alone cannot separate water from smooth crust; dry-season farmland also darkens | outputs/crops/2026-05-11.png, 2026-08-15.png; lake -22.7/-21.2 dB, farmland -15.5/-12.4 dB
+- 18:07 IST | Use only 12-day GUNW pairs | longer gaps lose coherence for reasons unrelated to water | data/gunw_pairs.csv (19 pairs; 60/24/24-day pairs excluded)
+- 18:19 IST | Provisional rule: "dark unstable surface (water or wet brine)" = HH < -18 dB AND coherence < 0.3, until Sentinel-2 confirms | coherence medians lake 0.19/0.23 vs farmland 0.59/0.51; HH-only -18 dB flags 273 km2 in May of which 129 km2 has coherence >= 0.3 | outputs/coherence/*.png, docs/log/terminal-1.md 18:21
+- 18:19 IST | Per-date coherence = pixel-wise HIGHER of the two adjacent 12-day pairs; dates with one pair use it and are flagged (coherence_pairs = 1) | pixel must be unstable in both pairs to count | team decision
+- 18:19 IST | Keep an HH-only result next to the combined rule | to show how much false water coherence removes (key slide result) | team decision
+- 18:19 IST | Report areas inside the lake outline (data/lake.geojson) as well as inside/outside mapped pans, once the outline arrives | the study box also contains other ponds and channels | outputs/crops/*.png

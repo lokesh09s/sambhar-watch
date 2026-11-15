@@ -31,7 +31,7 @@ SPECKLE_WINDOW = 3
 # Small test boxes (lon_min, lat_min, lon_max, lat_max) used to compare surface types
 # in the coherence check. Drawn by eye on the HH quick-look; outlines are shown on its figure.
 CHECK_REGIONS = {
-    "central lake": (75.02, 26.90, 75.10, 26.95),
+    "central lake": (75.05, 26.91, 75.10, 26.95),
     "salt pans": (75.14, 26.91, 75.20, 26.95),
     "farmland": (74.92, 26.83, 74.98, 26.87),
 }
