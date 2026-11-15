@@ -377,3 +377,10 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   HH only 88.8% (119/134), 27.9% (12/43), balanced 58.4%, plain 74.0%; HH + coherence 59.7% (80/134), 76.7% (33/43), 68.2%, 63.8%. All match the team's numbers.
   Rendered DOM and screenshot checked. node --check OK.
 - Next: Terminal 4 rebuilds the deck with the URLs (validation slide leads with balanced accuracy). GitHub link on the site once the repo exists.
+
+### 20:49 IST - Wrap-up
+- What: Checked git status. Everything of Terminal 2's is committed. Files created or edited by this terminal: scripts/make_demo_data.py,
+  scripts/export_web.py, scripts/validate.py, data/validation_points_TEMPLATE.csv, web/ (index.html, app.js, style.css, README.md, data/),
+  .gitignore, .github/workflows/pages.yml, docs/log/terminal-2.md, docs/log/decisions-terminal-2.md (plus the pointer lines in terminal-1 logs at 18:17).
+  Left uncommitted on purpose (other terminals' work): .DS_Store, scripts/fetch_sentinel2.py, scripts/fetch_jrc.py, requirements-validation.txt, validation_data/.
+- Result: Not pushed (no remote). Open items: GitHub link in web/index.html (TODO), app/repo URLs for the deck (Terminal 4), team name and members on slide 1.
