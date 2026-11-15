@@ -334,3 +334,17 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   Coherence wins clearly on salt crust (24% vs 81% called water) and in late August (73% vs 62%). The site's "only with coherence" headline is about the
   Aug-Oct change; the team should decide whether to soften it. I did not change the headline.
 - Next: team reviews the wording; possibly report January separately as a QPDH-mode limitation.
+
+### 20:11 IST - Trade-off framing in "What we found" / "What this means"; chart shows both bounds
+- What: web/index.html: the validation bullet is rewritten as a trade-off (brightness over-counts crust: 81% of crust points called water; coherence
+  under-counts water: misses 40% of water points, mostly January; it depends on the lake's state: Aug 73% vs 62% for coherence, Jan 86% vs 44% for
+  brightness; overall 64% vs 74%; "the drying season, where our headline sits, is exactly where coherence validated better"). New bullet:
+  "Together they bracket the truth" (rough upper/lower bound). The 11 May optical-trap bullet replaces the separate "Also worth knowing" paragraph.
+  The first "What this means" point is now "Use brightness and coherence together". Headline unchanged.
+  web/app.js chart: "With coherence: lower bound" (water_km2) and a new "Brightness only: upper bound" line (hh_only_water_km2, orange like the map's
+  "removed by coherence", dashed). Y axis "Detected area inside lake outline (km2)"; chart title "Detected area over time: lower and upper bound".
+- Why: Team request, after the validation showed a trade-off rather than one clear winner.
+- Result: Checked from outputs/results/validation.csv: 11 May white_uncertain points: 19, all inside the lake; HH + coherence called 17 water,
+  HH only 18. hh_only_water_km2 >= water_km2 on all 12 dates, so the two lines really are ordered as bounds. I wrote "rough" bounds because
+  brightness alone still misses 11% of water points (recall 89%), so it is not a strict upper bound.
+  Dead end: the first index.html edit stopped on an indentation mismatch (6 spaces, not 8) in a no-op pair; nothing was written; redone. Screenshot checked.

@@ -84,7 +84,7 @@
     </section>
 
     <section aria-labelledby="chart-title">
-      <h2 id="chart-title"><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> over time</h2>
+      <h2 id="chart-title">Detected area over time: lower and upper bound</h2>
       <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
       <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
       <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
@@ -154,25 +154,28 @@
           agree (56&ndash;60 km&sup2;).</li>
         <li><strong>Sentinel-2 confirms the drying.</strong> The basin goes from about 55&ndash;60% water in late August
           to about 55&ndash;60% white crust by 13 October; 10 October looks the same.</li>
-        <li><strong>Validation points.</strong> Against 203 points labelled on Sentinel-2 images (11 Jan, 11 May, 29 Aug),
-          radar with coherence agrees 64% of the time inside the lake (113 of 177 water or dry points); 60% of water points
-          and 76% of salt-crust points are correct. Coherence removes most false water on salt crust (crust called water:
-          81% with brightness alone, 24% with coherence) but misses more real water, mostly in January, so brightness alone
-          agrees more often overall (74%). In late August coherence is clearly better (73% vs 62%). On 11 May, radar called
-          17 of the 19 points that looked white in the optical image water, matching the water seen 5 days before and after.</li>
+        <li><strong>Validation shows a trade-off.</strong> Against 203 points labelled on Sentinel-2 images (11 Jan, 11 May,
+          29 Aug), brightness alone over-counts: it calls 81% of salt-crust points water. Coherence under-counts: it misses
+          40% of water points, mostly in January. Which is closer depends on the lake's state. When crust spreads after the
+          monsoon (late August), coherence agrees better (73% vs 62% inside the lake); when the lake is full of calm winter
+          water (January), brightness does (86% vs 44%). Overall: 64% with coherence, 74% with brightness alone.
+          The drying season, where our headline sits, is exactly where coherence validated better.</li>
+        <li><strong>Together they bracket the truth.</strong> Brightness alone gives a rough upper bound and coherence a rough
+          lower bound; the chart shows both.</li>
+        <li><strong>The 11 May optical trap.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
+          11 May but water on 6 and 16 May. Radar with coherence called 17 of the 19 white points water.</li>
       </ul>
       <p><strong>Honest limits.</strong> Radar still overestimates in October (56 km&sup2; against about 30&ndash;40 km&sup2;
         of water seen in Sentinel-2, likely the reservoir and wet edges). Changes between April and August are within
         the uncertainty. Only April to October forms one consistent radar series. Radar misses a lot of winter water:
         in January (quad-pol mode) it detects about 50&ndash;55% of the lake against about 85&ndash;90% water in Sentinel-2,
         possibly because that mode reads brighter (not confirmed).</p>
-      <p><strong>Also worth knowing.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
-        11 May, but water on 6 and 16 May (see the examples below the chart).</p>
       <div class="box">
         <h3>What this means <span class="tag">Provisional</span></h3>
         <ul>
-          <li><strong>Use coherence, not brightness alone.</strong> At Sambhar, brightness alone can confuse dry salt
-            crust with water.</li>
+          <li><strong>Use brightness and coherence together.</strong> Brightness over-counts salt crust; coherence
+            under-counts water. Report both as upper and lower bounds; which is closer depends on the lake's state
+            (coherence after the monsoon, brightness when the lake is full).</li>
           <li><strong>Always show the uncertainty.</strong> Small changes can come from threshold choices, not from the lake.</li>
           <li><strong>Don't mix NISAR radar modes for brightness without checking.</strong> Coherence is more consistent
             between modes.</li>
