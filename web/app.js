@@ -42,6 +42,7 @@ async function main() {
     document.getElementById("legend-lake").hidden = !lake;
     makeMap(info, lookup, pans, lake, hasComparison);
     makeChart(info.area_scope);
+    await makeOptical(info.demo);
     makeSlider();
     showDate(0);
   } catch (error) {
@@ -249,6 +250,69 @@ function capitalise(text) {
 
 function shortDate(ms) {
   return new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+// ---------- optical vs radar ----------
+
+/** Fill the "Optical vs radar" section from data/optical/index.json (made by export_web.py), if present. */
+async function makeOptical(demo) {
+  const images = await getJSON("optical/index.json").catch(() => null);
+  if (!images || !images.length) return;
+  document.getElementById("optical-section").hidden = false;
+
+  const tabs = document.getElementById("optical-tabs");
+  const buttons = images.map(entry => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = new Date(Date.parse(entry.s2_date))
+      .toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+    button.addEventListener("click", () => {
+      buttons.forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+      showOptical(entry, demo);
+    });
+    tabs.appendChild(button);
+    return button;
+  });
+
+  const slider = document.getElementById("swipe-slider");
+  slider.addEventListener("input", () => setSwipe(Number(slider.value)));
+  setSwipe(Number(slider.value));
+
+  const start = Math.max(0, images.findIndex(e => e.s2_date === "2026-05-11"));   // the headline date
+  buttons[start].click();
+}
+
+/** Show one Sentinel-2 date on the left and the radar result of its nearest NISAR date on the right. */
+function showOptical(entry, demo) {
+  const optical = DATA + "optical/" + entry.s2_date + ".jpg";
+  document.getElementById("swipe-optical").src = optical;
+  document.getElementById("swipe-radar-base").src = optical;
+
+  const radar = document.getElementById("swipe-radar");
+  const caption = document.getElementById("optical-caption");
+  const s2Text = "Sentinel-2 image " + shortDate(Date.parse(entry.s2_date));
+  if (entry.nisar_date) {
+    radar.hidden = false;
+    document.getElementById("swipe-radar-detected").src = DATA + "overlays/" + entry.nisar_date + ".png";
+    const removed = document.getElementById("swipe-radar-removed");
+    removed.hidden = document.getElementById("legend-stable").hidden;   // hidden when there is no comparison layer
+    removed.src = DATA + "comparison/" + entry.nisar_date + ".png";
+    caption.textContent = s2Text + " vs NISAR radar " + shortDate(Date.parse(entry.nisar_date)) +
+      (entry.days_apart === 0 ? " (same day)" : " (" + entry.days_apart + " days apart)") +
+      ". Blue: " + className + ". Orange: removed by the coherence check." +
+      (demo ? " Radar side: DEMO data, not NISAR results." : " Radar results are provisional.");
+  } else {
+    radar.hidden = true;
+    caption.textContent = s2Text + ". No NISAR radar result within 6 days of this image, so only the optical image is shown.";
+  }
+  document.getElementById("swipe-tag-right").textContent = demo ? "NISAR radar (DEMO)" : "NISAR radar (provisional)";
+  document.getElementById("optical-headline").hidden = entry.s2_date !== "2026-05-11";
+}
+
+/** Move the divide: optical on the left of `percent`, radar on the right. */
+function setSwipe(percent) {
+  document.getElementById("swipe-radar").style.clipPath = "inset(0 0 0 " + percent + "%)";
+  document.getElementById("swipe-line").style.left = "calc(" + percent + "% - 1px)";
 }
 
 // ---------- date slider ----------

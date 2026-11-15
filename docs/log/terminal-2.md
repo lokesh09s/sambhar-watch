@@ -161,3 +161,22 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   Leaflet's <section class="leaflet-control-layers-list">. Scoping it to 'main > section' fixed it.
   Demo 2026-05-11 with real pans: HH only 114.0 -> HH + coherence 62.5 km2 inside the lake outline (range 59.9-62.9).
 - Next: the layer name "Removed by coherence check" was my choice (the feedback did not give one); rename it if the team prefers another.
+
+### 19:17 IST - "Optical vs radar" swipe section and "What this means" box
+- What:
+  - scripts/export_web.py: export_optical() converts validation_data/sentinel2/*_truecolour.png to web/data/optical/<s2_date>.jpg (quality 80)
+    and writes optical/index.json, pairing each with the nearest radar date in map_info dates (null if more than 6 days apart).
+  - web/: new section after the chart with date buttons (11 Jan, 6, 11, 16 May, 29 Aug). Swipe: Sentinel-2 true colour on the left;
+    on the right the same image in grey with the radar layers (blue = class_name, orange = removed by the coherence check). The caption gives the dates,
+    days apart, and DEMO/provisional status. The 11 May headline uses the team's wording, with a "[result to be added]" placeholder and a Provisional tag.
+    New "What this means" box (4 provisional recommendations) under "What we found".
+- Why: Team request: a feature for judges that shows radar against optical images.
+- Result:
+  - Alignment checked with real data: the real outputs/results overlays_hh_only/2026-05-11.png laid on the Sentinel-2 2026-05-06 true colour
+    (both 1889 x 1442, same 20 m grid). Lake shore, pan dykes and small ponds match pixel for pixel. HH only also flags many dry fields, as known.
+  - Contact sheet of the 5 true-colour images confirms the headline: 11 May the lake is white; 6 and 16 May it is green (water).
+  - With the current REAL results (DHDH only: 2026-04-05 to 10-14), only the May images have a radar date within 6 days: 11 Jan has none,
+    and 29 Aug's nearest is 08-15 (14 days). The page then shows the optical image alone, with a note. With the demo, all 5 have a date.
+  - Real 2026-05-11 (for the headline, NOT filled in): water_km2 = 102.9 km2 inside the lake outline (HH only 144.3).
+  - web/data/optical is 4.5 MB; web/data total 6.4 MB. Screenshot of the section checked. node --check OK.
+- Next: the team fills in the 11 May result sentence; switch web/data to real results (python scripts/export_web.py) when the team says so.

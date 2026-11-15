@@ -1,0 +1,27 @@
+[
+ {
+  "s2_date": "2026-01-11",
+  "nisar_date": "2026-01-11",
+  "days_apart": 0
+ },
+ {
+  "s2_date": "2026-05-06",
+  "nisar_date": "2026-05-11",
+  "days_apart": 5
+ },
+ {
+  "s2_date": "2026-05-11",
+  "nisar_date": "2026-05-11",
+  "days_apart": 0
+ },
+ {
+  "s2_date": "2026-05-16",
+  "nisar_date": "2026-05-11",
+  "days_apart": 5
+ },
+ {
+  "s2_date": "2026-08-29",
+  "nisar_date": "2026-08-27",
+  "days_apart": 2
+ }
+]

@@ -54,6 +54,15 @@ shows the modes agree, set it to `false` to draw a single line.
 `make_demo_data.py` makes fake crops and fake coherence, then runs the real `map_water.py`,
 so the demo uses exactly the team's rule (the 12-day pair starting on each date; dates without one left out).
 
+### Optical vs radar section
+
+`export_web.py` also turns every `validation_data/sentinel2/<date>_truecolour.png` (from
+`scripts/fetch_sentinel2.py`) into `data/optical/<date>.jpg`, and pairs it with the nearest radar
+date in the results, if one is within 6 days (`data/optical/index.json`). The Sentinel-2 images are on
+the same 20 m grid as the radar, so the page lays the radar layers straight on top, with a swipe slider.
+Images with no radar date close enough are shown alone, with a note. The 11 May headline sentence and the
+"What this means" box are in `index.html`. Fill in the `[result to be added]` placeholder by hand.
+
 ## Demo data (FAKE)
 
 To test the page before real results exist:

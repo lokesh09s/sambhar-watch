@@ -67,6 +67,34 @@ li { margin: 4px 0; }
 
 .chart-box { position: relative; height: 320px; }
 
+/* Optical vs radar swipe: both images are on the same 20 m grid, so they line up pixel for pixel. */
+.optical-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.optical-tabs button {
+  font: inherit; font-size: 0.93rem; padding: 4px 12px; cursor: pointer;
+  border: 1px solid var(--accent); border-radius: 4px; background: var(--paper); color: var(--accent);
+}
+.optical-tabs button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.swipe { position: relative; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; line-height: 0; }
+.swipe img { width: 100%; height: auto; display: block; }
+.swipe-radar { position: absolute; inset: 0; }
+.swipe-radar img { position: absolute; inset: 0; }
+#swipe-radar-base { filter: grayscale(1) brightness(0.75); }
+.swipe-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; box-shadow: 0 0 3px rgba(0, 0, 0, 0.6); }
+.swipe-tag {
+  position: absolute; top: 8px; line-height: 1.3; font-size: 0.8rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.92); color: var(--ink); padding: 3px 8px;
+}
+.swipe-tag-left { left: 8px; }
+.swipe-tag-right { right: 8px; }
+#swipe-slider { width: 100%; margin: 10px 0 0; accent-color: var(--accent); }
+.headline { border-left: 4px solid var(--accent); padding: 8px 14px; background: var(--soft); }
+.tag {
+  display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  border: 1px solid var(--muted); color: var(--muted); border-radius: 3px; padding: 0 5px; vertical-align: 1px;
+}
+.box { border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 4px 16px; margin-top: 16px; }
+.box h3 { font-size: 1.05rem; margin: 10px 0 0; }
+
 footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; padding: 18px 0 28px; margin-top: 48px; }
 
 @media (max-width: 600px) {

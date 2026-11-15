@@ -54,6 +54,31 @@
         (the gap is the dark but stable surface that the coherence check removes).</p>
     </section>
 
+    <section aria-labelledby="optical-title" id="optical-section" hidden>
+      <h2 id="optical-title">Optical vs radar</h2>
+      <p>Drag the slider. Left: a Sentinel-2 satellite photo. Right: what NISAR radar detected on the nearest
+        radar date, drawn on the same area.</p>
+      <div class="optical-tabs" id="optical-tabs" role="group" aria-label="Sentinel-2 image date"></div>
+      <div class="swipe" id="swipe">
+        <img id="swipe-optical" alt="Sentinel-2 true-colour image of Sambhar Salt Lake">
+        <div class="swipe-radar" id="swipe-radar">
+          <img id="swipe-radar-base" alt="">
+          <img id="swipe-radar-removed" class="pixelated" alt="">
+          <img id="swipe-radar-detected" class="pixelated" alt="Radar detection overlay">
+        </div>
+        <div class="swipe-line" id="swipe-line"></div>
+        <span class="swipe-tag swipe-tag-left">Sentinel-2 optical</span>
+        <span class="swipe-tag swipe-tag-right" id="swipe-tag-right">NISAR radar</span>
+      </div>
+      <input type="range" id="swipe-slider" min="0" max="100" value="50" aria-label="Move the divide between optical and radar images">
+      <p class="hint" id="optical-caption"></p>
+      <p class="headline" id="optical-headline" hidden>
+        <strong>11 May 2026.</strong> Optical image: the lake looks white and dry. 5 days before and after, it&rsquo;s water.
+        NISAR radar on the same day: <span class="placeholder">[result to be added]</span>.
+        <span class="tag">Provisional</span>
+      </p>
+    </section>
+
     <section aria-labelledby="how-title">
       <h2 id="how-title">How radar sees water</h2>
       <p>NISAR sends microwave pulses down at an angle and records how much comes back. Calm water acts like a mirror:
@@ -75,6 +100,18 @@
     <section aria-labelledby="found-title">
       <h2 id="found-title">What we found</h2>
       <p class="placeholder">To be added once all NISAR dates are processed and checked against Sentinel-2.</p>
+      <div class="box">
+        <h3>What this means <span class="tag">Provisional</span></h3>
+        <ul>
+          <li><strong>Compare like with like.</strong> Use one radar mode for trends; the two NISAR modes are not yet
+            confirmed to agree.</li>
+          <li><strong>Always show the uncertainty band.</strong> Reasonable threshold choices change the area by more
+            than some seasonal differences.</li>
+          <li><strong>In the dry season, combine radar with optical images.</strong> Dry fields and dry crust can look
+            like water to radar; a cloud-free Sentinel-2 image settles it.</li>
+          <li><strong>Watch the southern margin.</strong> Wet salt crust there can fool radar into seeing water.</li>
+        </ul>
+      </div>
     </section>
 
     <section aria-labelledby="limits-title">

@@ -8,6 +8,8 @@ Reads outputs/results/ (made by map_water.py) and writes to web/data/:
     comparison/<date>.png    pixels dark in HH but removed by the coherence rule
                              (only if results has overlays_hh_only/)
     pans.geojson, lake.geojson   salt-pan and lake outlines (only if the files exist)
+    optical/<s2_date>.jpg    Sentinel-2 true colour from validation_data/sentinel2/ (same 20 m grid as the radar)
+    optical/index.json       each optical date with its nearest radar date (none if more than 6 days apart)
 
 Examples
     python scripts/export_web.py
@@ -18,6 +20,7 @@ import json
 import math
 import shutil
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,11 +30,14 @@ import matplotlib
 matplotlib.use("Agg")  # draw to files, no window needed
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 from sambhar import config
 
 WEB_DATA = ROOT / "web" / "data"
 LOOKUP_MAX_SIZE = 400   # longest side of the click-lookup grid; keeps the JSON around 1 MB
+OPTICAL_DIR = ROOT / "validation_data" / "sentinel2"
+OPTICAL_MAX_DAYS = 6    # same as validate.py: half the 12-day repeat
 COMPARISON_RGBA = (240, 140, 0, 220)   # orange, matches .swatch-stable in web/style.css
 
 
@@ -84,6 +90,31 @@ def copy_outline(source: Path, name: str) -> None:
         print(f"Note: {source} not found, so the map has no {name} layer.")
 
 
+def export_optical(radar_dates: list[str]) -> None:
+    """Sentinel-2 true-colour images as JPEGs, each paired with the nearest radar date.
+
+    The PNGs from fetch_sentinel2.py are on the same 20 m grid as the radar crops,
+    so the website can lay radar overlays on them pixel for pixel.
+    """
+    shutil.rmtree(WEB_DATA / "optical", ignore_errors=True)
+    images = sorted(OPTICAL_DIR.glob("*_truecolour.png"))
+    if not images:
+        print(f"Note: no Sentinel-2 images in {OPTICAL_DIR}, so the page has no optical comparison.")
+        return
+    (WEB_DATA / "optical").mkdir()
+    entries = []
+    for png in images:
+        s2_date = png.name[:10]
+        Image.open(png).convert("RGB").save(WEB_DATA / "optical" / f"{s2_date}.jpg", quality=80)
+        gaps = {d: abs((date.fromisoformat(d) - date.fromisoformat(s2_date)).days) for d in radar_dates}
+        nearest = min(gaps, key=gaps.get)
+        close = gaps[nearest] <= OPTICAL_MAX_DAYS
+        entries.append({"s2_date": s2_date, "nisar_date": nearest if close else None,
+                        "days_apart": gaps[nearest] if close else None})
+    (WEB_DATA / "optical" / "index.json").write_text(json.dumps(entries, indent=1))
+    print(f"Optical: {', '.join(e['s2_date'] + ' -> ' + str(e['nisar_date']) for e in entries)}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--results", type=Path, default=config.RESULTS_DIR,
@@ -126,6 +157,7 @@ def main():
     copy_outline(args.lake, "lake.geojson")
 
     info = json.loads((results / "map_info.json").read_text())
+    export_optical(info["dates"])
     label = "FAKE DEMO data" if info.get("demo") else "results"
     print(f"Exported {label} for {len(info['dates'])} dates from {results} to {WEB_DATA}")
 
