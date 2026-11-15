@@ -88,3 +88,13 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   map_water.py output names should match the table in web/README.md.
   validate.py still classifies with HH only from the crops, so it does not yet test the new rule.
 - Next: once the real rule is in map_water.py, run export_web.py on outputs/results. Update validate.py to the HH + coherence rule.
+
+### 18:23 IST - Checked the website format against the other terminal's new map_water.py (uncommitted)
+- What: Read `git diff scripts/map_water.py` and sambhar/config.py (read only, not edited).
+- Why: The website must work on real output without changes.
+- Result: Their output matches web/README.md: overlays/ (combined rule), overlays_hh_only/, water_area.csv with water_km2,
+  water_inside/outside_mapped_pans_km2 and coherence_pairs, map_info.json with threshold_db and coherence_threshold. Dates with no pair are left out, as in the demo.
+  Their extra columns (hh_only_water_*, *_in_lake*) and map_info class_name are ignored by the site, which is harmless.
+  Real C in config.py is COHERENCE_THRESHOLD = 0.3 (the demo uses 0.35). They added sambhar.coherence.coherence_for_date.
+- Next: once their map_water.py is committed, make_demo_data.py can call it directly and drop its own apply_coherence_rule (the "shortcut").
+  Not done yet: their code is still changing.
