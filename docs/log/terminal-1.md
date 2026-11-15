@@ -147,3 +147,42 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
 - Why: team request after my worker-1 incident; judges read the code.
 - Result: no change to any result (existing files were all test-loaded at 19:18).
 - Method freeze: from now on only reruns, validation and results. Next: README Results section once validation numbers arrive.
+
+### 19:30 IST - Results section, slide figures, and the prepared (NOT run) history cleanup
+- What:
+  - scripts/make_figures.py (new) + plotting functions slide_area_over_time / slide_comparison / slide_frequency_map in sambhar/plots.py; config FIGURES_DIR, FIGURE_COMPARISON_DATE, FIGURE_GAP_DAYS. Writes docs/figures/area_over_time.png, comparison_2026-05-11.png, frequency_map.png. Looked at each figure; fixed two problems on the first try (14 Oct HH-only value invisible as an isolated point on a dashed line without markers; frequency-map title cut off).
+  - README: Results section (table of 12 DHDH dates with range, pans/outside, HH-only, removed by coherence, pair modes; 5 findings; Sentinel-2 by-eye comparison; placeholders for validation and the October Sentinel-2 check); make_figures.py in the layout.
+- Why: team request (slides + README); no method changes.
+- Result / found while making figures:
+  - The hand-drawn lake outline leaves out part of the dark lake bed in the south-west: 14.5 km2 just outside the outline (within the lake window) is detected on >= 50% of dates (4.1 km2 on >= 80%), vs 118.5 km2 (74.2) inside. Not changed (method frozen; teammate's outline); stated in README Results.
+  - By-eye Sentinel-2 vs radar, % of the 152.1 km2 lake: Jan S2 ~85-90% water vs radar QPDH 01-11/01-23 50-53% (radar misses much January water); May radar 68% (S2: water under white film); Aug S2 ~55-60% water + ~30% crust band vs radar 60%.
+
+#### Git history cleanup - PREPARED, NOT RUN (planned ~22:00 with the other terminals paused)
+Problem: commit e2ec1ed ("Starting point") added .venv/ and outputs/; later commits untracked them, but they stay in history: pack = 561 MiB. Also tracked by mistake: */__pycache__/*.pyc and .DS_Store.
+No secrets found in history (`git log --all --name-only | grep -i netrc|token|credential` only hits library files inside .venv; ~/.netrc was never in the repo).
+git-filter-repo is not installed, so this uses git's built-in filter-branch.
+Dry run at 19:27 on a throwaway clone (scratchpad/histtest): exit 0, pack 561.40 MiB -> 13.80 MiB, 0 removed paths left, 29 commits kept, all source/docs/data/web files still present.
+
+Commands (run from the repo folder, with every other terminal paused and nothing uncommitted):
+
+    cd ~/spaceapp
+    git status --short                       # must show nothing staged/modified (untracked is OK)
+    git bundle create ../spaceapp-before-cleanup.bundle --all     # full backup of the history
+    FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force \
+      --index-filter 'git rm -r --cached --ignore-unmatch --quiet -- .venv outputs "*__pycache__*" .DS_Store' \
+      --prune-empty -- --all
+    git for-each-ref --format='%(refname)' refs/original/ | xargs -n1 git update-ref -d   # drop the backup refs filter-branch leaves
+    git reflog expire --expire=now --all
+    git gc --prune=now --aggressive
+    # checks
+    git count-objects -vH | grep size-pack                          # expect ~14 MiB
+    git log --all --name-only --format= | grep -cE '^(\.venv|outputs)/|__pycache__|\.DS_Store'   # expect 0
+    git status --short                                              # .DS_Store and __pycache__ now show as untracked: expected
+    .venv/bin/python -m pytest -q tests                             # expect all pass
+    echo ".DS_Store" >> .gitignore && git add .gitignore && git commit -m "Ignore .DS_Store"   # .gitignore is shared: whoever runs this
+
+Notes:
+- Every commit hash changes, so hashes quoted in docs/log/*.md will no longer match. The order and messages stay the same.
+- Files on disk (.venv, outputs, pycache) are not touched; only history changes. Other terminals share this folder, so nobody needs to re-clone.
+- If anything looks wrong: `git clone ../spaceapp-before-cleanup.bundle restored` gives back the old history.
+- Push to GitHub only after the checks pass (no remote is configured yet).

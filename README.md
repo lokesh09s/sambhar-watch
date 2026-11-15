@@ -53,6 +53,7 @@ scripts/            the steps you run
   check_coherence.py  water vs salt crust: brightness and coherence of test regions
   sensitivity.py    how much the areas change with the chosen thresholds
   check_modes.py    do the two radar modes (DHDH, QPDH) agree on stable ground?
+  make_figures.py   figures for the README and slides (docs/figures/)
 tests/              synthetic end-to-end test (lake of known area)
 data/               granule and interferogram-pair lists, salt-pan polygons
 outputs/            generated files (not committed)
@@ -80,7 +81,46 @@ A free [NASA Earthdata](https://urs.earthdata.nasa.gov) account is needed to str
 
 ## Results
 
-*To be added: water-area chart, frequency map, validation table.*
+All areas are inside the hand-drawn lake outline (152 km²). "Detected" means *dark unstable surface (water or wet brine)* was seen on that date; it does not mean water was present all the time in between, and depth is not measured.
+
+![Area over time](docs/figures/area_over_time.png)
+
+**Main series: 12 dual-pol (DHDH) dates, April–October 2026.** In brackets: the range over 12 threshold choices (HH −17 to −20 dB, coherence 0.25 to 0.35).
+
+| Date | Detected, km² (range) | Salt works and mapped pans | Outside mapped pans | HH only, km² | Removed by coherence | Coherence pair modes |
+|---|---|---|---|---|---|---|
+| 2026-04-05 | 101.6 (46–118) | 26.4 | 75.3 | 119.6 | 18.0 | DHDH-DHDH |
+| 2026-04-17 | 110.3 (84–121) | 27.1 | 83.2 | 132.7 | 22.4 | DHDH-DHDH |
+| 2026-04-29 | 106.3 (77–117) | 25.0 | 81.3 | 126.7 | 20.4 | DHDH-DHDH |
+| 2026-05-11 | 102.9 (84–113) | 22.9 | 80.1 | 131.8 | 28.9 | DHDH-DHDH |
+| 2026-05-23 | 107.8 (84–119) | 26.7 | 81.1 | 130.3 | 22.5 | DHDH-DHDH |
+| 2026-06-04 | 110.4 (83–122) | 28.4 | 82.0 | 129.3 | 18.9 | DHDH-DHDH |
+| 2026-06-16 | 88.0 (39–111) | 26.1 | 61.8 | 103.9 | 16.0 | DHDH-DHDH |
+| 2026-06-28 | 104.7 (79–117) | 27.7 | 77.0 | 130.4 | 25.7 | DHDH-DHDH |
+| 2026-07-10 | 109.9 (65–124) | 26.2 | 83.7 | 122.0 | 12.1 | DHDH-DHDH |
+| 2026-07-22 | 115.6 (77–126) | 28.7 | 86.9 | 129.0 | 13.4 | DHDH-DHDH (pair ending on date) |
+| 2026-08-15 | 91.3 (51–110) | 22.5 | 68.8 | 125.3 | 33.9 | DHDH-QPDH |
+| 2026-10-14 | 55.7 (34–72) | 15.8 | 39.9 | 115.4 | 59.6 | QPDH-DHDH (pair ending on date) |
+
+What we found:
+
+1. **Coherence removes 12–60 km² per date** that brightness alone would call water: surfaces that are dark but did not change over 12 days, such as smooth dry crust. On 11 May, HH alone flags 131.8 km² of the lake; with coherence, 102.9 km².
+   ![11 May: brightness, coherence and result](docs/figures/comparison_2026-05-11.png)
+2. **April to August shows no clear seasonal pattern.** Detected area stays between 88 and 116 km², and which date is largest depends on the thresholds. On a single date the thresholds move the area by about 40 km² (median), more than the differences between these dates (`scripts/sensitivity.py`).
+3. **14 October is clearly lower** (55.7 km², range 34–72): it is the lowest date in 10 of the 12 threshold choices, 30–40 km² below the next date at −17/−18 dB. The quad-pol dates of September and early October are also low (56–60 km²). *Sentinel-2 check for October: [PLACEHOLDER].*
+4. **The two radar modes cannot be mixed.** On stable ground, quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH): all three mode changes point the same way (−0.43, +0.89, −1.39 dB) while dates in the same mode differ by 0.1–0.7 dB. Coherence agrees across modes (farmland 0.47–0.51 vs 0.39–0.55). So only April–October is one series; January–March and late August–early October (QPDH) are shown separately as grey points (`scripts/check_modes.py`).
+5. **Sentinel-2, compared by eye** (not the validation below):
+   - January: about 85–90% of the lake is water. Radar (QPDH, 11 and 23 Jan) detects only 50–53%. The radar misses much of the January water; a likely part of the reason is the brighter QPDH mode, but we have not confirmed it.
+   - May: water under a short-lived white film. Radar on 11 May: 68% of the lake.
+   - August: about 55–60% water plus a band of about 30% crust. Radar on 15 Aug: 60%, so the crust band is mostly not counted as water.
+
+![Water-detection frequency](docs/figures/frequency_map.png)
+
+**Water-detection frequency** (detections ÷ valid observations, 11–12 valid observations per pixel): the central and eastern lake bed is detected on most dates; the edges less often. About 14.5 km² just outside the south-west of the lake outline is detected on at least half the dates; it is not counted in the areas above.
+
+**Validation against labelled Sentinel-2 points** (`scripts/validate.py`): *[PLACEHOLDER: confusion matrix, overall accuracy, water-vs-crust errors, date used]*. Accuracy on one date does not prove accuracy all year.
+
+Figures are made with `python scripts/make_figures.py` after `map_water.py --mode DHDH` and `sensitivity.py --mode QPDH`.
 
 ## Limitations
 

@@ -6,6 +6,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 CROPS_DIR = ROOT / "outputs" / "crops"
 RESULTS_DIR = ROOT / "outputs" / "results"
+FIGURES_DIR = ROOT / "docs" / "figures"     # slide and README figures (committed)
+FIGURE_COMPARISON_DATE = "2026-05-11"       # date shown in the HH / coherence / result figure
+FIGURE_GAP_DAYS = 30                        # break the area line where dates are further apart than this
 
 GRANULES_CSV = DATA_DIR / "granules.csv"   # list of NISAR files (date, mode, release, url)
 PANS_GEOJSON = DATA_DIR / "pans.geojson"   # salt-pan polygons drawn by hand (lon/lat)
