@@ -277,3 +277,60 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
     An independent check recomputed every point's two results from its HH and coherence: all agree.
 - Next: when the labels arrive: python scripts/validate.py validation_data/labels/ (writes to outputs/results/). Open question: if two people label the
   SAME points, both count; the labeller column in validation.csv lets us compare or drop duplicates.
+
+### 20:07 IST - VALIDATION RUN on the team's labelled points (frozen rule)
+- What: `python scripts/validate.py points_2026-01-11_labelled.csv points_2026-05-11_labelled.csv points_2026-08-29_labelled.csv`
+  (the labelled files are in the project root, not validation_data/labels/ as announced; validation_data/label/ holds the labelling tool, not labels).
+  Rule from map_info.json and config.py: HH < -18 dB AND coherence < 0.3, pair starting on the date else ending on it. Outputs in outputs/results/:
+  validation.csv, validation_summary.csv, validation_summary.txt, validation_plain_english.txt (copied below, since outputs/ is not committed).
+  web/index.html: validation placeholders filled (HH-only comparison included).
+- Why: Team request: labels done.
+- Result (full text of validation_plain_english.txt):
+    Validation of NISAR radar against Sentinel-2 labelled points (provisional)
+    
+    Rule (frozen): water or wet brine = HH below -18 dB AND 12-day coherence below 0.3
+    (coherence from the pair starting on the date, else the pair ending on it). Compared with HH alone.
+    Files: points_2026-01-11_labelled.csv, points_2026-05-11_labelled.csv, points_2026-08-29_labelled.csv.
+    
+    1. Points
+       11 Jan (NISAR 11 Jan, QPDH mode):  59 labelled, 91 left empty
+       11 May (NISAR 11 May, DHDH mode):  68 labelled, 82 left empty
+       29 Aug (NISAR 27 Aug, QPDH mode, 2 days apart):  76 labelled, 74 left empty
+       Total: 203 labelled, 247 empty. No other points skipped. 197 of the 203 are inside the lake outline.
+    
+    2. Main result, inside the lake (accuracy = water vs salt crust + land; white_uncertain left out)
+                           HH + coherence     HH only
+       All dates           64% (113/177)      74% (131/177)
+       11 Jan (QPDH)       44% (25/57)        86% (49/57)
+       11 May (DHDH)       74% (34/46)        78% (36/46)
+       27 Aug (QPDH)       73% (54/74)        62% (46/74)
+    
+    3. Water detection inside the lake, all dates
+       Recall (water points detected):        HH + coherence 60% (80/134)   HH only 89% (119/134)
+       Precision (detections that are water): HH + coherence 89% (80/90)    HH only 79% (119/150)
+    
+    4. Where errors happen inside the lake, all dates (share called water)
+       salt_crust:       HH + coherence 24% (9/37)    HH only 81% (30/37)
+       white_uncertain:  HH + coherence 85% (17/20)   HH only 95% (19/20)
+       land:             HH + coherence 17% (1/6)     HH only 17% (1/6)
+    
+    5. The 11 May optical trap: of the 19 white_uncertain points (white on 11 May, water on 6 and 16 May),
+       radar with coherence called 17 water (89%); HH alone called 18 water.
+    
+    6. 11 Jan and 27 Aug are QPDH-mode radar dates; 11 May is DHDH.
+    
+    In plain English
+    - Coherence does what it was added for: it removes most of the salt crust that brightness alone calls water
+      (crust called water drops from 81% to 24%), and when it says "water" it is right 89% of the time.
+    - The cost is missed water. Coherence misses 40% of water points, mostly in January, when it finds only
+      42% of the water that brightness alone finds (89%). Overall accuracy inside the lake is therefore lower
+      with coherence (64%) than without (74%).
+    - In late August, when crust is spreading, coherence is clearly better (73% vs 62%). In May the two are similar.
+    - On 11 May, radar saw water under 17 of the 19 points that looked white in the optical image, matching
+      the water seen 5 days before and after.
+    - Two of the three dates are QPDH mode, which the mode check found reads brighter in HH; the January result in
+      particular may be affected. Point counts per class are small (37 crust, 20 white, 6 land inside the lake).
+- Caution for the story: overall accuracy inside the lake is LOWER with coherence (64%) than with HH alone (74%), driven by January (QPDH: 44% vs 86%).
+  Coherence wins clearly on salt crust (24% vs 81% called water) and in late August (73% vs 62%). The site's "only with coherence" headline is about the
+  Aug-Oct change; the team should decide whether to soften it. I did not change the headline.
+- Next: team reviews the wording; possibly report January separately as a QPDH-mode limitation.
