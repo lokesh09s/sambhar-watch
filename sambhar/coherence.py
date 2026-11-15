@@ -8,10 +8,13 @@ distinction: calm water and smooth crust can both look dark.
 
 Dataset paths are searched for rather than hard-coded, as in nisar.py.
 """
+from pathlib import Path
+
 import h5py
 import numpy as np
 
 from sambhar import nisar
+from sambhar.granules import GunwPair
 from sambhar.grid import Grid, sample_onto_grid
 
 
@@ -62,3 +65,24 @@ def crop_coherence(h5: h5py.File, grid: Grid) -> np.ndarray:
     usable = np.isfinite(mask) & valid_samples(np.nan_to_num(mask, nan=255))
     coherence[~usable] = np.nan
     return coherence
+
+
+def pair_file(pair: GunwPair, folder: Path) -> Path:
+    """Where the cropped coherence of a pair is saved."""
+    return folder / f"{pair.reference_date}_{pair.secondary_date}.npz"
+
+
+def coherence_for_date(date: str, pairs: list[GunwPair], folder: Path):
+    """Coherence for one radar date, from the cropped 12-day pairs that include it.
+
+    Uses the HIGHER of the pair before and the pair after, pixel by pixel, so a
+    pixel counts as unstable only if it was unstable in both. Where only one
+    pair has data, that pair is used. Returns (coherence, number of pairs),
+    or (None, 0) if no cropped pair includes this date.
+    """
+    files = [pair_file(p, folder) for p in pairs if date in (p.reference_date, p.secondary_date)]
+    files = [f for f in files if f.exists()]
+    if not files:
+        return None, 0
+    stack = np.array([np.load(f)["coherence"] for f in files])
+    return np.fmax.reduce(stack, axis=0), len(files)

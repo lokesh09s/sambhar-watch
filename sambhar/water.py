@@ -4,8 +4,10 @@ Physics in one line: calm water reflects the radar pulse away from the
 satellite (like a mirror), so it looks very dark in HH. We therefore call a
 pixel "water" when its HH backscatter is below a threshold.
 
-Caveat: wet salt crust can also look dark, so the threshold must be checked
-against independent evidence (Sentinel-2 images) at Sambhar itself.
+Caveat: smooth salt crust and dry fields can also look dark, so darkness is
+combined with 12-day coherence (see coherence.py): water is dark AND unstable.
+Both thresholds must be checked against independent evidence (Sentinel-2)
+at Sambhar itself.
 """
 import numpy as np
 
@@ -60,6 +62,19 @@ def classify_water(hh_db: np.ndarray, threshold_db: float) -> tuple[np.ndarray, 
     valid = np.isfinite(hh_db)
     water = valid & (hh_db < threshold_db)
     return water, valid
+
+
+def classify_dark_unstable(hh_db: np.ndarray, coherence: np.ndarray, threshold_db: float,
+                           coherence_threshold: float) -> tuple[np.ndarray, np.ndarray]:
+    """Return (detected, valid) maps for the combined rule: dark in HH AND unstable over 12 days.
+
+    Low coherence means the surface changed between passes, as water and wet brine do.
+    Dark but stable surfaces (smooth dry crust, dry fields) keep high coherence and are left out.
+    A pixel is valid only where both HH and coherence exist.
+    """
+    valid = np.isfinite(hh_db) & np.isfinite(coherence)
+    detected = valid & (hh_db < threshold_db) & (coherence < coherence_threshold)
+    return detected, valid
 
 
 def detection_frequency(water_stack: np.ndarray, valid_stack: np.ndarray):

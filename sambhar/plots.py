@@ -56,6 +56,22 @@ def coherence_check(hh_db, coherence, regions, title, path):
     _save(fig, path)
 
 
+def rule_comparison(dates, hh_only_km2, combined_km2, area_label, path):
+    """Detected area per date with HH alone vs HH + coherence. The gap is what coherence removed."""
+    fig, ax = plt.subplots(figsize=(10, 4.5))
+    days = np.array(dates, dtype="datetime64[D]")
+    ax.plot(days, hh_only_km2, "o--", color="#8a959b", label="HH only: dark")
+    ax.plot(days, combined_km2, "o-", color="#1f6fb2", label="HH + coherence: dark and unstable")
+    ax.fill_between(days, combined_km2, hh_only_km2, color="#e8a33d", alpha=0.3,
+                    label="removed by coherence (dark but stable)")
+    ax.set_ylabel(f"area {area_label} (km²)")
+    ax.set_ylim(bottom=0)
+    ax.set_title("How much 'dark' area coherence removes")
+    ax.legend(loc="upper left")
+    fig.autofmt_xdate()
+    _save(fig, path)
+
+
 def water_overlay(water, path, rgba=(30, 120, 200, 200)):
     """Transparent PNG with water pixels coloured, to lay over a web map."""
     image = np.zeros(water.shape + (4,), dtype=np.uint8)

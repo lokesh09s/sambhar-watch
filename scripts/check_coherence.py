@@ -7,6 +7,7 @@ Needs the GCOV crop of the first date (scripts/crop_lake.py) for HH and the grid
 
 Examples
     python scripts/check_coherence.py 2026-05-11 2026-08-15
+    python scripts/check_coherence.py all          # every pair (reuses pairs already cropped)
 """
 import argparse
 import sys
@@ -17,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # make `sambhar
 import numpy as np
 
 from sambhar import config
-from sambhar.coherence import crop_coherence
-from sambhar.granules import GunwPair, load_gunw_pairs, open_remote
+from sambhar.coherence import crop_coherence, pair_file
+from sambhar.granules import GunwPair, load_granules, load_gunw_pairs, open_remote
 from sambhar.grid import Grid, box_mask
 from sambhar.plots import coherence_check
 from sambhar.storage import load_crop
@@ -27,7 +28,7 @@ from sambhar.water import reduce_speckle, to_decibels
 
 def coherence_for(pair: GunwPair, grid: Grid) -> np.ndarray:
     """Cropped coherence for a pair, streamed from the GUNW file the first time and saved."""
-    path = config.COHERENCE_DIR / f"{pair.reference_date}_{pair.secondary_date}.npz"
+    path = pair_file(pair, config.COHERENCE_DIR)
     if path.exists():
         return np.load(path)["coherence"]
     with open_remote(pair.url) as h5:
@@ -37,7 +38,7 @@ def coherence_for(pair: GunwPair, grid: Grid) -> np.ndarray:
     return coherence
 
 
-def check(pair: GunwPair) -> None:
+def check(pair: GunwPair, modes: dict) -> None:
     """Print region statistics and save the HH / coherence figure for one pair."""
     crop = load_crop(config.CROPS_DIR / f"{pair.reference_date}.npz")
     hh_db = reduce_speckle(to_decibels(crop.hh), config.SPECKLE_WINDOW)
@@ -45,7 +46,7 @@ def check(pair: GunwPair) -> None:
     regions = {name: box_mask(crop.grid, box) for name, box in config.CHECK_REGIONS.items()}
 
     label = f"{pair.reference_date} to {pair.secondary_date}"
-    print(f"\n{label}  (HH from {pair.reference_date})")
+    print(f"\n{label}  [{modes[pair.reference_date]} -> {modes[pair.secondary_date]}]  (HH from {pair.reference_date})")
     print(f"  {'region':<14}{'HH median dB':>14}{'coherence median':>18}{'coherence 25-75%':>18}{'pixels':>9}")
     for name, region in regions.items():
         inside = region & np.isfinite(hh_db) & np.isfinite(coherence)
@@ -59,15 +60,20 @@ def check(pair: GunwPair) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("dates", nargs="+", help="first date (YYYY-MM-DD) of each pair in data/gunw_pairs.csv")
+    parser.add_argument("dates", nargs="+", help="first date (YYYY-MM-DD) of each pair in data/gunw_pairs.csv, or 'all'")
     args = parser.parse_args()
 
     pairs = {p.reference_date: p for p in load_gunw_pairs()}
-    for date in args.dates:
+    modes = {g.date: g.mode for g in load_granules()}
+    wanted = list(pairs) if args.dates == ["all"] else args.dates
+    for date in wanted:
         if date not in pairs:
             print(f"[{date}] no 12-day pair starts on this date, skipping")
             continue
-        check(pairs[date])
+        try:
+            check(pairs[date], modes)
+        except Exception as error:  # keep going with the other pairs
+            print(f"[{date}] FAILED: {error}", file=sys.stderr)
 
 
 if __name__ == "__main__":

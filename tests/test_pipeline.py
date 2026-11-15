@@ -85,9 +85,35 @@ def test_gunw_mask_decoding():
     assert valid_samples(mask).tolist() == [True, True, False, False, False, False]
 
 
+def test_date_coherence_takes_higher_pair(tmp_path=Path("/tmp")):
+    from sambhar.coherence import coherence_for_date, pair_file
+    from sambhar.granules import GunwPair
+    before = GunwPair("2026-05-11", "2026-05-23", "local")
+    after = GunwPair("2026-05-23", "2026-06-04", "local")
+    np.savez(pair_file(before, tmp_path), coherence=np.array([0.2, np.nan, 0.6]))
+    np.savez(pair_file(after, tmp_path), coherence=np.array([0.5, 0.1, np.nan]))
+
+    coherence, n_pairs = coherence_for_date("2026-05-23", [before, after], tmp_path)
+    assert n_pairs == 2
+    assert coherence.tolist() == [0.5, 0.1, 0.6]       # higher value; one pair where the other is missing
+    assert coherence_for_date("2026-05-11", [before, after], tmp_path)[1] == 1
+    assert coherence_for_date("2026-07-10", [before, after], tmp_path) == (None, 0)
+
+
+def test_dark_stable_surface_is_not_detected():
+    from sambhar.water import classify_dark_unstable
+    hh_db = np.array([-25.0, -25.0, -10.0, -25.0])
+    coherence = np.array([0.1, 0.7, 0.1, np.nan])        # water, dry crust, bright land, no coherence
+    detected, valid = classify_dark_unstable(hh_db, coherence, threshold_db=-18.0, coherence_threshold=0.3)
+    assert detected.tolist() == [True, False, False, False]
+    assert valid.tolist() == [True, True, True, False]
+
+
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
     test_lake_area_is_recovered()
     test_frequency_uses_valid_observations()
     test_gunw_mask_decoding()
+    test_date_coherence_takes_higher_pair()
+    test_dark_stable_surface_is_not_detected()
     print("All tests passed.")

@@ -9,6 +9,7 @@ RESULTS_DIR = ROOT / "outputs" / "results"
 
 GRANULES_CSV = DATA_DIR / "granules.csv"   # list of NISAR files (date, mode, release, url)
 PANS_GEOJSON = DATA_DIR / "pans.geojson"   # salt-pan polygons drawn by hand (lon/lat)
+LAKE_GEOJSON = DATA_DIR / "lake.geojson"   # outline of Sambhar Lake drawn by hand (lon/lat)
 GUNW_PAIRS_CSV = DATA_DIR / "gunw_pairs.csv"   # 12-day interferogram pairs (reference, secondary, url)
 COHERENCE_DIR = ROOT / "outputs" / "coherence"
 
@@ -36,6 +37,17 @@ CHECK_REGIONS = {
     "farmland": (74.92, 26.83, 74.98, 26.87),
 }
 
-# Water threshold for HH backscatter in dB: pixels darker than this are "water".
-# Placeholder value: choose it from Sambhar evidence (histogram + Sentinel-2), then record why here.
+# Classification rule (PROVISIONAL, 15 Nov 2026, until checked against Sentinel-2):
+#   a pixel is a "dark unstable surface" when  HH < WATER_THRESHOLD_DB  AND  coherence < COHERENCE_THRESHOLD.
+# Why (scripts/check_coherence.py; medians of CHECK_REGIONS, HH dB / 12-day coherence):
+#   central lake bed  -23.4 / 0.19 (May pair)   -21.9 / 0.23 (Aug pair)
+#   farmland          -15.5 / 0.59 (May pair)   -12.4 / 0.51 (Aug pair)
+# - HH alone fails: dry-season farmland darkens. At -18 dB, 273 km2 of the study box is dark on
+#   11 May (172 km2 on 15 Aug), and 129 km2 of the May dark area has coherence >= 0.3 (mostly land).
+# - HH must stay loose: wind-roughened monsoon water is brighter (only 23 km2 below -22 dB on 15 Aug).
+# - Coherence 0.3 lies between the lake (25-75%: 0.15-0.29) and farmland (0.41-0.69) in both seasons.
+# - Low lake coherence is not just noise: the noise floor is about -26.8 dB, so a stable surface
+#   at -23 dB could still reach coherence of about 0.5-0.8.
 WATER_THRESHOLD_DB = -18.0
+COHERENCE_THRESHOLD = 0.3
+CLASS_NAME = "dark unstable surface (water or wet brine)"   # until Sentinel-2 confirms it is water

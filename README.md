@@ -19,7 +19,7 @@ The lake changes most during the monsoon, when clouds often block optical satell
 | NISAR GCOV (NASA/ASF) | L-band HH and HV backscatter, descending track 34, frame 75, 24 dates (Nov 2025 – Nov 2026) | Main measurements |
 | NISAR GUNW (NASA/ASF) | 12-day interferometric coherence, same track and frame, 19 pairs | Telling water apart from smooth salt crust |
 | Sentinel-2 (ESA) | Cloud-free optical images | Independent validation |
-| Hand-drawn polygons | Salt-pan boundaries, `data/pans.geojson` | Inside/outside comparison |
+| Hand-drawn polygons | Salt-pan boundaries, `data/pans.geojson`; lake outline, `data/lake.geojson` | Inside/outside comparison; areas within the lake only |
 
 `data/granules.csv` lists every NISAR file used. Two radar modes alternate (`DHDH` dual-pol, `QPDH` quad-pol); both contain HH and HV. One date (7 Nov 2026) comes from the later validated release and is analysed separately.
 
@@ -30,8 +30,8 @@ GCOV values are gamma-zero backscatter in linear power, terrain-corrected (RTC),
 ## Method
 
 1. **Crop**: stream only the Sambhar area from each NISAR file and resample every date onto one fixed 20 m grid (`scripts/crop_lake.py`).
-2. **Classify**: convert to decibels, lightly reduce speckle, and label pixels darker than an HH threshold as water. Calm water reflects the radar pulse away from the satellite, so it appears dark.
-3. **Measure**: water area per date, inside and outside mapped pans, and the **water-detection frequency** of each pixel (detections ÷ valid observations) (`scripts/map_water.py`).
+2. **Classify**: convert to decibels, lightly reduce speckle, and keep pixels that are both **dark** (HH below a threshold) and **unstable** (12-day coherence below a threshold). Calm water reflects the radar pulse away from the satellite, so it appears dark; but smooth salt crust and dry fields can be dark too. Water changes between passes, so its coherence is low, while crust and fields stay coherent. Until Sentinel-2 confirms it, the class is called *dark unstable surface (water or wet brine)*. Thresholds and the evidence for them are in `sambhar/config.py`. Each date uses the higher coherence of the 12-day pairs before and after it (a pixel must be unstable in both); `coherence_pairs` in the results says whether 1 or 2 pairs were available. Dates with no pair are left out.
+3. **Measure**: area per date, inside and outside mapped pans and inside the lake outline, and the **water-detection frequency** of each pixel (detections ÷ valid observations) (`scripts/map_water.py`). The HH-only result is kept alongside to show how much dark but stable surface coherence removes.
 4. **Validate**: compare against labelled Sentinel-2 points, reporting water vs salt crust separately. *(in progress)*
 
 ## Repository layout
@@ -67,8 +67,9 @@ python tests/test_pipeline.py                        # check everything works of
 python scripts/crop_lake.py 2026-05-11 --show-structure
 python scripts/crop_lake.py all
 python scripts/check_coherence.py 2026-05-11 2026-08-15   # dry season and monsoon pairs
+python scripts/check_coherence.py all                     # coherence for every 12-day pair
 python scripts/map_water.py --suggest-threshold      # look, then choose a threshold
-python scripts/map_water.py --threshold -18
+python scripts/map_water.py --mode DHDH              # HH + coherence rule, and HH-only for comparison
 ```
 
 A free [NASA Earthdata](https://urs.earthdata.nasa.gov) account is needed to stream NISAR data.

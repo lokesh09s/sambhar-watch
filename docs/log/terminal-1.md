@@ -33,3 +33,18 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
   - Correction to an earlier statement: at the step-3 checkpoint I said the dark May lake bed was "very likely wet or smooth crust". Coherence does not support that; it looks unstable like water/brine. Sentinel-2 still needed.
   - Tests: 3/3 pass.
 - Next: apply the provisional combined rule (HH < -18 dB AND coherence < 0.3), per-date coherence from adjacent pairs, process all 19 pairs after the bulk crop, mixed-mode check, lake-outline areas.
+
+### 18:24 IST - Combined rule (HH + coherence) in map_water.py; bulk coherence started
+- What:
+  - sambhar/config.py: WATER_THRESHOLD_DB = -18, COHERENCE_THRESHOLD = 0.3, CLASS_NAME = "dark unstable surface (water or wet brine)", with the evidence in a comment; LAKE_GEOJSON = data/lake.geojson.
+  - sambhar/coherence.py: pair_file(), coherence_for_date() (pixel-wise HIGHER of the adjacent 12-day pairs via np.fmax, so one missing pair falls back to the other).
+  - sambhar/water.py: classify_dark_unstable(). sambhar/plots.py: rule_comparison() (HH-only vs combined area chart).
+  - scripts/map_water.py: applies the combined rule; keeps HH-only result on the same valid pixels; new columns coherence_threshold, coherence_pairs, water_in_lake_*, hh_only_water_*; overlays_hh_only/; rule_comparison.png; map_info.json gains coherence_threshold and class_name. Dates with no pair are left out.
+  - scripts/check_coherence.py: accepts `all`, prints radar modes of each pair, keeps going after a failure.
+  - tests/test_pipeline.py: 2 new tests (higher-pair coherence, dark-but-stable not detected). 5/5 pass.
+  - README: method, data table (lake outline), run commands.
+  - Background: coherence for all 19 pairs, each started once its first date is cropped (outputs/coherence_all.log).
+- Why: team decisions at 18:19 (see decisions log). Kept the existing water_area.csv column names (water_km2, water_inside_mapped_pans_km2, ...) and folder names because web/app.js, scripts/export_web.py and scripts/make_demo_data.py (other terminals) already read them; only added columns. Did not rename pans.pans_mask because make_demo_data.py imports it.
+- Result: smoke test on the 3 DHDH dates cropped so far: 2025-11-12 left out (no 12-day pair); 2026-05-11 HH only 272.9 -> combined 144.3 km2; 2026-08-15 171.8 -> 110.6 km2 (1 pair each so far), matching the 18:16 hand calculation.
+  - Found: scripts/make_demo_data.py (not mine) averages the two adjacent pairs; the team decision is the higher of the two. Reported to the user, not changed.
+- Next: wait for bulk crop (~6/24 done at 18:23) and coherence; run map_water.py --mode DHDH on everything; mixed-mode coherence check.

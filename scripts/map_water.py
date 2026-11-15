@@ -1,20 +1,33 @@
-"""Step 2: water maps, water area per date, and water-detection frequency.
+"""Step 2: maps of dark unstable surface (water or wet brine), area per date, and detection frequency.
 
-Reads outputs/crops/*.npz (from crop_lake.py) and writes to outputs/results/:
-    water_area.csv     water area per date: total, inside mapped pans, outside mapped pans
-    frequency.png      how often each pixel was detected as water, and how many valid observations
-    overlays/<date>.png transparent water layers for the web map
-    map_info.json      map bounds and dates, used by the web app
+Rule (provisional, see config.py): a pixel is detected when HH is darker than
+the threshold AND its 12-day coherence is low (the surface changed between passes).
+The HH-only result is kept next to it, to show how much dark but stable surface
+(dry crust, dry fields) coherence removes.
+
+Reads outputs/crops/*.npz (crop_lake.py) and outputs/coherence/*.npz
+(check_coherence.py) and writes to outputs/results/:
+    water_area.csv        area per date (km2) with the combined rule (water_*) and HH only (hh_only_water_*):
+                          whole study box, inside / outside mapped pans, and inside the lake outline
+                          (data/lake.geojson) when it exists. coherence_pairs = 1 or 2 pairs used.
+    rule_comparison.png   HH-only vs combined area per date
+    frequency.png         detection frequency (detections / valid observations) and observation count
+    overlays/<date>.png           combined-rule layers for the web map
+    overlays_hh_only/<date>.png   HH-only layers, for comparison
+    map_info.json         map bounds, dates, thresholds and class name, used by the web app
+
+Dates with no 12-day coherence pair cannot use the rule and are left out.
 
 Examples
-    python scripts/map_water.py                         # uses WATER_THRESHOLD_DB from config.py
-    python scripts/map_water.py --threshold -17.5
+    python scripts/map_water.py                         # thresholds from config.py
+    python scripts/map_water.py --threshold -17.5 --coherence-threshold 0.35
     python scripts/map_water.py --suggest-threshold     # print Otsu suggestions per date, then stop
     python scripts/map_water.py --mode DHDH             # only dual-pol dates
 """
 import argparse
 import csv
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -23,11 +36,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # make `sambhar
 import numpy as np
 
 from sambhar import config
+from sambhar.coherence import coherence_for_date
+from sambhar.granules import load_gunw_pairs
 from sambhar.pans import pans_mask
-from sambhar.plots import frequency_map, water_overlay
+from sambhar.plots import frequency_map, rule_comparison, water_overlay
 from sambhar.storage import load_all_crops
-from sambhar.water import (classify_water, detection_frequency, otsu_threshold,
-                           reduce_speckle, to_decibels)
+from sambhar.water import (classify_dark_unstable, classify_water, detection_frequency,
+                           otsu_threshold, reduce_speckle, to_decibels)
 
 
 def select_crops(mode: str | None, include_validated: bool):
@@ -41,10 +56,40 @@ def select_crops(mode: str | None, include_validated: bool):
     return crops
 
 
+def region_masks(grid) -> dict:
+    """Pixel maps of the areas reported, keyed by column-name suffix (None = outline not drawn yet)."""
+    in_pans = (pans_mask(config.PANS_GEOJSON, grid) if config.PANS_GEOJSON.exists()
+               else np.zeros(grid.shape, dtype=bool))
+    if not in_pans.any():
+        print("Note: no data/pans.geojson found, so 'inside pans' areas will be zero.")
+    # pans_mask turns any hand-drawn polygons into a pixel mask, so it also reads the lake outline.
+    in_lake = pans_mask(config.LAKE_GEOJSON, grid) if config.LAKE_GEOJSON.exists() else None
+    if in_lake is None:
+        print("Note: no data/lake.geojson found, so 'in lake' areas are left blank.")
+
+    return {
+        "": np.ones(grid.shape, dtype=bool),
+        "_inside_mapped_pans": in_pans,
+        "_outside_mapped_pans": ~in_pans,
+        "_in_lake": in_lake,
+        "_in_lake_inside_mapped_pans": None if in_lake is None else in_lake & in_pans,
+        "_in_lake_outside_mapped_pans": None if in_lake is None else in_lake & ~in_pans,
+    }
+
+
+def areas(detected, regions: dict, pixel_area_km2: float, prefix: str) -> dict:
+    """Detected area (km2) in each region, as CSV columns. Blank where the outline is missing."""
+    return {f"{prefix}{suffix}_km2": None if region is None
+            else round(float((detected & region).sum()) * pixel_area_km2, 3)
+            for suffix, region in regions.items()}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--threshold", type=float, default=config.WATER_THRESHOLD_DB,
                         help="HH dB threshold (default from config.py)")
+    parser.add_argument("--coherence-threshold", type=float, default=config.COHERENCE_THRESHOLD,
+                        help="12-day coherence threshold (default from config.py)")
     parser.add_argument("--suggest-threshold", action="store_true",
                         help="print Otsu threshold suggestions per date and exit")
     parser.add_argument("--mode", choices=["DHDH", "QPDH"], help="use only one radar mode")
@@ -62,46 +107,61 @@ def main():
         print("Suggestions only: check against the histograms and Sentinel-2 before choosing.")
         return
 
-    in_pans = (pans_mask(config.PANS_GEOJSON, grid) if config.PANS_GEOJSON.exists()
-               else np.zeros(grid.shape, dtype=bool))
-    if not in_pans.any():
-        print("Note: no data/pans.geojson found, so 'inside pans' areas will be zero.")
-
+    regions = region_masks(grid)
+    pairs = load_gunw_pairs()
     out = config.RESULTS_DIR
-    (out / "overlays").mkdir(parents=True, exist_ok=True)
+    for folder in ("overlays", "overlays_hh_only"):
+        shutil.rmtree(out / folder, ignore_errors=True)   # drop dates from earlier runs
+        (out / folder).mkdir(parents=True)
 
-    rows, water_stack, valid_stack = [], [], []
+    rows, detected_stack, valid_stack = [], [], []
     for c in crops:
         if c.grid.shape != grid.shape or c.grid.epsg != grid.epsg:
             print(f"[{c.date}] different grid, skipping")
             continue
-        water, valid = classify_water(hh_db[c.date], args.threshold)
-        water_stack.append(water)
-        valid_stack.append(valid)
-        water_overlay(water, out / "overlays" / f"{c.date}.png")
+        coherence, n_pairs = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
+        if coherence is None:
+            print(f"[{c.date}] no 12-day coherence pair, left out")
+            continue
 
-        km2 = lambda mask: round(float(mask.sum()) * grid.pixel_area_km2, 3)
-        rows.append({
-            "date": c.date, "mode": c.mode, "release": c.release, "threshold_db": args.threshold,
-            "valid_area_km2": km2(valid),
-            "water_km2": km2(water),
-            "water_inside_mapped_pans_km2": km2(water & in_pans),
-            "water_outside_mapped_pans_km2": km2(water & ~in_pans),
-        })
-        print(f"[{c.date}] water {rows[-1]['water_km2']} km2")
+        detected, valid = classify_dark_unstable(hh_db[c.date], coherence, args.threshold,
+                                                 args.coherence_threshold)
+        hh_dark, _ = classify_water(hh_db[c.date], args.threshold)
+        hh_dark &= valid   # compare both rules on exactly the same pixels
+        detected_stack.append(detected)
+        valid_stack.append(valid)
+        water_overlay(detected, out / "overlays" / f"{c.date}.png")
+        water_overlay(hh_dark, out / "overlays_hh_only" / f"{c.date}.png")
+
+        row = {"date": c.date, "mode": c.mode, "release": c.release, "threshold_db": args.threshold,
+               "coherence_threshold": args.coherence_threshold, "coherence_pairs": n_pairs,
+               "valid_area_km2": round(float(valid.sum()) * grid.pixel_area_km2, 3)}
+        row.update(areas(detected, regions, grid.pixel_area_km2, "water"))
+        row.update(areas(hh_dark, regions, grid.pixel_area_km2, "hh_only_water"))
+        rows.append(row)
+        print(f"[{c.date}] HH only {row['hh_only_water_km2']} km2 -> HH + coherence {row['water_km2']} km2"
+              f" ({n_pairs} coherence pair{'s' if n_pairs > 1 else ''})")
+
+    if not rows:
+        raise SystemExit("No date has coherence. Run scripts/check_coherence.py all first.")
 
     with open(out / "water_area.csv", "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
 
-    frequency, n_valid = detection_frequency(np.array(water_stack), np.array(valid_stack))
+    scope, scope_label = ("_in_lake", "inside lake outline") if regions["_in_lake"] is not None else ("", "in study box")
+    rule_comparison([r["date"] for r in rows], [r[f"hh_only_water{scope}_km2"] for r in rows],
+                    [r[f"water{scope}_km2"] for r in rows], scope_label, out / "rule_comparison.png")
+
+    frequency, n_valid = detection_frequency(np.array(detected_stack), np.array(valid_stack))
     frequency_map(frequency, n_valid, out / "frequency.png")
     np.savez_compressed(out / "frequency.npz", frequency=frequency, n_valid=n_valid)
 
     with open(out / "map_info.json", "w") as f:
         json.dump({"bounds_latlon": grid.bounds_latlon(), "epsg": grid.epsg,
                    "resolution_m": grid.resolution_m, "threshold_db": args.threshold,
+                   "coherence_threshold": args.coherence_threshold, "class_name": config.CLASS_NAME,
                    "dates": [r["date"] for r in rows]}, f, indent=2)
 
     print(f"\nResults written to {out}")
