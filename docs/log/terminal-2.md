@@ -348,3 +348,14 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   HH only 18. hh_only_water_km2 >= water_km2 on all 12 dates, so the two lines really are ordered as bounds. I wrote "rough" bounds because
   brightness alone still misses 11% of water points (recall 89%), so it is not a strict upper bound.
   Dead end: the first index.html edit stopped on an indentation mismatch (6 spaces, not 8) in a no-op pair; nothing was written; redone. Screenshot checked.
+
+### 20:23 IST - Slide request reviewed (read only); nothing edited, nothing rebuilt
+- What: Read docs/slides/build_deck.py (Terminal 4's deck builder, last build 5f08413) for the items in the team's slide message.
+- Why: The message asks for slide changes and "don't rebuild yet". It still contains template brackets ([your team name], [names],
+  [Add any slide fixes you noticed.]), and the deck belongs to Terminal 4, so I did not edit it, to avoid two terminals editing the same file.
+- Result: Slide 1 still has [TEAM NAME] and [MEMBERS]. The optical-trap number (17 of 19) is on neither slide 3 nor slide 5. Slide 7 has no
+  "no forecast" line, and its "Early warning: flag when the lake dries fast" card could read as forecasting. Slide 5's "Checked on 177 Sentinel-2
+  points" is the in-lake water/dry count (203 labelled in total); fine if "inside the lake" is meant. Slide 6 says "Blue: water detected"; the site calls it
+  "dark unstable surface (water or wet brine)". The app screenshot (20:17) is newer than the last site change (20:11), so it is current.
+  [APP URL] and [REPO URL] wait for the push.
+- Next: wait for the user: real team name and members, and whether Terminal 2 or Terminal 4 should edit build_deck.py.
