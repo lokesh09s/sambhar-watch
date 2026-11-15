@@ -190,7 +190,7 @@ One strength: all dates come from the same track and frame (descending track 34,
 
 ## Use of AI
 
-AI assistants (Claude) were used to research the topic, check data availability, draft code and review our reasoning. All results were run, checked and interpreted by the team.
+AI assistants (Claude) were used to help us research the topic, check data availability, draft code and review our reasoning. All results were run, checked and interpreted by the team.
 
 ## License
 
