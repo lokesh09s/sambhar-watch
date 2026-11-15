@@ -57,7 +57,7 @@
       <p class="hint"><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface</span>
         &nbsp; <span class="swatch swatch-stable"></span>Removed by coherence check (dark but stable)</p>
       <table class="hero-table">
-        <caption>Detected area inside the lake outline (km&sup2;)</caption>
+        <caption>Detected area inside the lake outline (km&sup2;; range over threshold settings in brackets)</caption>
         <thead><tr><th scope="col">Rule</th><th scope="col" id="hero-col-before">August</th>
           <th scope="col" id="hero-col-after">October</th><th scope="col">Change</th></tr></thead>
         <tbody id="hero-table-body"></tbody>
@@ -146,30 +146,46 @@
         <span class="tag">Provisional</span></p>
       <ul>
         <li><strong>Brightness alone misses the change.</strong> Between 15 August and 14 October, radar brightness
-          alone barely changes (125 to 115 km&sup2; inside the lake outline), because dry, smooth salt crust is as dark as water.</li>
+          alone barely changes (about 125 to 115 km&sup2; inside the lake outline), because dry, smooth salt crust is as dark as water.</li>
         <li><strong>Coherence finds it.</strong> Crust stays the same between passes 12 days apart; water doesn't.
-          With coherence, the detected area falls from 91 to 56 km&sup2;.</li>
+          With coherence, the detected area falls from about 91 to about 56 km&sup2; (threshold ranges 51&ndash;110 and 34&ndash;72).</li>
         <li><strong>The drop holds under every threshold setting we tested.</strong> In all 12 settings, the detected
-          area falls from 15 August to 14 October, by 16.9&ndash;38.7 km&sup2;. Quad-pol dates in September and October
+          area falls from 15 August to 14 October, by about 17&ndash;39 km&sup2;. Quad-pol dates in September and October
           agree (56&ndash;60 km&sup2;).</li>
         <li><strong>Sentinel-2 confirms the drying.</strong> The basin goes from about 55&ndash;60% water in late August
           to about 55&ndash;60% white crust by 13 October; 10 October looks the same.</li>
-        <li><strong>Validation shows a trade-off.</strong> Against 203 points labelled on Sentinel-2 images (11 Jan, 11 May,
-          29 Aug), brightness alone over-counts: it calls 81% of salt-crust points water. Coherence under-counts: it misses
-          40% of water points, mostly in January. Which is closer depends on the lake's state. When crust spreads after the
-          monsoon (late August), coherence agrees better (73% vs 62% inside the lake); when the lake is full of calm winter
-          water (January), brightness does (86% vs 44%). Overall: 64% with coherence, 74% with brightness alone.
-          The drying season, where our headline sits, is exactly where coherence validated better.</li>
+        <li><strong>Validation shows a trade-off.</strong> 203 points were labelled blind on Sentinel-2 images (11 Jan,
+          11 May, 29 Aug); 177 of them are inside the lake and are water or non-water (table below). 76% of these were
+          water, so plain accuracy rewards over-counting: a model that always says &ldquo;water&rdquo; scores 76%.
+          Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water.
+          Brightness alone calls 81% of salt-crust points water; with coherence, 24%. Which is closer depends on the
+          lake's state: coherence agrees better when crust spreads after the monsoon (late August, 73% vs 62%),
+          brightness when the lake is full of calm winter water (January, 86% vs 44%). The drying season, where our
+          headline sits, is exactly where coherence validated better.</li>
         <li><strong>Together they bracket the truth.</strong> Brightness alone gives a rough upper bound and coherence a rough
           lower bound; the chart shows both.</li>
         <li><strong>The 11 May optical trap.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
           11 May but water on 6 and 16 May. Radar with coherence called 17 of the 19 white points water.</li>
       </ul>
+      <table class="hero-table">
+        <caption>Validation inside the lake: 177 points (134 water, 43 non-water = 37 salt crust + 6 land)</caption>
+        <thead><tr><th scope="col">Method</th><th scope="col">Water found</th><th scope="col">Non-water found</th>
+          <th scope="col">Balanced accuracy</th><th scope="col">Plain accuracy</th></tr></thead>
+        <tbody>
+          <tr><td>Always says &ldquo;water&rdquo; (baseline)</td><td>100%</td><td>0%</td><td>50.0%</td><td>75.7%</td></tr>
+          <tr><td>Brightness only (HH)</td><td>88.8% (119/134)</td><td>27.9% (12/43)</td><td>58.4%</td><td>74.0%</td></tr>
+          <tr class="strong"><td>HH + coherence</td><td>59.7% (80/134)</td><td>76.7% (33/43)</td><td>68.2%</td><td>63.8%</td></tr>
+        </tbody>
+      </table>
+      <p class="hint">Balanced accuracy is the average of &ldquo;water found&rdquo; and &ldquo;non-water found&rdquo;, so it is
+        not inflated by the many water points. An MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film
+        pixels; all labels were kept unchanged to avoid post-hoc bias.</p>
       <p><strong>Honest limits.</strong> Radar still overestimates in October (56 km&sup2; against about 30&ndash;40 km&sup2;
         of water seen in Sentinel-2, likely the reservoir and wet edges). Changes between April and August are within
         the uncertainty. Only April to October forms one consistent radar series. Radar misses a lot of winter water:
-        in January (quad-pol mode) it detects about 50&ndash;55% of the lake against about 85&ndash;90% water in Sentinel-2,
-        possibly because that mode reads brighter (not confirmed).</p>
+        in January (quad-pol mode) it detects about 50&ndash;55% of the lake against about 85&ndash;90% water in Sentinel-2.
+        Why is unresolved. Possible causes: calm, stable shallow water or thin brine films; stable features smaller
+        than a pixel (salt rafts, mud ridges); or coherence estimates biased upward where the radar signal is weak.</p>
       <div class="box">
         <h3>What this means <span class="tag">Provisional</span></h3>
         <ul>
@@ -203,7 +219,12 @@
         <li>Salt-pan boundaries were drawn by hand. &ldquo;Outside mapped pans&rdquo; may still include unmapped pans,
           channels or roads.</li>
         <li>These are surface observations only. They say nothing about whether any salt pan is legal.</li>
+        <li>Processing shortcuts: radar images are resampled to 20 m by nearest neighbour (no multilooking); the 3&times;3
+          smoothing is done in decibels, not in linear power; and GUNW coherence is estimated over a coarser window than the
+          10 m GCOV backscatter.</li>
       </ul>
+      <p><strong>Strength:</strong> every date comes from the same orbit track and viewing geometry, so the radar's
+        incidence angle is constant through the year.</p>
     </section>
 
     <section aria-labelledby="data-title">

@@ -103,7 +103,8 @@ li { margin: 4px 0; }
 .stack { position: relative; line-height: 0; }
 .stack img + img { position: absolute; inset: 0; }
 .stack img:first-child { filter: grayscale(1) brightness(0.75); }
-.hero-table { border-collapse: collapse; margin: 14px 0 0; font-variant-numeric: tabular-nums; }
+.hero-table { border-collapse: collapse; margin: 14px 0 0; font-variant-numeric: tabular-nums;
+  display: block; max-width: 100%; overflow-x: auto; }   /* wide tables scroll inside themselves on phones */
 .hero-table caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
 .hero-table th, .hero-table td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--line); text-align: right; }
 .hero-table th:first-child, .hero-table td:first-child { text-align: left; }
@@ -116,6 +117,8 @@ footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9r
   header h1 { font-size: 1.6rem; }
   #map { height: 55vh; }
   .chart-box { height: 260px; }
+  .hero-table { font-size: 0.82rem; }
+  .hero-table th, .hero-table td { padding-right: 8px; }
 }
 
 /* Leaflet draws an empty base-layer list and separator when there are only overlays. */

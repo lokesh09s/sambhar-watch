@@ -359,3 +359,21 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   "dark unstable surface (water or wet brine)". The app screenshot (20:17) is newer than the last site change (20:11), so it is current.
   [APP URL] and [REPO URL] wait for the push.
 - Next: wait for the user: real team name and members, and whether Terminal 2 or Terminal 4 should edit build_deck.py.
+
+### 20:36 IST - Reviewer wording updates on the website (no method change, no rerun)
+- What (web/index.html, web/app.js, web/style.css):
+  1. "What we found": validation bullet rewritten around balanced accuracy, plus a table (baseline / HH only / HH + coherence: water found,
+     non-water found, balanced, plain), with the team's explanation of why plain accuracy rewards over-counting.
+  2. Label-audit sentence under the table (MNDWI flagged 5 of 203; labels kept unchanged). Taken as given from the team; not re-checked here.
+  3. Hero note: the team's mixed-mode sentence (both dates use mixed-mode pairs; mode check found coherence consistent; QPDH Sep-Oct 56-60 km2 agree).
+     The condition is now "every" date has a mixed pair (it was "some"), so "Both dates" is only said when true. Areas are shown as "about"
+     with threshold ranges: hero table "about 91 (51-110) -> about 56 (34-72)"; paired drop "about 17-39 km2"; 11 May "about 103 km2"; "What we found" also uses "about".
+  4. January misses: the three hypotheses, marked unresolved (replaces "possibly because that mode reads brighter").
+  5. Limitations: processing shortcuts (20 m nearest neighbour, no multilooking; 3x3 smoothing in dB; GUNW coherence over a coarser window than 10 m GCOV);
+     strength: same track and geometry for all dates, so the incidence angle is constant.
+  Hero/validation tables scroll inside themselves on narrow screens.
+- Why: Reviewer-driven wording from the team.
+- Result: Every balanced-accuracy number recomputed from outputs/results/validation.csv (inside lake, water/salt_crust/land): n 177 = 134 + 43; baseline 75.7%;
+  HH only 88.8% (119/134), 27.9% (12/43), balanced 58.4%, plain 74.0%; HH + coherence 59.7% (80/134), 76.7% (33/43), 68.2%, 63.8%. All match the team's numbers.
+  Rendered DOM and screenshot checked. node --check OK.
+- Next: Terminal 4 rebuilds the deck with the URLs (validation slide leads with balanced accuracy). GitHub link on the site once the repo exists.

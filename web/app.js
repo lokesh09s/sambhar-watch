@@ -305,11 +305,13 @@ async function makeHero(demo) {
     document.getElementById("hero-col-" + side).textContent = shortDate(Date.parse(row.date));
   }
 
+  // withRange: also show the water_km2 threshold range, e.g. "91 (51–110)"
+  const cellText = (row, key, withRange) => "about " + Math.round(number(row, key)) + (withRange && hasRange(row)
+    ? " (" + Math.round(number(row, "water_km2_min")) + "–" + Math.round(number(row, "water_km2_max")) + ")" : "");
   const tableRow = (label, key, strong) => {
-    const a = number(before, key), b = number(after, key);
-    const change = Math.round(b) - Math.round(a);
-    return "<tr" + (strong ? ' class="strong"' : "") + "><td>" + label + "</td><td>" + Math.round(a) + "</td><td>" +
-      Math.round(b) + "</td><td>" + (change > 0 ? "+" : "") + change + "</td></tr>";
+    const change = Math.round(number(after, key)) - Math.round(number(before, key));
+    return "<tr" + (strong ? ' class="strong"' : "") + "><td>" + label + "</td><td>" + cellText(before, key, strong) +
+      "</td><td>" + cellText(after, key, strong) + "</td><td>" + (change > 0 ? "+" : "") + change + "</td></tr>";
   };
   document.getElementById("hero-table-body").innerHTML =
     tableRow("HH only (brightness)", "hh_only_water_km2", false) +
@@ -340,13 +342,13 @@ async function pairedComparison(before, after) {
   if (!drops.length) return "";
   const lower = drops.filter(d => d > 0);
   const name = date => new Date(Date.parse(date)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
-  const mixedPairs = [before, after].some(r => (r.pair_modes || "").split("-").some(m => m !== r.mode));
+  const mixedPairs = [before, after].every(r => (r.pair_modes || "").split("-").some(m => m !== r.mode));
   return "At the same threshold settings, " + name(after.date) + " is lower than " + name(before.date) + " in " +
     (lower.length === drops.length ? "all " : "") + lower.length + " of " + drops.length + " combinations" +
-    (lower.length ? " (drop of " + Math.min(...lower).toFixed(1) + "–" + Math.max(...lower).toFixed(1) + " km²)." : ".") +
+    (lower.length ? " (drop of about " + Math.round(Math.min(...lower)) + "–" + Math.round(Math.max(...lower)) + " km²)." : ".") +
     (before.mode === after.mode && mixedPairs
-      ? " Both dates' HH comes from the same radar mode; only their coherence pairs mix modes, and coherence agreed" +
-        " between modes in our check."
+      ? " Both dates use mixed-mode coherence pairs, so they're treated alike; our mode check found coherence consistent" +
+        " between modes; separate QPDH dates in Sep–Oct (56–60 km²) agree with the October value."
       : "");
 }
 
@@ -415,7 +417,7 @@ function mayResult() {
   const r = rows[i];
   const around = [rows[i - 1], rows[i + 1]].filter(Boolean)
     .map(n => Math.round(number(n, "water_km2")) + " km² on " + shortDate(Date.parse(n.date)));
-  return Math.round(number(r, "water_km2")) + " km² of " + className + " inside the lake outline" +
+  return "about " + Math.round(number(r, "water_km2")) + " km² of " + className + " inside the lake outline" +
     (hasRange(r) ? " (range " + Math.round(number(r, "water_km2_min")) + "–" + Math.round(number(r, "water_km2_max")) + ")" : "") +
     (around.length ? ", similar to the radar dates before and after (" + around.join(" and ") + ")" : "");
 }
