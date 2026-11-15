@@ -258,3 +258,22 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   relative paths (data/...), so it works under the /<repo>/ subpath that Pages uses. node --check not needed (no JS change).
   "What we found" was already written from (D) at 4fb79ed; this step only brings it in line with Terminal 4's later edit.
 - Next: after the first push, set Settings -> Pages -> Source: GitHub Actions; add the GitHub link; fill the validation placeholders.
+
+### 19:54 IST - validate.py: all label files in one run, per date and zone, 4 labels, both rules
+- What: Rewrote scripts/validate.py. It takes files or folders (e.g. validation_data/labels/, files labels_<date>_<name>.csv, columns id, lon, lat, date, label).
+  Labels: water, white_uncertain, salt_crust, land (case-insensitive); empty labels are skipped and counted. Each label date goes to the nearest CROPPED
+  NISAR date (not only map_info dates, because 01-11 and 08-27 are QPDH and not in the DHDH results). T and C come from map_info.json; coherence comes from
+  coherence_for_date (forward, else backward pair). Each point is placed inside the lake outline or in the buffer. Outputs: validation.csv (per point,
+  with labeller, mode, pair, zone, HH, coherence, both results), validation_summary.csv (date x zone x rule counts), validation_summary.txt (table + confusion matrices).
+  Accuracy / precision / recall: water vs dry (salt_crust + land); white_uncertain is reported on its own (how often called water).
+  data/validation_points_TEMPLATE.csv updated (id column, white_uncertain, an empty-label example).
+- Why: Team request: labelled files from several people will arrive in validation_data/labels/.
+- Result:
+  - Found a bug first: sambhar.coherence.coherence_for_date now returns 3 values (coherence, pair, direction), so the old validate.py
+    ("coherence, _ = ...") would have crashed on real data. Fixed in the rewrite.
+  - Test with 4 tiny fake label files (scratchpad only, never in validation_data/labels/) on REAL crops and coherence, with a scratch copy of map_info.json:
+    dates matched 01-11 -> 01-11 (QPDH, pair 01-11 to 01-23 forward), 05-11 -> 05-11 (DHDH), 08-29 -> 08-27 (QPDH, 2 days); 12-25 -> skipped (too far);
+    2 empty labels counted; "Land" accepted. Fake crust point in the lake on 05-11: HH -20.94 dB, coherence 0.398 -> HH only "water", HH + coherence "not water".
+    An independent check recomputed every point's two results from its HH and coherence: all agree.
+- Next: when the labels arrive: python scripts/validate.py validation_data/labels/ (writes to outputs/results/). Open question: if two people label the
+  SAME points, both count; the labeller column in validation.csv lets us compare or drop duplicates.

@@ -1,4 +1,6 @@
-lon,lat,label,date,note
-75.080,26.950,water,2026-05-12,example row: open water in the lake centre
-75.185,26.955,salt_crust,2026-05-12,example row: white dry crust inside a pan
-74.950,27.050,land,2026-05-12,example row: farmland north of the lake
+id,lon,lat,date,label
+1,75.080,26.950,2026-05-11,water
+2,75.050,26.920,2026-05-11,salt_crust
+3,75.000,26.950,2026-05-11,white_uncertain
+4,74.950,27.050,2026-05-11,land
+5,75.100,26.960,2026-05-11,
