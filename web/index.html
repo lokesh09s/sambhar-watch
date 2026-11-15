@@ -24,6 +24,47 @@
     </p>
     <p id="load-error" class="banner" hidden></p>
 
+    <section aria-labelledby="hero-title" id="hero" hidden>
+      <h2 id="hero-title">After the monsoon: August vs October</h2>
+      <p class="headline">After the monsoon, salt crust spread across the lake. Brightness alone missed it;
+        coherence caught it. <span class="tag">Provisional</span></p>
+      <div class="hero-grid">
+        <figure>
+          <img id="hero-optical-before" alt="Sentinel-2 true-colour image, August">
+          <figcaption id="hero-optical-before-text"></figcaption>
+        </figure>
+        <figure>
+          <img id="hero-optical-after" alt="Sentinel-2 true-colour image, October">
+          <figcaption id="hero-optical-after-text"></figcaption>
+        </figure>
+        <figure>
+          <div class="stack">
+            <img id="hero-radar-before-base" alt="">
+            <img id="hero-radar-before-removed" class="pixelated" alt="">
+            <img id="hero-radar-before-detected" class="pixelated" alt="NISAR radar result, August">
+          </div>
+          <figcaption id="hero-radar-before-text"></figcaption>
+        </figure>
+        <figure>
+          <div class="stack">
+            <img id="hero-radar-after-base" alt="">
+            <img id="hero-radar-after-removed" class="pixelated" alt="">
+            <img id="hero-radar-after-detected" class="pixelated" alt="NISAR radar result, October">
+          </div>
+          <figcaption id="hero-radar-after-text"></figcaption>
+        </figure>
+      </div>
+      <p class="hint"><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface</span>
+        &nbsp; <span class="swatch swatch-stable"></span>Removed by coherence check (dark but stable)</p>
+      <table class="hero-table">
+        <caption>Detected area inside the lake outline (km&sup2;)</caption>
+        <thead><tr><th scope="col">Rule</th><th scope="col" id="hero-col-before">August</th>
+          <th scope="col" id="hero-col-after">October</th><th scope="col">Change</th></tr></thead>
+        <tbody id="hero-table-body"></tbody>
+      </table>
+      <p class="hint" id="hero-note"></p>
+    </section>
+
     <section aria-labelledby="map-title">
       <h2 id="map-title">Map</h2>
       <div class="date-control">
@@ -57,8 +98,8 @@
     </section>
 
     <section aria-labelledby="optical-title" id="optical-section" hidden>
-      <h2 id="optical-title">Optical vs radar</h2>
-      <p>Drag the slider. Left: a Sentinel-2 satellite photo. Right: what NISAR radar detected on the nearest
+      <h2 id="optical-title">More examples: optical vs radar</h2>
+      <p>A second example is 11 May, when the optical image and the radar disagree most. Drag the slider. Left: a Sentinel-2 satellite photo. Right: what NISAR radar detected on the nearest
         radar date, drawn on the same area.</p>
       <div class="optical-tabs" id="optical-tabs" role="group" aria-label="Sentinel-2 image date"></div>
       <div class="swipe" id="swipe">

@@ -12,6 +12,12 @@ const MODE_NAMES = { DHDH: "dual-pol DHDH", QPDH: "quad-pol QPDH" };
 // Dates whose change holds up across threshold choices, with the reason shown on the page.
 // Source: Terminal 1 sensitivity check, 19:20 IST (docs/log/terminal-1.md): 14 Oct is the lowest
 // date in 10 of 12 threshold pairs. Its coherence pair is mixed-mode (QPDH to DHDH).
+// The headline comparison at the top: optical and radar dates for "before" and "after".
+const HERO = {
+  before: { optical: "2026-08-29", radar: "2026-08-15" },
+  after: { optical: "2026-10-13", radar: "2026-10-14" },
+};
+
 const ROBUST_DATES = {
   "2026-10-14": "the lowest date for 10 of 12 threshold choices (coherence from a QPDH-to-DHDH pair; provisional)",
 };
@@ -49,6 +55,7 @@ async function main() {
     document.getElementById("legend-lake").hidden = !lake;
     makeMap(info, lookup, pans, lake, hasComparison);
     makeChart(info.area_scope);
+    await makeHero(info.demo);
     await makeOptical(info.demo);
     makeSlider();
     showDate(0);
@@ -256,9 +263,12 @@ function robustText(row) {
 
 /** "Range 26.5-27.9 km² with other thresholds", or "" when the CSV has no range. */
 function rangeText(row) {
-  if (!hasRange(row)) return "";
-  return "Range " + number(row, "water_km2_min").toFixed(1) + "–" + number(row, "water_km2_max").toFixed(1) +
-    " km² with other thresholds";
+  return hasRange(row) ? "Range " + rangeKm2(row) + " with other thresholds" : "";
+}
+
+/** "51.0–110.5 km²" from water_km2_min / water_km2_max. */
+function rangeKm2(row) {
+  return number(row, "water_km2_min").toFixed(1) + "–" + number(row, "water_km2_max").toFixed(1) + " km²";
 }
 
 function capitalise(text) {
@@ -267,6 +277,51 @@ function capitalise(text) {
 
 function shortDate(ms) {
   return new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+// ---------- hero: August vs October ----------
+
+/** Fill the August vs October comparison, if both radar dates and both optical images are available. */
+async function makeHero(demo) {
+  const before = rows.find(r => r.date === HERO.before.radar);
+  const after = rows.find(r => r.date === HERO.after.radar);
+  const imagesThere = await fileExists("optical/" + HERO.before.optical + ".jpg") &&
+    await fileExists("optical/" + HERO.after.optical + ".jpg");
+  if (!before || !after || !imagesThere) return;
+  document.getElementById("hero").hidden = false;
+
+  for (const [side, row] of [["before", before], ["after", after]]) {
+    const optical = DATA + "optical/" + HERO[side].optical + ".jpg";
+    document.getElementById("hero-optical-" + side).src = optical;
+    document.getElementById("hero-radar-" + side + "-base").src = optical;
+    document.getElementById("hero-radar-" + side + "-removed").src = DATA + "comparison/" + row.date + ".png";
+    document.getElementById("hero-radar-" + side + "-detected").src = DATA + "overlays/" + row.date + ".png";
+    document.getElementById("hero-optical-" + side + "-text").textContent =
+      "Sentinel-2 optical, " + shortDate(Date.parse(HERO[side].optical));
+    document.getElementById("hero-radar-" + side + "-text").textContent =
+      "NISAR radar, " + shortDate(Date.parse(row.date)) + (demo ? " (DEMO data)" : " (provisional)");
+    document.getElementById("hero-col-" + side).textContent = shortDate(Date.parse(row.date));
+  }
+
+  const tableRow = (label, key, strong) => {
+    const a = number(before, key), b = number(after, key);
+    const change = Math.round(b) - Math.round(a);
+    return "<tr" + (strong ? ' class="strong"' : "") + "><td>" + label + "</td><td>" + Math.round(a) + "</td><td>" +
+      Math.round(b) + "</td><td>" + (change > 0 ? "+" : "") + change + "</td></tr>";
+  };
+  document.getElementById("hero-table-body").innerHTML =
+    tableRow("HH only (brightness)", "hh_only_water_km2", false) +
+    tableRow("HH + coherence", "water_km2", true);
+
+  const days = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86400000;
+  document.getElementById("hero-note").textContent =
+    "Radar dates are the nearest DHDH dates: the August optical image is " + days(HERO.before.optical, before.date) +
+    " days after its radar date, the October one " + days(HERO.after.optical, after.date) + " day before. " +
+    (hasRange(before) && hasRange(after)
+      ? "With other reasonable thresholds, HH + coherence gives " + rangeKm2(before) + " in August and " +
+        rangeKm2(after) + " in October. "
+      : "") +
+    (demo ? "Radar values are DEMO data." : "Results are provisional.");
 }
 
 // ---------- optical vs radar ----------

@@ -199,3 +199,18 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   rank test (lowest in 10/12 threshold pairs), not separate bands; the note on the page says this.
 - Next: the team fills in the 11 May headline result and "What we found". The header still says "through one year" while the main series is
   Apr-Oct: the team may want to reword it. Replace the GitHub link TODO.
+
+### 19:35 IST - Hero section: August vs October (optical and radar), with area table
+- What: Ran export_web.py again: the new validation_data/sentinel2/2026-10-13_truecolour.png now pairs with radar 2026-10-14 (1 day apart).
+  web/: new first section "After the monsoon: August vs October": 2 x 2 grid (Sentinel-2 29 Aug and 13 Oct on top; NISAR 15 Aug and 14 Oct below,
+  blue = class_name, orange = removed by the coherence check, on a grey copy of the optical image). The team caption is tagged Provisional.
+  Table built from water_area.csv (hh_only_water_km2, water_km2), not typed in. A note gives the optical-radar day gaps and the HH + coherence threshold ranges.
+  HERO constant in app.js holds the 4 dates. The 11 May swipe section is renamed "More examples: optical vs radar".
+  Small cleanup: rangeKm2() helper shared by rangeText() and the hero note.
+- Why: Team request: the strongest result first, for judges.
+- Result: Table from real data: HH only 125 -> 115 (-10); HH + coherence 91 -> 56 (-35) km2 inside the lake outline (exact: 125.28 -> 115.37; 91.35 -> 55.72),
+  matching the team's numbers. Optical check: 29 Aug lake mostly green water; 13 Oct mostly white crust. Radar 14 Oct: orange ring of dark-but-stable
+  surface around the remaining water, which supports the caption.
+  Caveat shown on the page: the HH + coherence ranges overlap (Aug 51.0-110.5, Oct 34.1-71.8 km2). The August optical image is 14 days after its radar date.
+  Screenshot checked; node --check OK.
+- Next: the team fills in the 11 May headline result and "What we found"; GitHub link TODO.

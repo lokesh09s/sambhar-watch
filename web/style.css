@@ -95,6 +95,20 @@ li { margin: 4px 0; }
 .box { border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 4px 16px; margin-top: 16px; }
 .box h3 { font-size: 1.05rem; margin: 10px 0 0; }
 
+/* Hero: August vs October, optical on top, radar below. */
+.hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hero-grid figure { margin: 0; }
+.hero-grid img { width: 100%; height: auto; display: block; border-radius: 3px; }
+.hero-grid figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+.stack { position: relative; line-height: 0; }
+.stack img + img { position: absolute; inset: 0; }
+.stack img:first-child { filter: grayscale(1) brightness(0.75); }
+.hero-table { border-collapse: collapse; margin: 14px 0 0; font-variant-numeric: tabular-nums; }
+.hero-table caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+.hero-table th, .hero-table td { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--line); text-align: right; }
+.hero-table th:first-child, .hero-table td:first-child { text-align: left; }
+.hero-table tr.strong td { font-weight: 700; color: var(--accent); }
+
 footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; padding: 18px 0 28px; margin-top: 48px; }
 
 @media (max-width: 600px) {

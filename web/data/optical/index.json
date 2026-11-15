@@ -23,5 +23,10 @@
   "s2_date": "2026-08-29",
   "nisar_date": null,
   "days_apart": null
+ },
+ {
+  "s2_date": "2026-10-13",
+  "nisar_date": "2026-10-14",
+  "days_apart": 1
  }
 ]
