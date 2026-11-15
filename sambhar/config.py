@@ -68,6 +68,7 @@ MODE_CHECK_PAIRS = [
     ("2026-04-05", "2026-04-17"),   # same mode (DHDH), 12 days
     ("2026-04-05", "2026-04-29"),   # same mode (DHDH), 24 days
     ("2026-08-27", "2026-09-08"),   # same mode (QPDH), 12 days
+    ("2026-09-20", "2026-10-02"),   # same mode (QPDH), 12 days: post-monsoon yardstick for 10-02 -> 10-14
 ]
 # "Stable ground": coherence at least this in every 12-day pair touching either date.
 STABLE_COHERENCE = 0.7

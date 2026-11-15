@@ -51,15 +51,16 @@ def compare_dates(date_a: str, date_b: str, pairs, modes: dict) -> None:
     for pol in ("hh", "hv"):
         db_a = reduce_speckle(to_decibels(getattr(a, pol)), config.SPECKLE_WINDOW)
         db_b = reduce_speckle(to_decibels(getattr(b, pol)), config.SPECKLE_WINDOW)
-        difference = (db_b - db_a)[stable & np.isfinite(db_a) & np.isfinite(db_b)]
-        q25, q50, q75 = np.percentile(difference, [25, 50, 75])
-        changes.append(f"{q50:+6.2f} ({q25:+.1f} to {q75:+.1f})")
+        both = stable & np.isfinite(db_a) & np.isfinite(db_b)
+        q25, q50, q75 = np.percentile((db_b - db_a)[both], [25, 50, 75])
+        changes.append(f"{np.median(db_a[both]):.1f} -> {np.median(db_b[both]):.1f}"
+                       f"  change {q50:+5.2f} ({q25:+.1f} to {q75:+.1f})")
 
     days = (Date.fromisoformat(date_b) - Date.fromisoformat(date_a)).days
     kind = "MIXED" if modes[date_a] != modes[date_b] else "same "
     print(f"  {date_a} -> {date_b}  {kind} {modes[date_a]}->{modes[date_b]} {days:>3} d"
           f"  stable {stable.sum() * a.grid.pixel_area_km2:6.1f} km2 ({len(used)} pairs)"
-          f"  HH {changes[0]}  HV {changes[1]}")
+          f"\n      HH {changes[0]}\n      HV {changes[1]}")
 
 
 def farmland_coherence(pairs, modes: dict, grid) -> None:
@@ -78,8 +79,8 @@ def main():
     pairs = load_gunw_pairs()
     modes = {g.date: g.mode for g in load_granules()}
 
-    print(f"Change from first to second date on stable ground (coherence >= {config.STABLE_COHERENCE}),"
-          " dB: median (25% to 75%)")
+    print(f"Median dB on stable ground (coherence >= {config.STABLE_COHERENCE}) on each date,"
+          " and the per-pixel change: median (25% to 75%)")
     for date_a, date_b in config.MODE_CHECK_PAIRS:
         if not all((config.CROPS_DIR / f"{d}.npz").exists() for d in (date_a, date_b)):
             print(f"  {date_a} -> {date_b}: not cropped yet, skipped")

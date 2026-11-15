@@ -104,3 +104,37 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
   - Note: 07-10 (forward) and 07-22 (backward) use the same pair, so their coherence is identical; only their HH differs.
   - In-lake areas (chosen [range]): 07-22 115.6 [76.9-126.3]; 10-14 55.7 [34.1-71.8], about half of every other DHDH date and based on a mixed-mode pair, so it waits for the mode check.
 - Next: finish the mode check once 08-27->09-08 and 09-08->09-20 are cropped.
+
+### 19:12 IST - Speeding up the last crops and pairs (parallel workers)
+- What: measured the bottleneck: worker CPU 0-4% while en0 received ~4.2 MB/s across 2 streaming processes => network/latency-bound per connection, not CPU. Remaining: crops 08-27 (bulk run was ~2 min into it), 09-08, 11-07; pairs 08-27->09-08, 09-08->09-20 (09-20->10-02 finished in the earlier parallel job).
+  - Stopped the sequential coherence loop (bkrnli6ab; it was only waiting, nothing lost) so it could not take the same pairs as the new workers.
+  - Worker 1 (outputs/worker1.log): waits for the bulk run to save 08-27, then kills the bulk run (before it can save anything for 09-08) and runs check_coherence.py 2026-08-27.
+  - Worker 2 (outputs/worker2.log): crop_lake.py 2026-09-08, then check_coherence.py 2026-09-08.
+  - Worker 3 (outputs/worker3.log): crop_lake.py 2026-11-07.
+  - Explicit date lists only (no 'all'), at most 4 streaming processes at once. No code changes.
+- Why: user request to speed up; 'all' would have collided with explicit workers on 09-08 and 11-07.
+- Result: pending.
+- Next: mode check on all mixed pairs once 08-27/09-08 are in.
+
+### 19:13 IST - FAILURE: my worker 1 truncated the 08-27 crop; re-cropping
+- What: worker 1 waited for outputs/crops/2026-08-27.npz to exist and then killed the bulk run. np.savez_compressed creates the file when it STARTS writing, so the kill landed mid-save: 08-27.npz was a 436-byte truncated zip ("File is not a zip file"); worker 1's coherence step then failed on it. Deleted the file and started worker 1b (outputs/worker1b.log): crop_lake.py 2026-08-27, then check_coherence.py 2026-08-27.
+- Why it matters: crop_lake.py skips dates whose .npz exists, so a truncated file would have been skipped silently on every later run. Should have waited for the "[date] saved" log line, which is printed after the save.
+- Risk noted (code not changed, per instruction): any crop interrupted mid-save leaves a file that later runs skip. Before the final run, every crop is test-loaded.
+- Result: bulk run ended (exit 143 = killed, as intended). Lost ~3 min for 08-27.
+
+### 19:20 IST - All crops and pairs done; mode check complete; final DHDH run
+- What: workers 1b/2/3 finished at 19:18 with no errors: 24/24 crops, 19/19 coherence pairs; every .npz test-loaded OK. config MODE_CHECK_PAIRS gained 09-20 -> 10-02 (same-mode QPDH, post-monsoon yardstick for 10-02 -> 10-14); check_modes.py now also prints each date's median dB on the stable pixels. Ran check_modes.py, map_water.py --mode DHDH, sensitivity.py --mode DHDH and --mode QPDH.
+- Why: team decision: the mode check decides between a full-year series and DHDH only.
+- Result, mode check (stable ground = coherence >= 0.7; median dB per date, per-pixel change):
+  - same mode (5 date pairs): HH change -0.41, -0.72, -0.30, +0.14, -0.10 dB => |change| 0.10-0.72 dB.
+  - MIXED: 03-12 -> 04-05 QP->DH HH -11.8 -> -12.3 (-0.43); 08-15 -> 08-27 DH->QP -10.8 -> -9.9 (+0.89); 10-02 -> 10-14 QP->DH -11.1 -> -12.6 (-1.39).
+  - All three mixed changes have the sign expected if QPDH HH is brighter than DHDH (mean ~0.9 dB), in three different seasons; two of three exceed the largest same-mode change. => Modes DISAGREE in HH (likely offset ~0.4-1.4 dB, QPDH brighter). HV signs inconsistent (not used).
+  - Coherence: farmland coherence of mixed pairs 0.51 (08-15 -> 08-27) and 0.47 (10-02 -> 10-14) is inside the range of neighbouring same-mode pairs (0.39-0.55) => mixed-mode COHERENCE looks fine.
+  - Consequence (team rule): DHDH dates are the main series (12 dates, 2026-04-05 .. 2026-10-14); QPDH dates (Jan-Mar, 08-27 .. 10-02) shown separately. DHDH dates 08-15 and 10-14 keep their mixed-mode coherence pairs (HH comes from the DHDH date itself).
+- Result, final DHDH in-lake areas (HH+coherence, km2, chosen [min-max]; HH-only in brackets after):
+  04-05 101.6 [45.8-118.1] (119.6); 04-17 110.3 [83.5-121.0] (132.7); 04-29 106.3 [77.3-117.1] (126.7); 05-11 102.9 [84.5-112.7] (131.8); 05-23 107.8 [84.5-119.1] (130.3); 06-04 110.4 [82.6-122.2] (129.3); 06-16 88.0 [38.6-111.0] (103.9); 06-28 104.7 [78.9-117.4] (130.4); 07-10 109.9 [64.7-124.2] (122.0); 07-22 115.6 [76.9-126.3] (129.0); 08-15 91.4 [51.0-110.5] (125.3); 10-14 55.7 [34.1-71.8] (115.4).
+  - Coherence removes 12-60 km2 per date inside the lake (largest on 10-14: 115.4 -> 55.7).
+  - 10-14 is the lowest date in 10 of 12 threshold pairs (30-40 km2 below the next at T=-17/-18). Without 10-14, the Apr-Aug spread is 16-58 km2 and the order of dates changes with the thresholds.
+  - Threshold range on one date: median 39.7, max 72.4 km2. Between dates (incl. 10-14): 50-61 km2.
+  - QPDH separately (km2, chosen [range]): Jan-Mar 71.9-83.9; 08-27 73.0; 09-08 55.9; 09-20 60.3; 10-02 58.1. Sep-Oct QPDH are also low, like 10-14 DHDH.
+- Next: report; method freeze at 20:00.
