@@ -149,27 +149,32 @@
           alone barely changes (125 to 115 km&sup2; inside the lake outline), because dry, smooth salt crust is as dark as water.</li>
         <li><strong>Coherence finds it.</strong> Crust stays the same between passes 12 days apart; water doesn't.
           With coherence, the detected area falls from 91 to 56 km&sup2;.</li>
-        <li><strong>The low holds across settings.</strong> 14 October is the lowest radar date in 10 of 12 threshold
-          settings. Quad-pol dates in September and October agree (56&ndash;60 km&sup2;).</li>
+        <li><strong>The drop holds under every threshold setting we tested.</strong> In all 12 settings, the detected
+          area falls from 15 August to 14 October, by 16.9&ndash;38.7 km&sup2;. Quad-pol dates in September and October
+          agree (56&ndash;60 km&sup2;).</li>
         <li><strong>Sentinel-2 confirms the drying.</strong> The basin goes from about 55&ndash;60% water in late August
           to about 55&ndash;60% white crust by 13 October; 10 October looks the same.</li>
-        <li><strong>Validation points:</strong> <span class="placeholder">[validation results to be added]</span></li>
+        <li><strong>Validation points:</strong> <span class="placeholder">[VALIDATION ACCURACY %]</span> overall agreement
+          from <span class="placeholder">[N POINTS]</span> points; <span class="placeholder">[WATER POINTS CORRECT %]</span>
+          of water points and <span class="placeholder">[CRUST POINTS CORRECT %]</span> of salt-crust points correct.</li>
       </ul>
       <p><strong>Honest limits.</strong> Radar still overestimates in October (56 km&sup2; against about 30&ndash;40 km&sup2;
         of water seen in Sentinel-2, likely the reservoir and wet edges). Changes between April and August are within
-        the uncertainty. Only April to October forms one consistent radar series.</p>
+        the uncertainty. Only April to October forms one consistent radar series. Radar misses a lot of winter water:
+        in January (quad-pol mode) it detects about 50&ndash;55% of the lake against about 85&ndash;90% water in Sentinel-2,
+        possibly because that mode reads brighter (not confirmed).</p>
       <p><strong>Also worth knowing.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
         11 May, but water on 6 and 16 May (see the examples below the chart).</p>
       <div class="box">
         <h3>What this means <span class="tag">Provisional</span></h3>
         <ul>
-          <li><strong>Compare like with like.</strong> Use one radar mode for trends; the two NISAR modes are not yet
-            confirmed to agree.</li>
-          <li><strong>Always show the uncertainty band.</strong> Reasonable threshold choices change the area by more
-            than some seasonal differences.</li>
-          <li><strong>In the dry season, combine radar with optical images.</strong> Dry fields and dry crust can look
-            like water to radar; a cloud-free Sentinel-2 image settles it.</li>
-          <li><strong>Watch the southern margin.</strong> Wet salt crust there can fool radar into seeing water.</li>
+          <li><strong>Use coherence, not brightness alone.</strong> At Sambhar, brightness alone can confuse dry salt
+            crust with water.</li>
+          <li><strong>Always show the uncertainty.</strong> Small changes can come from threshold choices, not from the lake.</li>
+          <li><strong>Don't mix NISAR radar modes for brightness without checking.</strong> Coherence is more consistent
+            between modes.</li>
+          <li><strong>In the dry season, use radar and optical together.</strong> Optical images can show a white film on
+            water; the two together are safer than either alone.</li>
         </ul>
       </div>
     </section>

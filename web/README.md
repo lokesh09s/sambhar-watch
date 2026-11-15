@@ -92,13 +92,9 @@ Then open http://localhost:8000.
 
 ## Publish on GitHub Pages
 
-GitHub Pages can serve a branch only from the repository root or from `docs/`, not
-from `web/`. Either:
-
-- **Settings → Pages → Source: GitHub Actions**, and use the "Static HTML" workflow
-  with `path: web`; or
-- copy the folder before pushing: `rm -rf docs && cp -r web docs`, then
-  **Settings → Pages → Deploy from branch → /docs**.
+`.github/workflows/pages.yml` (GitHub's "Static HTML" workflow) publishes the `web/` folder on
+every push to `main`. After the first push: **Settings → Pages → Source: GitHub Actions**.
+It can also be started by hand from the Actions tab ("Run workflow").
 
 Before publishing, replace the placeholder GitHub link in the "Data and code" section
 of `index.html` (marked `TODO`), and fill in "What we found".

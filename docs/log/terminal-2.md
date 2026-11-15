@@ -243,3 +243,18 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   in our check. Radar dates are the nearest DHDH dates: the August optical image is 14 days after its radar date, the October one 1 day before.
   Results are provisional." node --check OK.
 - Next: GitHub link once the repo exists; validation numbers.
+
+### 19:50 IST - "What we found" synced with the final story; new "What this means" points; GitHub Pages workflow
+- What:
+  - web/index.html "What we found": synced with docs/project_page.md (D) as of 8bdc5d5. The settings bullet is now "The drop holds under every threshold
+    setting we tested" (all 12, drop 16.9-38.7 km2); the January underestimate is added to the honest limits; the validation line has
+    Terminal 4's four placeholders ([VALIDATION ACCURACY %], [N POINTS], [WATER POINTS CORRECT %], [CRUST POINTS CORRECT %]).
+  - "What this means" box: replaced with the team's 4 points (use coherence, not brightness alone; always show uncertainty; don't mix modes for
+    brightness without checking, coherence is more consistent; dry season: radar and optical together, optical can show a white film on water).
+  - New .github/workflows/pages.yml: GitHub's Static HTML workflow (checkout@v4, configure-pages@v5, upload-pages-artifact@v3 with path "web",
+    deploy-pages@v4), triggered on push to main and by hand. web/README.md publish section updated. Not pushed (no remote exists).
+- Why: Team request while the points are being labelled.
+- Result: The YAML parses (Ruby YAML; the upload step has path "web"). Current branch is main, so the first push to main deploys. The site uses only
+  relative paths (data/...), so it works under the /<repo>/ subpath that Pages uses. node --check not needed (no JS change).
+  "What we found" was already written from (D) at 4fb79ed; this step only brings it in line with Terminal 4's later edit.
+- Next: after the first push, set Settings -> Pages -> Source: GitHub Actions; add the GitHub link; fill the validation placeholders.
