@@ -127,9 +127,9 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 ### Tools and languages
 
 - **Python:** earthaccess (NASA Earthdata access), h5py (reading NISAR HDF5), NumPy, pyproj, fsspec/aiohttp (remote streaming), Matplotlib (figures), pytest (tests)
-- **Web app:** [APP STACK, e.g. HTML/JavaScript + Leaflet]
+- **Web app:** plain HTML, CSS and JavaScript with Leaflet (map) and Chart.js (chart); no build step
 - **geojson.io:** drawing the lake and salt-pan outlines
-- Code: [REPO URL] · App: [APP URL]
+- Code: https://github.com/lokesh09s/sambhar-watch · App: https://lokesh09s.github.io/sambhar-watch
 
 ---
 

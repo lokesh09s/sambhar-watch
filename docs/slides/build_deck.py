@@ -330,7 +330,7 @@ text(s, cx, ky, cwid, 1.25,
       [("Grey squares: ", {"bold": True, "color": MUTED}), ("quad-pol dates, not comparable", {})]], size=18)
 text(s, cx, ky + 1.6, cwid, 1.1,
      ["Drag the slider: see each radar date",
-      [("[APP URL]", {"bold": True, "color": TEAL})]], size=18, space_after=6)
+      [("lokesh09s.github.io/sambhar-watch", {"bold": True, "color": TEAL})]], size=18, space_after=6)
 credit(s, f"Screenshot of our web app (map imagery © Esri, Maxar, Earthstar Geographics). Radar: {CREDIT_NISAR}.")
 notes(s, "This is the user experience. Who would use it: wetland managers, researchers, bird-watch groups.")
 
@@ -370,7 +370,7 @@ text(s, 0.6, 6.55, 12.1, 0.45,
      [[("Next: ", {"bold": True}),
        ("grows with NISAR's record · combine with optical data · ground truth from the wetland authority", {})]],
      size=16)
-credit(s, "Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Copernicus Sentinel-2")
+credit(s, "Thank you · github.com/lokesh09s/sambhar-watch · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Copernicus Sentinel-2")
 notes(s, "Everything on this slide is a proposed use, not something already running. The three drivers are a "
          "hypothesis, not proven: monsoon inflow, evaporation after the rains, and the salt works pumping brine "
          "into the mapped pans. We did not see a clear monsoon rise in radar water area. Limitation: the lake outline "

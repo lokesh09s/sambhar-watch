@@ -4,6 +4,8 @@
 
 Built for the NASA Space Apps Challenge 2026, challenge *Dancing with the SARs*.
 
+**Live app:** https://lokesh09s.github.io/sambhar-watch/ · **Slides:** [docs/slides/Sambhar_Watch.pdf](docs/slides/Sambhar_Watch.pdf) · **Team:** Lokesh Chaudhary, Bhagya Modi
+
 ## The question
 
 Sambhar Salt Lake, about 70 km west of Jaipur, is India's largest inland saline lake and a Ramsar wetland. Industrial salt pans operate inside and around it. A 2026 study by NRSC-ISRO and VIT-AP found that natural water area fell from 131 km² (2022) to 117 km² (2023) while salt-pan area grew from 49.5 to 51.5 km². The authors note the need to distinguish industrial salt pans from natural wetland area.

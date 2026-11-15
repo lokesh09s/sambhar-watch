@@ -139,7 +139,7 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 - Pick a date → see where water was detected
 - Every area shown with its range
 - Salt pans outlined
-- [APP URL]
+- https://lokesh09s.github.io/sambhar-watch
 
 **Visual:** app screenshot with a date being picked [IMAGE: app screenshot]
 
@@ -156,4 +156,4 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 - Combined with optical data
 - Ground truth from the wetland authority
 
-**Footer:** Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Sentinel-2
+**Footer:** Thank you · https://github.com/lokesh09s/sambhar-watch · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Sentinel-2
