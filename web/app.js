@@ -228,6 +228,11 @@ function makeChart(areaScope) {
   datasets.push(line("Inside " + pansLabel, "water_inside_mapped_pans_km2", ACCENT, []));
   datasets.push(line("Outside " + pansLabel, "water_outside_mapped_pans_km2", "#8a959b", [6, 4]));
 
+  Chart.defaults.animation = false;   // draw the chart in its final state straight away
+  if (window.innerWidth < 600) {      // phone: smaller text and legend marks, so the plot keeps its room
+    Chart.defaults.font.size = 10;
+    Chart.defaults.plugins.legend.labels.boxWidth = 16;
+  }
   chart = new Chart(byId("area-chart"), {
     type: "line",
     data: { datasets },

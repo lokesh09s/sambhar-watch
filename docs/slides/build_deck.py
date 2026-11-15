@@ -309,7 +309,7 @@ notes(s, "76% of validation points were water, so plain accuracy rewards over-co
 s = prs.slides.add_slide(BLANK)
 title(s, "The app: pick a date, see the water", label="The app")
 # The app's own legend is too small for a projector, so crop it off and restate it at 18 pt.
-app = Image.open(Path(__file__).resolve().parent / "assets/app_map.jpg").crop((0, 0, 928, 575))
+app = Image.open(Path(__file__).resolve().parent / "assets/app_map.jpg")
 aw = 6.2
 picture(s, app, 0.6, 1.4, w=aw)
 BLUE, ORANGE, GOLD = RGBColor(0x1F, 0x77, 0xB4), RGBColor(0xE0, 0x8A, 0x10), RGBColor(0xC9, 0x9A, 0x06)

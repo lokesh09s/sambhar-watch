@@ -287,3 +287,12 @@ footer a { color: inherit; }
   .button { padding: 12px 20px; }
   .chart-box { padding: 8px; }
 }
+
+/* Phone fixes after checking at 390 px: lake fills the map, chart has room under its legend, result table fits. */
+@media (max-width: 600px) {
+  .app #map { height: 300px; }
+  .app .chart-box { height: 400px; }
+  main > section > .hero-table { display: table; width: 100%; font-size: 0.78rem; }
+  .hero-table th, .hero-table td { white-space: normal; padding: 7px 6px 7px 0; }
+  .hero-table caption { font-size: 0.85rem; }
+}
