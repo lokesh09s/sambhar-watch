@@ -98,3 +98,18 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   Real C in config.py is COHERENCE_THRESHOLD = 0.3 (the demo uses 0.35). They added sambhar.coherence.coherence_for_date.
 - Next: once their map_water.py is committed, make_demo_data.py can call it directly and drop its own apply_coherence_rule (the "shortcut").
   Not done yet: their code is still changing.
+
+### 18:28 IST - Demo now uses the real map_water.py coherence rule; site uses class_name and rule_comparison.png
+- What:
+  - scripts/make_demo_data.py: removed my own copy of the rule (apply_coherence_rule, coherence_for_date, demo C = 0.35). It now makes fake crops
+    and fake coherence (saved with sambhar.coherence.pair_file), then calls the real map_water.main() once, with thresholds from config.py.
+  - scripts/export_web.py: copies rule_comparison.png when present (and removes a stale copy).
+  - web/: the label comes from map_info.json class_name (falls back to "water" for old HH-only results). Used in the layer name, legend,
+    chart title and axis, popup and hint. Added a link to rule_comparison.png under the chart. web/README.md table updated.
+- Why: Terminal 1 said the team rule takes the HIGHER coherence of the two pairs (unstable in both), while my demo averaged them.
+  map_water.py now applies the rule itself (commit bc5809b) and writes class_name, overlays_hh_only/ and rule_comparison.png.
+- Result: Demo through the real map_water.py: 22 dates (2025-11-12 has no pair and is left out), C = 0.3. Mar-Jun HH only about 144 km2
+  versus HH + coherence 48-86 km2; other months 0.3-1.7 km2 lower than HH only (the max rule with noisy fake coherence leaves small specks).
+  water_in_lake_* columns are blank (no data/lake.geojson); the page ignores them. Screenshot checked: class_name everywhere, hollow
+  1-pair points, rule figure link. node --check OK; pytest tests: 5 passed in 1.49s.
+- Next: update validate.py to the HH + coherence rule (it still tests HH only). Run export_web.py on real outputs/results when ready.

@@ -6,6 +6,7 @@ const ACCENT = "#0f5c6e";
 let current = 0;   // index of the date shown on the map
 let rows = [];     // rows of water_area.csv
 let waterLayer, comparisonLayer, chart;
+let className = "water";   // replaced by map_info.json class_name
 
 async function main() {
   try {
@@ -15,6 +16,12 @@ async function main() {
     const pans = await getJSON("pans.geojson").catch(() => null);   // optional
 
     const hasComparison = await fileExists("comparison/" + rows[0].date + ".png");
+
+    // Name of what is mapped, from map_info.json; older HH-only results have none and mean water.
+    className = info.class_name || "water";
+    document.querySelectorAll(".class-name").forEach(el => { el.textContent = className; });
+    document.querySelectorAll(".class-name-cap").forEach(el => { el.textContent = capitalise(className); });
+    document.getElementById("rule-figure").hidden = !(await fileExists("rule_comparison.png"));
 
     document.getElementById("demo-banner").hidden = !info.demo;
     document.getElementById("legend-stable").hidden = !hasComparison;
@@ -77,7 +84,7 @@ function makeMap(info, lookup, pans, hasComparison) {
   waterLayer = L.imageOverlay(overlayUrl(0), bounds, { className: "pixelated" }).addTo(map);
   const frequencyLayer = L.imageOverlay(DATA + "frequency_overlay.png", bounds, { className: "pixelated" });
 
-  const layers = { "Dark unstable surface (water or wet brine)": waterLayer };
+  const layers = { [capitalise(className)]: waterLayer };
   if (hasComparison) {
     // Orange: dark in HH alone, removed by the coherence rule. Never overlaps the blue layer.
     comparisonLayer = L.imageOverlay(comparisonUrl(0), bounds, { className: "pixelated" }).addTo(map);
@@ -125,7 +132,7 @@ function describeSpot(latlng, bounds, lookup) {
 
   if (n === 0 || pct < 0) return "No valid radar observations here.";
   return "<strong>Detection frequency: " + pct + "%</strong><br>" +
-    "Dark unstable surface on about " + Math.round(pct * n / 100) + " of " + n + " valid observations.";
+    capitalise(className) + " on about " + Math.round(pct * n / 100) + " of " + n + " valid observations.";
 }
 
 // ---------- chart ----------
@@ -157,7 +164,7 @@ function makeChart() {
       interaction: { mode: "index", intersect: false },
       scales: {
         x: { type: "linear", ticks: { callback: value => shortDate(value), maxTicksLimit: 8 } },
-        y: { beginAtZero: true, title: { display: true, text: "Dark unstable surface (km²)" } },
+        y: { beginAtZero: true, title: { display: true, text: capitalise(className) + " (km²)" } },
       },
       plugins: {
         tooltip: {
@@ -173,6 +180,10 @@ function makeChart() {
       },
     },
   });
+}
+
+function capitalise(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function shortDate(ms) {

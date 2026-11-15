@@ -38,10 +38,14 @@ The page works with the plain HH-only results too; these extras switch on the co
 | `overlays_hh_only/<date>.png` | HH < T only, same PNG format, same dates | orange "Dark but stable" comparison layer (`export_web.py` makes `comparison/<date>.png` = HH-only minus final) |
 | `water_area.csv` column `coherence_pairs` | number of 12-day pairs used for that date (1 or 2) | dates with 1 pair: hollow chart points and a note by the slider |
 | `map_info.json` key `coherence_threshold` | the value of C | shown in the explainer next to T (`threshold_db`) |
+| `map_info.json` key `class_name` | what is mapped, e.g. "dark unstable surface (water or wet brine)" | layer name, legend, chart title and axis, popups (falls back to "water") |
+| `rule_comparison.png` | HH only vs HH + coherence area per date | linked under the chart |
 
-`make_demo_data.py` writes exactly this format. On demo data, a date with two pairs uses the
-mean of both coherence maps, and a date with no pair (2025-11-12) is left out. The real
-pipeline may choose differently; the website does not depend on that choice.
+`water_area.csv` columns stay `water_*`. Other columns (`hh_only_water_*`, `water_in_lake_*`, blank until
+`data/lake.geojson` exists) are ignored by the page, so blanks are harmless.
+
+`make_demo_data.py` makes fake crops and fake coherence, then runs the real `map_water.py`,
+so the demo uses exactly the team's rule (higher coherence of the two pairs; dates with no pair left out).
 
 ## Demo data (FAKE)
 

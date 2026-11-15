@@ -9,15 +9,14 @@ with tests/test_pipeline.py's make_fake_gcov, then painted with:
     - a ring of wet salt crust after the lake retreats (dark and unstable, like water)
     - smooth dry crust on the exposed lake bed in Mar-Jun (dark like water, but stable)
     - one date with the eastern part missing, so valid-observation counts differ
-Each file then goes through the real pipeline: crop_lake.py --local, then map_water.py
-(HH only). Fake 12-day coherence is then made for each pair in data/gunw_pairs.csv,
-and the provisional rule "HH < T AND coherence < C" is applied.
+Fake 12-day coherence is made for each pair in data/gunw_pairs.csv. Everything then goes
+through the real pipeline: crop_lake.py --local, then map_water.py (with its own rule,
+HH < T AND coherence < C, and thresholds from config.py).
 
 Output, in the format the website expects (see web/README.md):
     outputs/demo/crops/             cropped dates, from crop_lake.py
     outputs/demo/coherence/         fake coherence per pair, same format as outputs/coherence/
-    outputs/demo/results/           overlays/ (HH + coherence), overlays_hh_only/ (from map_water.py),
-                                    water_area.csv (with coherence_pairs), frequency, map_info.json
+    outputs/demo/results/           everything map_water.py writes
 
 Everything is written to outputs/demo/ (never outputs/crops or outputs/results),
 so it cannot mix with real NISAR results.
@@ -25,7 +24,6 @@ so it cannot mix with real NISAR results.
 Run:   python scripts/make_demo_data.py
 Then:  python scripts/export_web.py --results outputs/demo/results --pans data/pans_example.geojson
 """
-import csv
 import json
 import shutil
 import sys
@@ -40,12 +38,11 @@ import numpy as np
 from pyproj import Transformer
 
 from sambhar import config
+from sambhar.coherence import pair_file
 from sambhar.granules import load_granules, load_gunw_pairs
 from sambhar.grid import Grid, make_grid
 from sambhar.pans import pans_mask
-from sambhar.plots import frequency_map, water_overlay
 from sambhar.storage import load_crop
-from sambhar.water import classify_water, detection_frequency, reduce_speckle, to_decibels
 from scripts import crop_lake, map_water
 from tests.test_pipeline import EPSG, make_fake_gcov
 
@@ -64,8 +61,6 @@ GAP_DATE = "2026-02-16"                 # this date "misses" the east of the sce
 WATER_POWER = 0.003         # about -25 dB, like calm water
 WET_CRUST_POWER = 0.012     # about -19 dB, just below the -18 dB threshold
 SMOOTH_CRUST_POWER = 0.008  # about -21 dB: HH alone calls it water
-
-DEMO_COHERENCE_THRESHOLD = 0.35   # demo value only; the real C is chosen by the processing terminal
 
 
 def lake_distance(x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -142,80 +137,7 @@ def make_fake_coherence(pair, rng) -> None:
     coherence = np.where(changing, rng.normal(0.15, 0.06, grid.shape), rng.normal(0.7, 0.1, grid.shape))
     coherence = np.clip(coherence, 0, 1).astype(np.float32)
     coherence[~(np.isfinite(first.hh) & np.isfinite(second.hh) & (first.hh > 0) & (second.hh > 0))] = np.nan
-    np.savez_compressed(config.COHERENCE_DIR / f"{pair.reference_date}_{pair.secondary_date}.npz",
-                        coherence=coherence)
-
-
-def coherence_for_date(date: str, pairs) -> tuple[np.ndarray | None, int]:
-    """Mean coherence of all 12-day pairs that include this date, and how many pairs there were.
-
-    Demo choice: with two pairs (before and after) the two are averaged.
-    """
-    files = [config.COHERENCE_DIR / f"{p.reference_date}_{p.secondary_date}.npz"
-             for p in pairs if date in (p.reference_date, p.secondary_date)]
-    if not files:
-        return None, 0
-    stack = np.array([np.load(f)["coherence"] for f in files])
-    n = np.isfinite(stack).sum(axis=0)
-    return np.where(n > 0, np.nansum(stack, axis=0) / np.maximum(n, 1), np.nan), len(files)
-
-
-def apply_coherence_rule(pairs) -> None:
-    """Re-make the results with the provisional rule: HH < T AND coherence < C.
-
-    map_water.py's HH-only overlays are kept in overlays_hh_only/ for the comparison layer.
-    Dates with no coherence pair cannot use the rule and are left out.
-    """
-    # shortcut: repeats map_water.py's loop because map_water.py has no coherence rule yet;
-    # call map_water.py instead once it does.
-    out = config.RESULTS_DIR
-    (out / "overlays").rename(out / "overlays_hh_only")
-    (out / "overlays").mkdir()
-    with open(out / "water_area.csv", newline="") as f:
-        hh_only_rows = list(csv.DictReader(f))
-
-    in_pans = None
-    rows, water_stack, valid_stack = [], [], []
-    for row in hh_only_rows:
-        coherence, n_pairs = coherence_for_date(row["date"], pairs)
-        if coherence is None:
-            print(f"[{row['date']}] no coherence pair, left out")
-            continue
-        crop = load_crop(config.CROPS_DIR / f"{row['date']}.npz")
-        if in_pans is None:
-            in_pans = pans_mask(config.PANS_GEOJSON, crop.grid)
-        hh_db = reduce_speckle(to_decibels(crop.hh), config.SPECKLE_WINDOW)
-        dark, valid = classify_water(hh_db, float(row["threshold_db"]))
-        valid &= np.isfinite(coherence)
-        water = dark & valid & (coherence < DEMO_COHERENCE_THRESHOLD)
-        water_stack.append(water)
-        valid_stack.append(valid)
-        water_overlay(water, out / "overlays" / f"{row['date']}.png")
-
-        km2 = lambda mask: round(float(mask.sum()) * crop.grid.pixel_area_km2, 3)
-        rows.append({**row, "valid_area_km2": km2(valid), "water_km2": km2(water),
-                     "water_inside_mapped_pans_km2": km2(water & in_pans),
-                     "water_outside_mapped_pans_km2": km2(water & ~in_pans),
-                     "coherence_pairs": n_pairs})
-        print(f"[{row['date']}] HH only {row['water_km2']} km2 -> HH + coherence {rows[-1]['water_km2']} km2"
-              f" ({n_pairs} pair{'s' if n_pairs > 1 else ''})")
-
-    with open(out / "water_area.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-    for old in (out / "overlays_hh_only").glob("*.png"):   # keep both overlay folders on the same dates
-        if not (out / "overlays" / old.name).exists():
-            old.unlink()
-
-    frequency, n_valid = detection_frequency(np.array(water_stack), np.array(valid_stack))
-    frequency_map(frequency, n_valid, out / "frequency.png")
-    np.savez_compressed(out / "frequency.npz", frequency=frequency, n_valid=n_valid)
-
-    info = json.loads((out / "map_info.json").read_text())
-    info["dates"] = [r["date"] for r in rows]
-    info["coherence_threshold"] = DEMO_COHERENCE_THRESHOLD
-    (out / "map_info.json").write_text(json.dumps(info, indent=2))
+    np.savez_compressed(pair_file(pair, config.COHERENCE_DIR), coherence=coherence)
 
 
 def mark_as_fake(map_info_path: Path) -> None:
@@ -251,14 +173,12 @@ def main():
             make_fake_date(fake_file, granule.date, distance, pans, rng)
             crop_lake.process(granule, str(fake_file), show_structure=False)  # same as --local
 
-    sys.argv = ["map_water.py"]   # HH only, default threshold from config.py
-    map_water.main()
-
-    pairs = load_gunw_pairs()
     config.COHERENCE_DIR.mkdir(parents=True)
-    for pair in pairs:
+    for pair in load_gunw_pairs():
         make_fake_coherence(pair, rng)
-    apply_coherence_rule(pairs)
+
+    sys.argv = ["map_water.py"]   # thresholds from config.py
+    map_water.main()
 
     mark_as_fake(config.RESULTS_DIR / "map_info.json")
     (DEMO_DIR / "README.txt").write_text(

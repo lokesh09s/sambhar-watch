@@ -33,19 +33,21 @@
       </div>
       <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
       <ul class="legend">
-        <li><span class="swatch swatch-water"></span>Dark unstable surface (water or wet brine) on the selected date</li>
+        <li><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> on the selected date</li>
         <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Dark but stable: dark in HH, removed by the coherence check (likely dry salt crust)</li>
         <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
         <li><span class="swatch swatch-pans"></span>Mapped salt pans (hand-drawn)</li>
       </ul>
-      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as a dark unstable surface.</p>
+      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as <span class="class-name">dark unstable surface (water or wet brine)</span>.</p>
     </section>
 
     <section aria-labelledby="chart-title">
-      <h2 id="chart-title">Dark unstable surface over time</h2>
+      <h2 id="chart-title"><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> over time</h2>
       <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
       <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.
         Hollow points mark dates with only one coherence pair, which are less certain.</p>
+      <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
+        (the gap is the dark but stable surface that coherence removes).</p>
     </section>
 
     <section aria-labelledby="how-title">

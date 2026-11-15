@@ -12,6 +12,8 @@
   "epsg": 32643,
   "resolution_m": 20.0,
   "threshold_db": -18.0,
+  "coherence_threshold": 0.3,
+  "class_name": "dark unstable surface (water or wet brine)",
   "dates": [
     "2026-01-11",
     "2026-01-23",
@@ -36,7 +38,6 @@
     "2026-10-02",
     "2026-10-14"
   ],
-  "coherence_threshold": 0.35,
   "demo": true,
   "note": "FAKE demo data made by scripts/make_demo_data.py. Not NISAR results."
 }

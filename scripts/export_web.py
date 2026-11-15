@@ -2,6 +2,7 @@
 
 Reads outputs/results/ (made by map_water.py) and writes to web/data/:
     water_area.csv, map_info.json, frequency.png, overlays/<date>.png   copied as they are
+    rule_comparison.png      copied if present (HH only vs HH + coherence, per date)
     frequency_overlay.png    water-detection frequency as a transparent map layer
     frequency_lookup.json    frequency and valid-observation count on a coarse grid, for map clicks
     comparison/<date>.png    pixels dark in HH but removed by the coherence rule
@@ -88,6 +89,9 @@ def main():
     WEB_DATA.mkdir(parents=True, exist_ok=True)
     for name in ["water_area.csv", "map_info.json", "frequency.png"]:
         shutil.copy(results / name, WEB_DATA / name)
+    (WEB_DATA / "rule_comparison.png").unlink(missing_ok=True)
+    if (results / "rule_comparison.png").exists():
+        shutil.copy(results / "rule_comparison.png", WEB_DATA / "rule_comparison.png")
 
     shutil.rmtree(WEB_DATA / "overlays", ignore_errors=True)   # drop dates from earlier exports
     shutil.copytree(results / "overlays", WEB_DATA / "overlays")
