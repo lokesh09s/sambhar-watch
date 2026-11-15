@@ -7,7 +7,7 @@
   <title>Sambhar Watch</title>
   <meta name="description" content="Surface water at Sambhar Salt Lake through a year of NASA-ISRO NISAR radar, inside and outside mapped salt pans.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <div id="progress" aria-hidden="true"></div>
@@ -153,8 +153,7 @@
         <div class="card"><h3>Optical water maps</h3><p>Maps such as JRC Global Surface Water can't see through monsoon clouds
           and can confuse white salt crust with water. The JRC record we used ends in 2021.</p></div>
         <div class="card"><h3>Radar flood tools</h3><p>They usually use brightness only. At a salt lake that fails: flat crust looks as
-          dark as water. With brightness alone, the post-monsoon drying is much smaller (about 10 km&sup2; vs 35 km&sup2;:
-          about 125 &rarr; 115 km&sup2;, against 91 &rarr; 56 km&sup2; with coherence).</p></div>
+          dark as water. With brightness alone, the estimated post-monsoon drop is much smaller (about 10 km&sup2; vs 35 km&sup2;).</p></div>
         <div class="card"><h3>Sambhar studies</h3><p>The published studies we found give yearly figures. We update every 12 days,
           through clouds.</p></div>
       </div>
@@ -186,8 +185,8 @@
           lake's state: coherence agrees better when crust spreads after the monsoon (late August, 73% vs 62%),
           brightness when the lake is full of calm winter water (January, 86% vs 44%). The drying season, where our
           headline sits, is exactly where coherence validated better.</li>
-        <li><strong>Two estimates, not limits.</strong> The chart shows both &ldquo;Brightness only&rdquo; and
-          &ldquo;Brightness + coherence&rdquo;. The methods give different estimates with different error trade-offs; they are not proven limits on the true area.</li>
+        <li>Brightness alone and brightness + coherence give different estimates; the chart shows both. Neither is a
+          proven limit on the true area.</li>
         <li><strong>The 11 May optical trap.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
           11 May but water on 6 and 16 May. Radar with coherence called 17 of the 19 white points water.</li>
       </ul>
@@ -251,7 +250,7 @@
       <div class="cards cards-4">
         <div class="card"><h3>Who</h3><p>Wetland managers, researchers and bird-watch groups.</p></div>
         <div class="card"><h3>Every 12 days</h3><p>Each new NISAR pass could update the map.</p></div>
-        <div class="card"><h3>Early warning</h3><p>Flag when the lake dries fast.</p></div>
+        <div class="card"><h3>Seasonal tracking</h3><p>See when and how fast the lake dries after the monsoon.</p></div>
         <div class="card"><h3>Free and open</h3><p>Free NASA data and open code; the same steps could run on other salt lakes.</p></div>
       </div>
       <p class="hint">These are proposed uses, not something already running.</p>
@@ -320,7 +319,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js?v=9"></script>
-  <script src="effects.js?v=9"></script>
+  <script src="app.js?v=10"></script>
+  <script src="effects.js?v=10"></script>
 </body>
 </html>
