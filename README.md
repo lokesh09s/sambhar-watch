@@ -85,6 +85,8 @@ All areas are inside the hand-drawn lake outline (152 km²). "Detected" means *d
 
 ![Area over time](docs/figures/area_over_time.png)
 
+*15 August vs 14 October:* with the same thresholds on both dates, 14 October is lower in all 12 threshold choices, by about 17–39 km². Both dates use mixed-mode coherence pairs (15 Aug: DHDH→QPDH; 14 Oct: QPDH→DHDH), so they are treated alike; our mode check found coherence consistent between modes; separate QPDH dates in September–early October (56–60 km²) agree with the October value.
+
 **Main series: 12 dual-pol (DHDH) dates, April–October 2026.** In brackets: the range over 12 threshold choices (HH −17 to −20 dB, coherence 0.25 to 0.35).
 
 | Date | Detected, km² (range) | Salt works and mapped pans | Outside mapped pans | HH only, km² | Removed by coherence | Coherence pair modes |
@@ -104,10 +106,10 @@ All areas are inside the hand-drawn lake outline (152 km²). "Detected" means *d
 
 What we found:
 
-1. **Coherence removes 12–60 km² per date** that brightness alone would call water: surfaces that are dark but did not change over 12 days, such as smooth dry crust. On 11 May, HH alone flags 131.8 km² of the lake; with coherence, 102.9 km².
+1. **Coherence removes 12–60 km² per date** that brightness alone would call water: surfaces that are dark but did not change over 12 days, such as smooth dry crust. On 11 May, HH alone flags about 132 km² of the lake; with coherence, about 103 km².
    ![11 May: brightness, coherence and result](docs/figures/comparison_2026-05-11.png)
-2. **April to August shows no clear seasonal pattern.** Detected area stays between 88 and 116 km², and which date is largest depends on the thresholds. On a single date the thresholds move the area by about 40 km² (median), more than the differences between these dates (`scripts/sensitivity.py`).
-3. **14 October is clearly lower** (55.7 km², range 34–72): it is the lowest date in 10 of the 12 threshold choices, 30–40 km² below the next date at −17/−18 dB. The quad-pol dates of September and early October are also low (56–60 km²). *Sentinel-2 check for October: [PLACEHOLDER].*
+2. **April to August shows no clear seasonal pattern.** Detected area stays between about 88 and 116 km², and which date is largest depends on the thresholds. On a single date the thresholds move the area by about 40 km² (median), more than the differences between these dates (`scripts/sensitivity.py`).
+3. **14 October is clearly lower** (about 56 km², range 34–72 over threshold choices): it is the lowest date in 10 of the 12 threshold choices, 30–40 km² below the next date at −17/−18 dB. The quad-pol dates of September and early October are also low (56–60 km²). *Sentinel-2 check for October: [PLACEHOLDER].*
 4. **The two radar modes cannot be mixed.** On stable ground, quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH): all three mode changes point the same way (−0.43, +0.89, −1.39 dB) while dates in the same mode differ by 0.1–0.7 dB. Coherence agrees across modes (farmland 0.47–0.51 vs 0.39–0.55). So only April–October is one series; January–March and late August–early October (QPDH) are shown separately as grey points (`scripts/check_modes.py`).
 5. **Sentinel-2, compared by eye** (not the validation below):
    - January: about 85–90% of the lake is water. Radar with coherence (QPDH, 11 and 23 Jan) detects only 50–53%. The validation below shows the misses come from the coherence step, not from brightness: HH alone finds 89% of the January water points.
@@ -120,7 +122,7 @@ What we found:
 
 ### Validation against labelled Sentinel-2 points
 
-The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 inside the lake) as water, salt crust, land, or white/uncertain (white in the optical image, can't tell). Each was compared with the nearest NISAR date (`scripts/validate.py`). Accuracy counts water against crust + land; white/uncertain points are reported on their own.
+The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 inside the lake) as water, salt crust, land, or white/uncertain (white in the optical image, can't tell). Each was compared with the nearest NISAR date (`scripts/validate.py`). Accuracy counts water against crust + land; white/uncertain points are reported on their own. An MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film pixels; all labels were kept unchanged to avoid post-hoc bias.
 
 **Inside the lake, all three dates:**
 
@@ -131,9 +133,13 @@ The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 i
 | Salt crust called water | **24%** (9/37) | **81%** (30/37) |
 | Land called water | 17% (1/6) | 17% (1/6) |
 | White/uncertain called water | 85% (17/20) | 95% (19/20) |
-| Overall accuracy | 64% (113/177) | 74% (131/177) |
+| Non-water (crust + land) correctly rejected | 76.7% (33/43) | 27.9% (12/43) |
+| **Balanced accuracy** (water and non-water weighted equally) | **68.2%** | **58.4%** |
+| Plain accuracy | 63.8% (113/177) | 74.0% (131/177) |
 
-**Per date, inside the lake** (accuracy; water recall; crust called water):
+76% of validation points were water (134 of 177), so plain accuracy rewards over-counting: a model that always says "water" scores 75.7% (balanced accuracy 50%). Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water.
+
+**Per date, inside the lake** (plain accuracy; water recall; crust called water; too few non-water points per date for balanced accuracy):
 
 | Sentinel-2 date → NISAR date (mode) | Brightness + coherence | Brightness only |
 |---|---|---|
@@ -143,7 +149,7 @@ The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 i
 
 **How to read this: the two methods bracket the true water area.**
 - **Brightness only is an upper bound.** It finds nearly all water (89%) but also calls most salt crust water (81%).
-- **Brightness + coherence is a lower bound.** When it says water it is right 89% of the time and it rejects most crust (only 24% called water), but it misses 40% of water points, mostly in January (it finds 42% of January water against 89% for brightness alone). Why some January water stays coherent over 12 days is not explained yet.
+- **Brightness + coherence is a lower bound.** When it says water it is right 89% of the time and it rejects most crust (only 24% called water), but it misses 40% of water points, mostly in January (it finds 42% of January water against 89% for brightness alone). Why some January water stays coherent over 12 days is unresolved. Possible reasons, none tested: calm, stable shallow water or thin brine films; stable features smaller than a pixel (salt rafts, mud ridges); coherence estimates biased upward where the signal is weak.
 - **Which method to trust depends on the state of the lake.** With a full lake and little crust (January), brightness alone is more accurate (86% vs 44%). When crust is spreading (late August), brightness + coherence is better (73% vs 62%). In May the two are similar (74% vs 78%). In the area chart above, the dashed and solid lines can be read as these upper and lower bounds.
 - On 11 May, 19 points looked white in the optical image but showed water on Sentinel-2 images 5 days before and after; radar with coherence called 17 of them water.
 
@@ -159,6 +165,11 @@ Figures are made with `python scripts/make_figures.py` after `map_water.py --mod
 - Observations are 12 days apart (with some gaps): results mean "water detected on these dates", not continuous presence. Depth is not measured.
 - The pan / non-pan split comes from our hand-drawn polygons. "Outside mapped pans" may still contain unmapped pans, channels or roads.
 - Mapped changes are surface observations only and say nothing about legality.
+- Each date is resampled to 20 m by nearest neighbour (no multilooking), and the 3×3 speckle smoothing is done in dB, not in linear power.
+- GUNW coherence is estimated over a coarser window than the 10 m GCOV pixels, so thin features (shorelines, embankments) are blurred in coherence.
+- The hand-drawn lake outline leaves out part of the south-west lake bed (about 14.5 km² detected on at least half the dates lies just outside it).
+
+One strength: all dates come from the same track and frame (descending track 34, frame 75), so the viewing geometry and incidence angle are the same throughout the year.
 
 ## Use of AI
 
