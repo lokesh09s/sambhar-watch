@@ -227,3 +227,13 @@ Notes:
   - Rebuilt PPTX; PDF exported through a PowerPoint copy; checked slides 3, 4, 5, 6 by eye after the rebuild.
 - Why: user asked for a readable, professional deck with no image bugs.
 - Still open: placeholders [TEAM NAME], [MEMBERS], [APP URL], [REPO URL].
+
+### 21:15 IST - Outline robustness check (scripts/check_outline.py); limitation line added
+- What: new scripts/check_outline.py + config OUTLINE_CHECK_BUFFER_M = 5000, OUTLINE_CHECK_DATES, OUTLINE_CHECK_ARM_FRACTION = 0.15. Zone = outside data/lake.geojson, within 5 km of it, south-west of the lake's long axis or west of its western tip. No outline change, no rerun of the series, no existing result changed.
+- Result (default rule HH < -18 dB AND coherence < 0.3):
+  - Zone geometric area 215.6 km2 (lake outline 152.1). Drew it on the frequency map: it holds the missed western arm AND two separate ponds (south, south-east), so the arm is reported separately (western 15% of the lake's east-west extent).
+  - Detected on >= half of the main-series dates: 21.0 km2 in the zone, of which 10.0 km2 in the western arm (118.5 inside the outline).
+  - 2026-08-15: inside 91.3, zone 13.3 (together 104.7), arm 6.5 (together 97.9). 2026-10-14: inside 55.7, zone 13.5 (together 69.2), arm 3.2 (together 58.9).
+  - Aug -> Oct drop: 35.6 km2 inside the outline; 35.5 with the whole zone; 39.0 with the arm only. => The drop holds.
+  - This replaces my earlier "14.5 km2" (19:30), which was everything within 800 m of the outline on all sides, not the arm.
+- Files: README (limitations line, results sentence, layout list), docs/project_page.md (limitations line), docs/slides/build_deck.py (slide 4 caption, slide 7 notes), PPTX + PDF rebuilt. First caption version ran into the slide number; shortened and re-rendered. Tests 6/6.

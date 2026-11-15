@@ -201,8 +201,8 @@ for i, (n, head, sub) in enumerate(steps):
     card(s, x, 5.6, cw, 1.35)
     text(s, x + 0.15, 5.65, cw - 0.3, 0.45, [[(n + "  ", {"color": TEAL}), (head, {})]], size=20, bold=True)
     text(s, x + 0.15, 6.1, cw - 0.3, 0.8, [sub], size=18)
-credit(s, f"Radar: {CREDIT_NISAR} GCOV + GUNW, 11 May 2026. Lake outline 152 km², salt pans inside 49.1 km² "
-          "(drawn by hand). Every number has an uncertainty band.")
+credit(s, f"Radar: {CREDIT_NISAR}, 11 May 2026. Hand-drawn outline: lake 152 km², pans 49.1 km². "
+          "It misses about 10 km² of western lake bed; adding it does not change the Aug → Oct drop.")
 notes(s, "Rule: HH below -18 dB AND 12-day coherence below 0.3 (provisional). Stress test: HH -17 to -20 dB, "
          "coherence 0.25 to 0.35. One date's area can shift 40-72 km2, so small April-August changes are within "
          "uncertainty. Each date uses the 12-day pair starting on that date (else the one ending on it). Modes DHDH and "
@@ -359,7 +359,10 @@ text(s, 0.6, 6.55, 12.1, 0.45,
 credit(s, "Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Copernicus Sentinel-2")
 notes(s, "Everything on this slide is a proposed use, not something already running. The three drivers are a "
          "hypothesis, not proven: monsoon inflow, evaporation after the rains, and the salt works pumping brine "
-         "into the mapped pans. We did not see a clear monsoon rise in radar water area.")
+         "into the mapped pans. We did not see a clear monsoon rise in radar water area. Limitation: the lake outline "
+         "was hand-drawn from optical imagery and misses part of the western lake bed (about 10 km2, visible in the "
+         "radar). Reported areas are inside the outline only, so they understate the full lake bed. Including it "
+         "does not change the August to October drop (about 91 to 56 km2 inside; about 98 to 59 km2 with the arm).")
 
 for number, slide in enumerate(prs.slides, start=1):
     if number > 1:

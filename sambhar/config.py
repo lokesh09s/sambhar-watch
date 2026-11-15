@@ -79,3 +79,11 @@ STABLE_COHERENCE = 0.7
 # Threshold values tried in the sensitivity check (scripts/sensitivity.py).
 SENSITIVITY_THRESHOLDS_DB = (-17.0, -18.0, -19.0, -20.0)
 SENSITIVITY_COHERENCE = (0.25, 0.30, 0.35)
+
+# Outline check (scripts/check_outline.py): how much detected surface lies just outside the
+# hand-drawn lake outline on its west / south-west side, and does it change the Aug -> Oct drop?
+OUTLINE_CHECK_BUFFER_M = 5000.0
+OUTLINE_CHECK_DATES = ("2026-08-15", "2026-10-14")
+# The missed western arm lies in the western 15% of the lake's east-west extent (and beyond its tip);
+# the rest of the zone holds two separate ponds, which are not lake bed.
+OUTLINE_CHECK_ARM_FRACTION = 0.15
