@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sambhar Point Labelling</title>
+<!--
+  Labelling page for the Sentinel-2 validation points. Plain HTML/JS, no build.
+  Serve:  python -m http.server -d validation_data 8770   ->  http://localhost:8770/label/
+  Reads ../points_<date>.csv, ../sentinel2/<day>_truecolour.png and lake.geojson (a copy of
+  data/lake.geojson, because the server only sees validation_data/; re-copy it if the outline changes).
+  Labels auto-save in this browser (localStorage); "Download CSV" exports id,lon,lat,date,label.
+-->
+<style>
+  :root {
+    --bg: #15171a; --panel: #1f2226; --text: #e8e8e8; --muted: #9aa0a6; --line: #34383d;
+    --water: #3b82f6; --white: #d1d5db; --crust: #f59e0b; --land: #84a35a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1320px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .muted { color: var(--muted); }
+  button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line);
+           border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  button:hover, button:focus-visible { border-color: var(--text); outline: none; }
+  #pick { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  #pick button { min-width: 220px; text-align: left; }
+  #top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  #bar { flex: 1; min-width: 140px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  #bar div { height: 100%; width: 0; background: var(--water); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+  figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  figure.main { border-color: var(--text); }
+  figcaption { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  figure.main figcaption { color: var(--text); font-weight: 600; }
+  canvas { display: block; max-width: calc(100vw - 50px); height: auto; }
+  canvas.pixels { image-rendering: pixelated; }
+  #neighbours { margin-top: 12px; }
+  #keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 14px 0; }
+  #keys button { text-align: left; border-left: 6px solid var(--c); padding: 10px 14px; }
+  #keys b { font-size: 17px; }
+  #keys small { display: block; color: var(--muted); margin-top: 2px; }
+  #info { margin: 8px 0 0; font-size: 14px; }
+  #done { padding: 24px; background: var(--panel); border-radius: 8px; margin: 12px 0; }
+  label.toggle { color: var(--muted); font-size: 14px; user-select: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sambhar validation points: label by eye</h1>
+  <p class="muted">Sentinel-2 true colour, 20 m pixels. Label the pixel under the red crosshair in the large
+    1 km view. The 5 km view and the lake overview are there for context. Yellow line = lake outline.
+    Don't use MNDWI or radar results; this is an independent, by-eye label.</p>
+
+  <section id="start">
+    <p>Choose your date. Each person labels a different date. Progress saves in this browser.</p>
+    <div id="pick"></div>
+  </section>
+
+  <section id="work" hidden>
+    <div id="top">
+      <strong id="title"></strong>
+      <span id="count"></span>
+      <div id="bar"><div></div></div>
+      <button id="skipbuffer"></button>
+      <button id="download">Download CSV</button>
+      <button id="change">Change date</button>
+      <label class="toggle"><input type="checkbox" id="stretch" checked> contrast stretch</label>
+    </div>
+    <div id="views">
+      <div class="row">
+        <figure class="main"><figcaption id="maincap"></figcaption>
+          <canvas id="chip" class="pixels" width="600" height="600"></canvas></figure>
+        <div class="col">
+          <figure><figcaption>5 km around the point</figcaption>
+            <canvas id="wide" width="320" height="320"></canvas></figure>
+          <figure><figcaption>Whole lake</figcaption>
+            <canvas id="overview" width="320" height="200"></canvas></figure>
+        </div>
+      </div>
+      <div id="neighbours" class="row"></div>
+    </div>
+    <p id="info" class="muted"></p>
+    <div id="done" hidden>All points to label on this date have been seen. Click <b>Download CSV</b> and send the
+      file to the team. Backspace still undoes the last label.</div>
+    <div id="keys"></div>
+    <p class="muted">Backspace = undo the last label. Space = skip (leave the label empty when you can't tell, e.g.
+      cloud or a boundary pixel). Lake points come first, then points in the 2 km buffer.</p>
+  </section>
+</main>
+
+<script>
+// ------------------------------------------------------------------ settings
+// Dates to label, and the Sentinel-2 days shown for each (the labelled day first).
+const DATES = {
+  "2026-01-11": { days: ["2026-01-11"], note: "winter, same day as NISAR" },
+  "2026-05-11": { days: ["2026-05-11", "2026-05-06", "2026-05-16"], note: "pre-monsoon; 6 and 16 May shown to judge white areas" },
+  "2026-08-29": { days: ["2026-08-29"], note: "late monsoon; NISAR pass 27 Aug" },
+};
+// Grid of every *_truecolour.png: UTM 43N (EPSG:32643), top-left corner and pixel size in metres.
+const GRID = { x0: 490060, y0: 2995340, res: 20 };
+const CHIP_PX = 50;            // main view: 50 pixels x 20 m = 1 km
+const WIDE_PX = 250;           // context view: 250 pixels = 5 km
+const OVERVIEW_MARGIN_PX = 60; // overview: lake outline bounds plus this margin
+const NEIGHBOUR_CANVAS = 300;  // size of the neighbouring-day 1 km views
+const STRETCH = { lowPct: 2, highPct: 98, minRange: 110 };  // minRange stops flat chips being blown up
+const CLASSES = [
+  { key: "1", label: "water", color: "var(--water)",
+    rule: "Clearly open water: green, blue or dark, with no white surface." },
+  { key: "2", label: "white_uncertain", color: "var(--white)",
+    rule: "A white surface that could be crust OR a thin bright layer on water. The default for white." },
+  { key: "3", label: "salt_crust", color: "var(--crust)",
+    rule: "Clearly dry crust: white on this date AND on the neighbouring dates." },
+  { key: "4", label: "land", color: "var(--land)",
+    rule: "Soil, fields, vegetation, roads, buildings, embankments, the pans' dry walls." },
+];
+
+// ------------------------------------------------------------------ state
+let date = null;
+let points = [];      // CSV order (used for export)
+let ordered = [];     // labelling order: inside the lake first, then buffer
+let images = {};
+let lakeRings = [];   // outer rings in lon/lat, for the inside test
+let lakePixelRings = []; // the same rings in image pixel coordinates, for drawing
+let state = { labels: {}, order: [], skipBuffer: false };
+
+const $ = (id) => document.getElementById(id);
+const storageKey = (d) => `sambhar-labels-${d}`;
+
+function load(d) {
+  try { return { labels: {}, order: [], skipBuffer: false, ...JSON.parse(localStorage.getItem(storageKey(d))) }; }
+  catch { return { labels: {}, order: [], skipBuffer: false }; }
+}
+function save() {
+  try { localStorage.setItem(storageKey(date), JSON.stringify(state)); }
+  catch { $("info").textContent = "Warning: browser storage unavailable. Download the CSV before closing."; }
+}
+
+// ------------------------------------------------------------------ geometry
+/** WGS84 lon/lat -> UTM zone 43N metres (Krueger series, sub-millimetre accurate here). */
+function toUtm43(lon, lat) {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, lon0 = 75 * Math.PI / 180;
+  const n = f / (2 - f), e = Math.sqrt(f * (2 - f));
+  const A = a / (1 + n) * (1 + n * n / 4 + n ** 4 / 64);
+  const alpha = [n / 2 - 2 * n * n / 3 + 5 * n ** 3 / 16, 13 * n * n / 48 - 3 * n ** 3 / 5, 61 * n ** 3 / 240];
+  const phi = lat * Math.PI / 180, lam = lon * Math.PI / 180 - lon0;
+  const t = Math.sinh(Math.atanh(Math.sin(phi)) - e * Math.atanh(e * Math.sin(phi)));
+  const xi = Math.atan2(t, Math.cos(lam)), eta = Math.atanh(Math.sin(lam) / Math.sqrt(1 + t * t));
+  let x = eta, y = xi;
+  alpha.forEach((al, i) => {
+    const j = 2 * (i + 1);
+    x += al * Math.cos(j * xi) * Math.sinh(j * eta);
+    y += al * Math.sin(j * xi) * Math.cosh(j * eta);
+  });
+  return [500000 + k0 * A * x, k0 * A * y];
+}
+/** Fractional image column/row of a lon/lat (0,0 = top-left corner of the top-left pixel). */
+function pixelOf(lon, lat) {
+  const [x, y] = toUtm43(lon, lat);
+  return [(x - GRID.x0) / GRID.res, (GRID.y0 - y) / GRID.res];
+}
+/** Ray-casting point-in-polygon test (ring = [[lon, lat], ...]). */
+function inRing(lon, lat, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+/** Outer rings of every Polygon/MultiPolygon in a GeoJSON (the lake outline has no holes). */
+function outerRings(geojson) {
+  const geoms = (geojson.features || [geojson]).map((f) => f.geometry || f);
+  return geoms.flatMap((g) => g.type === "Polygon" ? [g.coordinates[0]]
+                            : g.type === "MultiPolygon" ? g.coordinates.map((p) => p[0]) : []);
+}
+
+// ------------------------------------------------------------------ loading
+async function loadCsv(d) {
+  const text = await (await fetch(`../points_${d}.csv`)).text();
+  const [header, ...lines] = text.trim().split(/\r?\n/);
+  const cols = header.split(",");
+  return lines.map((line) => Object.fromEntries(line.split(",").map((v, i) => [cols[i], v])));
+}
+function loadImage(day) {
+  return new Promise((ok, fail) => {
+    const img = new Image();
+    img.onload = () => ok(img);
+    img.onerror = () => fail(new Error(`missing ../sentinel2/${day}_truecolour.png`));
+    img.src = `../sentinel2/${day}_truecolour.png`;
+  });
+}
+
+async function start(d) {
+  date = d;
+  location.hash = d;
+  $("start").hidden = true;
+  $("work").hidden = false;
+  $("title").textContent = `Labelling ${d} (${DATES[d].note})`;
+  $("info").textContent = "Loading...";
+  try {
+    const days = DATES[d].days;
+    const [csv, lake, ...imgs] = await Promise.all([
+      loadCsv(d), fetch("lake.geojson").then((r) => r.json()), ...days.map(loadImage)]);
+    images = Object.fromEntries(days.map((day, i) => [day, imgs[i]]));
+    lakeRings = outerRings(lake);
+    lakePixelRings = lakeRings.map((ring) => ring.map(([lon, lat]) => pixelOf(lon, lat)));
+    points = csv.map((p) => ({ ...p, inLake: lakeRings.some((r) => inRing(+p.lon, +p.lat, r)),
+                               px: pixelOf(+p.lon, +p.lat) }));
+    ordered = [...points.filter((p) => p.inLake), ...points.filter((p) => !p.inLake)];
+  } catch (err) {
+    $("info").textContent = `Could not load data: ${err.message}. Is the server running from validation_data?`;
+    return;
+  }
+  state = load(d);
+  buildNeighbours();
+  render();
+}
+
+// ------------------------------------------------------------------ drawing
+/** Copy an integer-aligned image region into a small canvas, optionally contrast-stretched. */
+function region(img, ix, iy, iw, ih, stretch) {
+  const off = document.createElement("canvas");
+  off.width = iw; off.height = ih;
+  const ctx = off.getContext("2d");
+  const x0 = Math.max(ix, 0), y0 = Math.max(iy, 0);
+  const x1 = Math.min(ix + iw, img.width), y1 = Math.min(iy + ih, img.height);
+  if (x1 > x0 && y1 > y0) ctx.drawImage(img, x0, y0, x1 - x0, y1 - y0, x0 - ix, y0 - iy, x1 - x0, y1 - y0);
+  if (stretch) {
+    const data = ctx.getImageData(0, 0, iw, ih);
+    const px = data.data, values = [];
+    for (let i = 0; i < px.length; i += 4) if (px[i + 3] > 0) values.push(px[i], px[i + 1], px[i + 2]);
+    if (values.length) {
+      values.sort((a, b) => a - b);
+      let lo = values[Math.floor((values.length - 1) * STRETCH.lowPct / 100)];
+      let hi = values[Math.floor((values.length - 1) * STRETCH.highPct / 100)];
+      if (hi - lo < STRETCH.minRange) {
+        const mid = (hi + lo) / 2;
+        lo = Math.max(0, mid - STRETCH.minRange / 2); hi = Math.min(255, mid + STRETCH.minRange / 2);
+      }
+      // Same stretch on R, G and B, so colours keep their hue (white stays white).
+      for (let i = 0; i < px.length; i += 4) for (let c = 0; c < 3; c++) {
+        px[i + c] = Math.max(0, Math.min(255, ((px[i + c] - lo) * 255) / (hi - lo)));
+      }
+      ctx.putImageData(data, 0, 0);
+    }
+  }
+  return off;
+}
+
+/** Draw the source window (sx, sy, size sw x sh, in image pixels) onto `canvas`, plus the lake outline. */
+function drawView(canvas, img, sx, sy, sw, sh, { stretch = false, sharp = true } = {}) {
+  const ctx = canvas.getContext("2d");
+  const s = canvas.width / sw;
+  ctx.imageSmoothingEnabled = !sharp;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const ix = Math.floor(sx), iy = Math.floor(sy), iw = Math.ceil(sw) + 1, ih = Math.ceil(sh) + 1;
+  ctx.drawImage(region(img, ix, iy, iw, ih, stretch), (ix - sx) * s, (iy - sy) * s, iw * s, ih * s);
+  ctx.strokeStyle = "#ffe14d";
+  ctx.lineWidth = 1.5;
+  lakePixelRings.forEach((ring) => {
+    ctx.beginPath();
+    ring.forEach(([c, r], k) => (k ? ctx.lineTo : ctx.moveTo).call(ctx, (c - sx) * s, (r - sy) * s));
+    ctx.stroke();
+  });
+  return s;
+}
+
+function crosshair(canvas, s) {
+  const ctx = canvas.getContext("2d"), c = canvas.width / 2, gap = s * 1.2, arm = 50;
+  ctx.strokeStyle = "#ff3b3b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(c - gap - arm, c); ctx.lineTo(c - gap, c);
+  ctx.moveTo(c + gap, c); ctx.lineTo(c + gap + arm, c);
+  ctx.moveTo(c, c - gap - arm); ctx.lineTo(c, c - gap);
+  ctx.moveTo(c, c + gap); ctx.lineTo(c, c + gap + arm);
+  ctx.stroke();
+  ctx.strokeRect(c - s / 2 - 1, c - s / 2 - 1, s + 2, s + 2);   // box around the 20 m pixel
+}
+
+function dot(canvas, x, y, r = 5) {
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ff2020";
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function buildNeighbours() {
+  const [main, ...others] = DATES[date].days;
+  $("maincap").textContent = `${main}: 1 km (label this pixel)`;
+  $("neighbours").innerHTML = others.sort().map((day) => `
+    <figure><figcaption>${day}: same 1 km, neighbouring date</figcaption>
+      <canvas class="pixels" width="${NEIGHBOUR_CANVAS}" height="${NEIGHBOUR_CANVAS}" data-day="${day}"></canvas>
+    </figure>`).join("");
+  // Overview window: lake outline bounds plus a margin, canvas sized to the same aspect ratio.
+  const all = lakePixelRings.flat();
+  const cs = all.map((p) => p[0]), rs = all.map((p) => p[1]);
+  const ov = $("overview");
+  ov.view = { sx: Math.min(...cs) - OVERVIEW_MARGIN_PX, sy: Math.min(...rs) - OVERVIEW_MARGIN_PX,
+              sw: Math.max(...cs) - Math.min(...cs) + 2 * OVERVIEW_MARGIN_PX,
+              sh: Math.max(...rs) - Math.min(...rs) + 2 * OVERVIEW_MARGIN_PX };
+  ov.height = Math.round((ov.width * ov.view.sh) / ov.view.sw);
+}
+
+function isOpen(p) {
+  return !(p.id in state.labels) && !(state.skipBuffer && !p.inLake);
+}
+
+function render() {
+  const lake = points.filter((p) => p.inLake), buffer = points.filter((p) => !p.inLake);
+  const seen = (list) => list.filter((p) => p.id in state.labels).length;
+  const named = Object.values(state.labels).filter(Boolean).length;
+  const total = state.skipBuffer ? lake.length : points.length;
+  const done = state.skipBuffer ? seen(lake) : seen(points);
+  $("count").textContent = `lake ${seen(lake)} / ${lake.length}, buffer ${seen(buffer)} / ${buffer.length}` +
+    `${state.skipBuffer ? " (skipped)" : ""}; ${named} labelled`;
+  $("bar").firstElementChild.style.width = `${(100 * done) / total}%`;
+  $("skipbuffer").textContent = state.skipBuffer ? "Include buffer points again" : "Skip remaining buffer points";
+
+  const p = ordered.find(isOpen);
+  $("done").hidden = !!p;
+  $("views").hidden = !p;
+  const last = state.order.at(-1);
+  const lastText = last ? `  |  last: #${last} = ${state.labels[last] || "skipped"}` : "";
+  if (!p) { $("info").textContent = lastText.slice(5); return; }
+
+  const [col, row] = p.px, stretch = $("stretch").checked, main = images[DATES[date].days[0]];
+  const s = drawView($("chip"), main, col - CHIP_PX / 2, row - CHIP_PX / 2, CHIP_PX, CHIP_PX, { stretch });
+  crosshair($("chip"), s);
+  const sw = drawView($("wide"), main, col - WIDE_PX / 2, row - WIDE_PX / 2, WIDE_PX, WIDE_PX, { stretch, sharp: false });
+  // Faint box showing the 1 km view inside the 5 km view.
+  const wctx = $("wide").getContext("2d"), half = (CHIP_PX * sw) / 2, wc = $("wide").width / 2;
+  wctx.strokeStyle = "rgba(255,255,255,0.7)";
+  wctx.lineWidth = 1;
+  wctx.strokeRect(wc - half, wc - half, 2 * half, 2 * half);
+  dot($("wide"), wc, wc, 4);
+  const v = $("overview").view;
+  const so = drawView($("overview"), main, v.sx, v.sy, v.sw, v.sh, { sharp: false });
+  dot($("overview"), (col - v.sx) * so, (row - v.sy) * so, 5);
+  document.querySelectorAll("#neighbours canvas").forEach((cv) => {
+    const sn = drawView(cv, images[cv.dataset.day], col - CHIP_PX / 2, row - CHIP_PX / 2, CHIP_PX, CHIP_PX, { stretch });
+    crosshair(cv, sn);
+  });
+  $("info").textContent = `Point #${p.id}, ${p.inLake ? "inside the lake" : "2 km buffer"}  (${p.lat}, ${p.lon})${lastText}`;
+}
+
+// ------------------------------------------------------------------ actions
+function setLabel(label) {
+  const p = ordered.find(isOpen);
+  if (!p) return;
+  state.labels[p.id] = label;
+  state.order.push(p.id);
+  save();
+  render();
+}
+function undo() {
+  const id = state.order.pop();
+  if (id === undefined) return;
+  delete state.labels[id];
+  save();
+  render();
+}
+function downloadCsv() {
+  const rows = points.map((p) => [p.id, p.lon, p.lat, p.date, state.labels[p.id] || ""].join(","));
+  const blob = new Blob([["id,lon,lat,date,label", ...rows].join("\n") + "\n"], { type: "text/csv" });
+  const a = Object.assign(document.createElement("a"),
+    { href: URL.createObjectURL(blob), download: `points_${date}_labelled.csv` });
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ------------------------------------------------------------------ wiring
+$("pick").innerHTML = Object.entries(DATES).map(([d, cfg]) => {
+  const n = Object.keys(load(d).labels).length;
+  return `<button data-date="${d}"><b>${d}</b><br><small class="muted">${cfg.note}<br>${n} / 150 seen in this browser</small></button>`;
+}).join("");
+$("pick").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) start(b.dataset.date);
+});
+$("keys").innerHTML = CLASSES.map((c) =>
+  `<button data-label="${c.label}" style="--c:${c.color}"><b>${c.key}</b> ${c.label}<small>${c.rule}</small></button>`).join("");
+$("keys").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) { b.blur(); setLabel(b.dataset.label); }   // blur: Space/Enter must not re-click it
+});
+$("skipbuffer").onclick = (e) => { e.currentTarget.blur(); state.skipBuffer = !state.skipBuffer; save(); render(); };
+$("stretch").onchange = (e) => { e.currentTarget.blur(); render(); };
+$("download").onclick = downloadCsv;
+$("change").onclick = () => { location.hash = ""; location.reload(); };
+document.addEventListener("keydown", (e) => {
+  if (!date || e.metaKey || e.ctrlKey || e.altKey) return;
+  document.activeElement?.blur();   // a focused button must not also react to Space/Enter
+  const cls = CLASSES.find((c) => c.key === e.key);
+  if (cls) { setLabel(cls.label); e.preventDefault(); }
+  else if (e.key === "Backspace") { undo(); e.preventDefault(); }
+  else if (e.key === " ") { setLabel(""); e.preventDefault(); }
+});
+if (location.hash.slice(1) in DATES) start(location.hash.slice(1));
+</script>
+</body>
+</html>

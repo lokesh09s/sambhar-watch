@@ -1,0 +1,6 @@
+# Extra packages for the optical validation scripts (scripts/fetch_sentinel2.py, scripts/fetch_jrc.py).
+# Install on top of the main ones:  pip install -r requirements.txt -r requirements-validation.txt
+pystac-client
+planetary-computer
+rasterio
+scipy
