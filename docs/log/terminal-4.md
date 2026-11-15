@@ -61,3 +61,13 @@ Role: slides and project-page text. Only Terminal 4 writes to this file. Entries
 - Why: Team message 19:48 IST. The stronger 12-of-12 statement is now supported, which resolves my 19:34 caution about the overlapping ranges.
 - Result: The wording grep is clean; 7 slides in the deck. The January cause is worded as unconfirmed everywhere.
 - Next: Same as before: validation numbers, [COHERENCE REMOVED km²], delete A/B/C.
+
+### 20:11 IST - Validation results added; superseded versions A/B/C deleted; deck is final at 7 slides
+- What: Rewrote `docs/slides_outline.md` and `docs/project_page.md` in full (checked first that no other terminal had touched them since 8bdc5d5).
+  - Deleted 5A/5B/5C and (A)/(B)/(C), as planned for when the validation numbers arrived.
+  - Slide 5 headline: "Sambhar dries out after the monsoon. Brightness alone missed it; coherence caught it." A 5-row validation table (water found 89/60%, crust called water 81/24%, late Aug 62/73%, 11 Jan 86/44%, all dates 74/64%) and the trade-off line. The Aug/Oct km² moved into the visual caption to keep words down.
+  - Slide 4 adds the validation step (177 points). Slide 7 is renamed "Recommendation and future" and leads with the recommendation line.
+  - Project page: new summary with the trade-off and the 64%; step 8 describes the validation; a full validation table (including precision 79/89% and 11 May 78/74%); the trade-off paragraph and recommendation; new limitations (January miss unexplained; small samples of 37 crust, 20 white and 6 land points; by-eye labels from 20 m Sentinel-2; coherence less accurate overall).
+- Why: Team message ~20:10 IST with validation results and the framing to use ("don't hide the 64%").
+- Result: `grep '^## Slide'` = 7. No version labels remain. Wording grep is clean. Filled [VALIDATION ACCURACY %], [N POINTS], [WATER POINTS CORRECT %] and [CRUST POINTS CORRECT %] (as "crust called water"). Remaining: [COHERENCE REMOVED km²] (still unconfirmed; 14 Oct implies ~59 km², not 25–40), [TEAM NAME], [MEMBER NAMES], [APP URL], [REPO URL], [APP STACK] and the [IMAGE: …] slots. In the AI-use section I wrote "checked the outputs against Sentinel-2 validation points", not "labelled", because I don't know who labelled them. The validation class list "water, salt crust, white surface, land" is inferred from the counts given; check it.
+- Next: Fill team names, URLs and the coherence-removed range when the team sends them. `docs/video_script.md` was left unchanged; it doesn't contradict the final story.
