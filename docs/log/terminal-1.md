@@ -273,3 +273,6 @@ Notes:
 
 ### 22:04 IST - Team roles on the website and deck
 - What: user gave roles: Lokesh Chaudhary = project lead & data analysis; second member = research, testing & review; presentation = both. The user wrote "[Friend]" for the second member; I used the name given earlier (Bhagya Modi) and told the user. web/index.html team cards and the deck title slide updated; PPTX + PDF rebuilt; title slide checked (no overlap).
+
+### 22:05 IST - Vercel support; local server restarted
+- What: the user's local server on port 8000 had stopped (the website file already had the team roles); restarted it in the background. Added vercel.json (no framework, no install or build command, output directory web/) and a README line on hosting. Checked that the page uses only relative paths (style.css, app.js, effects.js, data/...), so it works at a domain root (Vercel) and under a sub-path (GitHub Pages). Not verified: an actual Vercel deployment (no Vercel account or CLI in this session).

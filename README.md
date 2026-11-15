@@ -81,6 +81,8 @@ python scripts/check_modes.py                        # DHDH vs QPDH brightness o
 
 A free [NASA Earthdata](https://urs.earthdata.nasa.gov) account is needed to stream NISAR data.
 
+The website is the static folder `web/` (no build step). See it locally with `python -m http.server 8000 -d web`. It can be hosted on GitHub Pages or on Vercel; `vercel.json` tells Vercel to serve `web/` as it is.
+
 ## Results
 
 All areas are inside the hand-drawn lake outline (152 km²). "Detected" means *dark unstable surface (water or wet brine)* was seen on that date; it does not mean water was present all the time in between, and depth is not measured.
