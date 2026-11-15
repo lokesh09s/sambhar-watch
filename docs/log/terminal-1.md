@@ -48,3 +48,15 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
 - Result: smoke test on the 3 DHDH dates cropped so far: 2025-11-12 left out (no 12-day pair); 2026-05-11 HH only 272.9 -> combined 144.3 km2; 2026-08-15 171.8 -> 110.6 km2 (1 pair each so far), matching the 18:16 hand calculation.
   - Found: scripts/make_demo_data.py (not mine) averages the two adjacent pairs; the team decision is the higher of the two. Reported to the user, not changed.
 - Next: wait for bulk crop (~6/24 done at 18:23) and coherence; run map_water.py --mode DHDH on everything; mixed-mode coherence check.
+
+### 18:50 IST - Lake and pan outlines in; areas now counted inside the lake only
+- What:
+  - The outlines were saved in the project root (and ~/Downloads), not in data/. Root copies matched the latest Downloads copies (md5); ~/Documents/lake.geojson is an older, different draft (18:42) and was ignored. Moved root lake.geojson and pans.geojson into data/.
+  - Sanity check on our 20 m grid: lake 152.1 km2, mapped pans inside lake 49.1 km2, lake outside pans 103.0 km2 (matches the teammate's numbers exactly). Pan shapes outside the lake cover 99.7 km2 (rough rectangles, not used).
+  - scripts/map_water.py: all areas now inside the lake outline (whole study box only if no outline). Existing columns keep their names but now mean "inside lake": water_km2 = total in lake, water_inside_mapped_pans_km2 = lake & pans, water_outside_mapped_pans_km2 = lake & not pans; valid_area_km2 also within the lake. Added *_study_box_km2 for context. Removed the water_in_lake_* columns from 18:24 (now redundant). Per-date print shows in/out pans for both rules.
+  - config.py: PANS_LABEL = "salt works and mapped pans"; map_info.json gains pans_label and area_scope.
+  - README method step 3 updated.
+- Why: team instruction: shape 1 covers the eastern salt works (reservoirs + pans); pan shapes outside the lake are rough, so only report pan areas inside the lake. Kept the old column names so web/app.js "Total / Inside / Outside" series stay consistent (total = inside + outside).
+- Result: partial run (7 DHDH dates cropped so far), inside lake, km2, HH only -> HH + coherence: 2026-04-05 119.6 -> 101.6; 04-17 132.7 -> 99.5; 04-29 126.7 -> 96.3; 05-11 131.8 -> 93.6; 05-23 130.3 -> 92.2; 08-15 125.3 -> 91.4. Tests 5/5.
+  - Note for other terminals: water_km2 changed meaning from "whole study box" to "inside lake outline".
+- Next: bulk crop at 12/24 (18:49), slower than estimated (~3 min/date with mask + parallel coherence); full rerun expected ~19:30.

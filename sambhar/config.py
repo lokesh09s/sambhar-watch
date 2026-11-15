@@ -10,6 +10,9 @@ RESULTS_DIR = ROOT / "outputs" / "results"
 GRANULES_CSV = DATA_DIR / "granules.csv"   # list of NISAR files (date, mode, release, url)
 PANS_GEOJSON = DATA_DIR / "pans.geojson"   # salt-pan polygons drawn by hand (lon/lat)
 LAKE_GEOJSON = DATA_DIR / "lake.geojson"   # outline of Sambhar Lake drawn by hand (lon/lat)
+# How the pan class is named in outputs. Shape 1 of pans.geojson covers the whole eastern
+# salt-works section (reservoirs + pans), so this is more than individual pans.
+PANS_LABEL = "salt works and mapped pans"
 GUNW_PAIRS_CSV = DATA_DIR / "gunw_pairs.csv"   # 12-day interferogram pairs (reference, secondary, url)
 COHERENCE_DIR = ROOT / "outputs" / "coherence"
 

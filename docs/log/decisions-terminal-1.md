@@ -12,3 +12,5 @@ Format: HH:MM IST | decision | reason | evidence
 - 18:19 IST | Per-date coherence = pixel-wise HIGHER of the two adjacent 12-day pairs; dates with one pair use it and are flagged (coherence_pairs = 1) | pixel must be unstable in both pairs to count | team decision
 - 18:19 IST | Keep an HH-only result next to the combined rule | to show how much false water coherence removes (key slide result) | team decision
 - 18:19 IST | Report areas inside the lake outline (data/lake.geojson) as well as inside/outside mapped pans, once the outline arrives | the study box also contains other ponds and channels | outputs/crops/*.png
+- 18:50 IST | Report all areas inside the lake outline only; pan-related areas = lake & pans | pan shapes outside the lake are rough rectangles (99.7 km2 of them outside the lake) | data/lake.geojson, data/pans.geojson; lake 152.1, pans in lake 49.1, outside pans 103.0 km2
+- 18:50 IST | Name the pan class "salt works and mapped pans" in outputs | pans.geojson shape 1 covers the whole eastern salt-works section (reservoirs + pans) | team instruction; config.PANS_LABEL

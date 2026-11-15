@@ -7,9 +7,10 @@ The HH-only result is kept next to it, to show how much dark but stable surface
 
 Reads outputs/crops/*.npz (crop_lake.py) and outputs/coherence/*.npz
 (check_coherence.py) and writes to outputs/results/:
-    water_area.csv        area per date (km2) with the combined rule (water_*) and HH only (hh_only_water_*):
-                          whole study box, inside / outside mapped pans, and inside the lake outline
-                          (data/lake.geojson) when it exists. coherence_pairs = 1 or 2 pairs used.
+    water_area.csv        area per date (km2) with the combined rule (water_*) and HH only (hh_only_water_*),
+                          all INSIDE the lake outline (data/lake.geojson; whole study box if missing):
+                          total, inside / outside mapped pans ("salt works and mapped pans"), plus
+                          *_study_box_km2 for context. coherence_pairs = 1 or 2 pairs used.
     rule_comparison.png   HH-only vs combined area per date
     frequency.png         detection frequency (detections / valid observations) and observation count
     overlays/<date>.png           combined-rule layers for the web map
@@ -56,31 +57,36 @@ def select_crops(mode: str | None, include_validated: bool):
     return crops
 
 
-def region_masks(grid) -> dict:
-    """Pixel maps of the areas reported, keyed by column-name suffix (None = outline not drawn yet)."""
+def region_masks(grid) -> tuple[dict, str]:
+    """Pixel maps of the areas reported, keyed by column-name suffix, and a label for the area.
+
+    Areas are counted inside the lake outline only: pan shapes outside the lake are rough
+    rectangles, so they are not used. Without a lake outline, the whole study box is used.
+    """
+    everything = np.ones(grid.shape, dtype=bool)
     in_pans = (pans_mask(config.PANS_GEOJSON, grid) if config.PANS_GEOJSON.exists()
                else np.zeros(grid.shape, dtype=bool))
     if not in_pans.any():
         print("Note: no data/pans.geojson found, so 'inside pans' areas will be zero.")
     # pans_mask turns any hand-drawn polygons into a pixel mask, so it also reads the lake outline.
-    in_lake = pans_mask(config.LAKE_GEOJSON, grid) if config.LAKE_GEOJSON.exists() else None
-    if in_lake is None:
-        print("Note: no data/lake.geojson found, so 'in lake' areas are left blank.")
+    if config.LAKE_GEOJSON.exists():
+        scope, scope_label = pans_mask(config.LAKE_GEOJSON, grid), "inside lake outline"
+    else:
+        print("Note: no data/lake.geojson found, so areas cover the whole study box.")
+        scope, scope_label = everything, "in study box"
 
-    return {
-        "": np.ones(grid.shape, dtype=bool),
-        "_inside_mapped_pans": in_pans,
-        "_outside_mapped_pans": ~in_pans,
-        "_in_lake": in_lake,
-        "_in_lake_inside_mapped_pans": None if in_lake is None else in_lake & in_pans,
-        "_in_lake_outside_mapped_pans": None if in_lake is None else in_lake & ~in_pans,
+    regions = {
+        "": scope,
+        "_inside_mapped_pans": scope & in_pans,
+        "_outside_mapped_pans": scope & ~in_pans,
+        "_study_box": everything,   # context only: includes other ponds and channels
     }
+    return regions, scope_label
 
 
 def areas(detected, regions: dict, pixel_area_km2: float, prefix: str) -> dict:
-    """Detected area (km2) in each region, as CSV columns. Blank where the outline is missing."""
-    return {f"{prefix}{suffix}_km2": None if region is None
-            else round(float((detected & region).sum()) * pixel_area_km2, 3)
+    """Detected area (km2) in each region, as CSV columns."""
+    return {f"{prefix}{suffix}_km2": round(float((detected & region).sum()) * pixel_area_km2, 3)
             for suffix, region in regions.items()}
 
 
@@ -107,7 +113,7 @@ def main():
         print("Suggestions only: check against the histograms and Sentinel-2 before choosing.")
         return
 
-    regions = region_masks(grid)
+    regions, scope_label = region_masks(grid)
     pairs = load_gunw_pairs()
     out = config.RESULTS_DIR
     for folder in ("overlays", "overlays_hh_only"):
@@ -135,12 +141,15 @@ def main():
 
         row = {"date": c.date, "mode": c.mode, "release": c.release, "threshold_db": args.threshold,
                "coherence_threshold": args.coherence_threshold, "coherence_pairs": n_pairs,
-               "valid_area_km2": round(float(valid.sum()) * grid.pixel_area_km2, 3)}
+               "valid_area_km2": round(float((valid & regions[""]).sum()) * grid.pixel_area_km2, 3)}
         row.update(areas(detected, regions, grid.pixel_area_km2, "water"))
         row.update(areas(hh_dark, regions, grid.pixel_area_km2, "hh_only_water"))
         rows.append(row)
-        print(f"[{c.date}] HH only {row['hh_only_water_km2']} km2 -> HH + coherence {row['water_km2']} km2"
-              f" ({n_pairs} coherence pair{'s' if n_pairs > 1 else ''})")
+        print(f"[{c.date}] {scope_label}, km2 (pans / outside pans):"
+              f"  HH only {row['hh_only_water_km2']} ({row['hh_only_water_inside_mapped_pans_km2']}"
+              f" / {row['hh_only_water_outside_mapped_pans_km2']})"
+              f"  ->  HH + coherence {row['water_km2']} ({row['water_inside_mapped_pans_km2']}"
+              f" / {row['water_outside_mapped_pans_km2']})  [{n_pairs} pair{'s' if n_pairs > 1 else ''}]")
 
     if not rows:
         raise SystemExit("No date has coherence. Run scripts/check_coherence.py all first.")
@@ -150,9 +159,8 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
-    scope, scope_label = ("_in_lake", "inside lake outline") if regions["_in_lake"] is not None else ("", "in study box")
-    rule_comparison([r["date"] for r in rows], [r[f"hh_only_water{scope}_km2"] for r in rows],
-                    [r[f"water{scope}_km2"] for r in rows], scope_label, out / "rule_comparison.png")
+    rule_comparison([r["date"] for r in rows], [r["hh_only_water_km2"] for r in rows],
+                    [r["water_km2"] for r in rows], scope_label, out / "rule_comparison.png")
 
     frequency, n_valid = detection_frequency(np.array(detected_stack), np.array(valid_stack))
     frequency_map(frequency, n_valid, out / "frequency.png")
@@ -162,6 +170,7 @@ def main():
         json.dump({"bounds_latlon": grid.bounds_latlon(), "epsg": grid.epsg,
                    "resolution_m": grid.resolution_m, "threshold_db": args.threshold,
                    "coherence_threshold": args.coherence_threshold, "class_name": config.CLASS_NAME,
+                   "pans_label": config.PANS_LABEL, "area_scope": scope_label,
                    "dates": [r["date"] for r in rows]}, f, indent=2)
 
     print(f"\nResults written to {out}")
