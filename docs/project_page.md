@@ -12,7 +12,7 @@ Sambhar Watch
 
 ## High-Level Summary
 
-Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon; brightness alone missed it, coherence caught it. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from about 91 to about 56 km², and the drop holds under every threshold setting we tested. Sentinel-2 shows the same drying, from about 55–60% water to about 55–60% white crust. Checked on 177 labelled points, it is a trade-off. Brightness alone over-counts: it calls 81% of salt crust water. Coherence under-counts: it finds 60% of real water. Because 76% of the points were water, plain accuracy rewards over-counting, and a model that always says "water" would score 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water. Coherence does better while crust is spreading, brightness when the lake is full, so together they bracket the true water area. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
+Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon; brightness alone missed it, coherence caught it. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from about 91 to about 56 km², and the drop holds under every threshold setting we tested. Sentinel-2 shows the same drying, from about 55–60% water to about 55–60% white crust. Checked on 177 labelled points, it is a trade-off. Brightness alone over-counts: it calls 81% of salt crust water. Coherence under-counts: it finds 60% of real water. Because 76% of the points were water, plain accuracy rewards over-counting, and a model that always says "water" would score 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water. Coherence does better while crust is spreading, brightness when the lake is full. The methods give different estimates with different error trade-offs; they are not proven limits on the true area. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
 
 ---
 
@@ -35,7 +35,7 @@ Sambhar is a Ramsar site with 24,000 ha designated. A 2026 study by NRSC-ISRO an
 2. **Draw the outlines.** We drew the lake outline (152 km²) and the salt-works and pan outlines by hand on satellite imagery. All areas are counted inside the lake outline only.
 3. **Test the usual method.** Calm water reflects the radar pulse away from the satellite, so it usually looks dark. The standard approach labels dark pixels as water.
 4. **It failed here.** On real NISAR data, the lake bed in the dry season (May) and in the monsoon (August) are both about −22 dB in HH. Dark-but-dry surfaces look the same as water in brightness alone.
-5. **Add coherence.** Coherence measures how much the surface changes between two radar passes 12 days apart. Water and wet brine change, so their coherence is low. Stable ground, including dry, smooth salt crust that is as dark as water, stays coherent. Each date uses the 12-day pair that starts on that date. Our provisional rule: a pixel is detected when HH is below −18 dB **and** coherence is below 0.3. This removes [COHERENCE REMOVED km²] of false "water" inside the lake per date, from dark but stable dry fields and dry crust.
+5. **Add coherence.** Coherence compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent (including dry, smooth salt crust that is as dark as water). This follows Festa, D., Roth, F., Hassaan, M., Wagner, W. (2026). Improving Backscatter-Based Surface Water Classification in Arid Environments Through Interferometric Coherence. *Remote Sensing* 18(17), 2966. https://www.mdpi.com/2072-4292/18/17/2966. We apply and test this approach at a salt lake with NISAR. Each date uses the 12-day pair that starts on that date. Our provisional rule: a pixel is detected when HH is below −18 dB **and** coherence is below 0.3. This removes [COHERENCE REMOVED km²] of false "water" inside the lake per date, from dark but stable dry fields and dry crust.
 6. **Stress-test the settings.** We re-ran the rule over 12 reasonable settings: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. On a single date, the lake area can change by 40–72 km². That is more than the small changes between April and August (about 10 km²), so we don't claim those. A change only counts if it holds across settings: the drop from 15 August to 14 October holds in all 12 of 12 settings (by 16.9–38.7 km²). Every result is shown with this uncertainty band.
 7. **Keep radar modes apart.** NISAR alternates two modes over Sambhar (DHDH and QPDH). Only April–October forms one consistent series; outside that window the modes are shown separately.
 8. **Validate with Sentinel-2.** We labelled 203 points by eye on cloud-free 20 m Sentinel-2 images (177 inside the lake) as water, salt crust, white surface or land. We scored both methods against them, overall and by date. Because most points are water, we lead with balanced accuracy, which weights water and non-water equally. Wet salt crust can look like water to radar, so we also report how often each method calls crust water. An MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film pixels; all labels were kept unchanged to avoid post-hoc bias.
@@ -76,9 +76,9 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 
 **Why balanced accuracy.** 76% of validation points were water, so plain accuracy rewards over-counting; a model that always says "water" scores 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water.
 
-**It's a trade-off.** Brightness alone over-counts: it calls most salt crust water. Coherence under-counts: it misses some real water, especially in January. The right method depends on the lake's state. When crust is spreading, as in the post-monsoon drying, coherence is more accurate; when the lake is full, brightness is. Together they bracket the true water area. Our headline is about the post-monsoon drying, a crust-spreading period, which is exactly where coherence validated better.
+**It's a trade-off.** Brightness alone over-counts: it calls most salt crust water. Coherence under-counts: it misses some real water, especially in January. The right method depends on the lake's state. When crust is spreading, as in the post-monsoon drying, coherence is more accurate; when the lake is full, brightness is. The methods give different estimates with different error trade-offs; they are not proven limits on the true area. Our headline is about the post-monsoon drying, a crust-spreading period, which is exactly where coherence validated better.
 
-**Recommendation:** Use brightness when the lake is full, add coherence when crust is present, and report both as upper and lower bounds.
+**Recommendation:** Use brightness when the lake is full, add coherence when crust is present, and report both estimates ("Brightness only" and "Brightness + coherence").
 
 **Supporting findings**
 - *The 11 May optical trap:* Sentinel-2 shows a white lake on 11 May but water on 6 and 16 May. A single optical image can mislead.
@@ -90,7 +90,7 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 - **Pans kept apart:** natural lake bed is reported separately from mapped salt pans.
 - **Honest numbers:** every area has an uncertainty band, and we report both methods' scores, including where each one fails.
 - **Consistent geometry:** all dates share one orbit track and viewing geometry, so the incidence angle is constant through the year.
-- **A clear rule for users:** which method to trust depends on the lake's state, and reporting both gives upper and lower bounds.
+- **A clear rule for users:** which method to trust depends on the lake's state, and both estimates are reported side by side.
 - **Open and repeatable:** free data and open code. The same steps can be run on new NISAR passes or other salt lakes.
 
 ### Limitations
@@ -114,7 +114,7 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 ### How we are different from what already exists
 
 - **Optical water maps** (e.g. JRC Global Surface Water) can't see through monsoon clouds and can confuse white salt crust with water; the JRC record we used ends in 2021.
-- **Radar flood tools** usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. With brightness alone, the post-monsoon drying almost disappears (about 125 → 115 km² vs 91 → 56 km² with coherence).
+- **Radar flood tools** usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. With brightness alone, the post-monsoon drying is much smaller (about 10 km² vs 35 km²): about 125 → 115 km² vs 91 → 56 km² with coherence.
 - **Published Sambhar studies** we found give yearly figures; we update every 12 days, through clouds.
 
 **What we add:** NISAR (launched 2025); a test for water vs salt crust using coherence; open reliability (177 check points, 12 threshold settings, stated limits); salt works separated from the natural lake; built for non-experts.
@@ -128,7 +128,7 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 
 ### Which polarization?
 
-- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it measures how stable the surface is between two passes.
+- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent.
 - **We did not test HV.** This is a reason, not a result: over the lake HV is likely close to the noise floor (about −26.8 dB), and HH usually gives better water/land contrast at L-band.
 - **Mode check we did do:** quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees between the modes.
 

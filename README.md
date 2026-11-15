@@ -32,7 +32,7 @@ GCOV values are gamma-zero backscatter in linear power, terrain-corrected (RTC),
 ## Method
 
 1. **Crop**: stream only the Sambhar area from each NISAR file and resample every date onto one fixed 20 m grid (`scripts/crop_lake.py`).
-2. **Classify**: convert to decibels, lightly reduce speckle, and keep pixels that are both **dark** (HH below a threshold) and **unstable** (12-day coherence below a threshold). Calm water reflects the radar pulse away from the satellite, so it appears dark; but smooth salt crust and dry fields can be dark too. Water changes between passes, so its coherence is low, while crust and fields stay coherent. Until Sentinel-2 confirms it, the class is called *dark unstable surface (water or wet brine)*. Thresholds and the evidence for them are in `sambhar/config.py`. Each date uses exactly one 12-day pair, so every date is treated the same way: the pair starting on it, or, if there is none, the pair ending on it (`pair_direction` = forward/backward in the results; `pair_modes` shows when the two dates used different radar modes). Every area also comes with a min-max range over 12 threshold combinations (`scripts/sensitivity.py`), because the thresholds change the areas more than the season does.
+2. **Classify**: convert to decibels, lightly reduce speckle, and keep pixels that are both **dark** (HH below a threshold) and **unstable** (12-day coherence below a threshold). Calm water reflects the radar pulse away from the satellite, so it appears dark; but smooth salt crust and dry fields can be dark too. Coherence compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent. This follows Festa, D., Roth, F., Hassaan, M., Wagner, W. (2026). Improving Backscatter-Based Surface Water Classification in Arid Environments Through Interferometric Coherence. *Remote Sensing* 18(17), 2966. https://www.mdpi.com/2072-4292/18/17/2966. We apply and test this approach at a salt lake with NISAR. Until Sentinel-2 confirms it, the class is called *dark unstable surface (water or wet brine)*. Thresholds and the evidence for them are in `sambhar/config.py`. Each date uses exactly one 12-day pair, so every date is treated the same way: the pair starting on it, or, if there is none, the pair ending on it (`pair_direction` = forward/backward in the results; `pair_modes` shows when the two dates used different radar modes). Every area also comes with a min-max range over 12 threshold combinations (`scripts/sensitivity.py`), because the thresholds change the areas more than the season does.
 3. **Measure**: area per date inside the hand-drawn lake outline (152 km²), split into *salt works and mapped pans* (49.1 km² of the lake; the largest shape covers the whole eastern salt-works section, reservoirs included) and *outside mapped pans* (103.0 km²). Pan shapes outside the lake are rough and are not used. Also the **water-detection frequency** of each pixel (detections ÷ valid observations) (`scripts/map_water.py`). The HH-only result is kept alongside to show how much dark but stable surface coherence removes.
 4. **Validate**: compare against labelled Sentinel-2 points, reporting water vs salt crust separately. *(in progress)*
 
@@ -153,10 +153,10 @@ The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 i
 | 11 May → 11 May (DHDH) | 74% (34/46); 77%; 3/8 | 78% (36/46); 91%; 6/8 |
 | 29 Aug → 27 Aug (QPDH) | 73% (54/74); 68%; 6/27 | 62% (46/74); 86%; 22/27 |
 
-**How to read this: the two methods bracket the true water area.**
-- **Brightness only is an upper bound.** It finds nearly all water (89%) but also calls most salt crust water (81%).
-- **Brightness + coherence is a lower bound.** When it says water it is right 89% of the time and it rejects most crust (only 24% called water), but it misses 40% of water points, mostly in January (it finds 42% of January water against 89% for brightness alone). Why some January water stays coherent over 12 days is unresolved. Possible reasons, none tested: calm, stable shallow water or thin brine films; stable features smaller than a pixel (salt rafts, mud ridges); coherence estimates biased upward where the signal is weak.
-- **Which method to trust depends on the state of the lake.** With a full lake and little crust (January), brightness alone is more accurate (86% vs 44%). When crust is spreading (late August), brightness + coherence is better (73% vs 62%). In May the two are similar (74% vs 78%). In the area chart above, the dashed and solid lines can be read as these upper and lower bounds.
+**How to read this: two estimates with different errors.** The methods give different estimates with different error trade-offs; they are not proven limits on the true area.
+- **Brightness only** finds nearly all water (89%) but also calls most salt crust water (81%).
+- **Brightness + coherence:** when it says water it is right 89% of the time and it rejects most crust (only 24% called water), but it misses 40% of water points, mostly in January (it finds 42% of January water against 89% for brightness alone). Why some January water stays coherent over 12 days is unresolved. Possible reasons, none tested: calm, stable shallow water or thin brine films; stable features smaller than a pixel (salt rafts, mud ridges); coherence estimates biased upward where the signal is weak.
+- **Which method to trust depends on the state of the lake.** With a full lake and little crust (January), brightness alone is more accurate (86% vs 44%). When crust is spreading (late August), brightness + coherence is better (73% vs 62%). In May the two are similar (74% vs 78%). The area chart above shows both estimates (dashed: brightness only; solid: brightness + coherence).
 - On 11 May, 19 points looked white in the optical image but showed water on Sentinel-2 images 5 days before and after; radar with coherence called 17 of them water.
 
 **Limits of this check:** the samples are small (inside the lake: 37 crust points, only 2 of them in January; 20 white/uncertain; 6 land), there are only three dates, and two of them (11 Jan, 27 Aug) are QPDH dates outside the main DHDH series; only 11 May is in it. The 29 Aug optical image is 2 days from the 27 Aug radar date. Labels were made by eye. Accuracy on these dates does not prove accuracy all year.
@@ -180,7 +180,7 @@ One strength: all dates come from the same track and frame (descending track 34,
 ## How we are different from what already exists
 
 - **Optical water maps** (e.g. JRC Global Surface Water) can't see through monsoon clouds and can confuse white salt crust with water; the JRC record we used ends in 2021.
-- **Radar flood tools** usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. With brightness alone, the post-monsoon drying almost disappears (about 125 → 115 km² vs 91 → 56 km² with coherence).
+- **Radar flood tools** usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. With brightness alone, the post-monsoon drying is much smaller (about 10 km² vs 35 km²): about 125 → 115 km² vs 91 → 56 km² with coherence.
 - **Published Sambhar studies** we found give yearly figures; we update every 12 days, through clouds.
 
 **What we add:** NISAR (launched 2025); a test for water vs salt crust using coherence; open reliability (177 check points, 12 threshold settings, stated limits); salt works separated from the natural lake; built for non-experts.
@@ -194,7 +194,7 @@ One strength: all dates come from the same track and frame (descending track 34,
 
 ## Which polarization?
 
-- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it measures how stable the surface is between two passes.
+- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent.
 - **We did not test HV.** This is a reason, not a result: over the lake HV is likely close to the noise floor (about −26.8 dB), and HH usually gives better water/land contrast at L-band.
 - **Mode check we did do:** quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees between the modes.
 

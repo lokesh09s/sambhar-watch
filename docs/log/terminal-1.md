@@ -311,3 +311,14 @@ Notes:
 
 ### 23:05 IST - Pushed; Vercel and GitHub Pages both updated
 - What: user asked to update the website on Vercel. Found the repo's homepage set to https://sambhar-watch.vercel.app (the user's Vercel project, deploying from this repo; no Vercel CLI here). Pushed commit c2aac58 to origin/main. Vercel served the new version within ~15 s: new "How we are different" section present, app.html shows "Salt-works zones (approximate, hand-drawn)", app.js / explorer.js / data files return 200. GitHub Pages also updated. So vercel.json works (first real confirmation). README and deck still link the github.io address.
+
+### 23:21 IST - Wording fixes: no bounds language, coherence wording, citation
+- What (text only; no data, numbers or analysis changed): across web/index.html, web/app.html, web/app.js (chart line names), README.md, docs/project_page.md, docs/slides/build_deck.py:
+  1. Removed "upper bound" / "lower bound" / "bracket the true area" wording; the two results are named "Brightness only" and "Brightness + coherence", with the line "The methods give different estimates with different error trade-offs; they are not proven limits on the true area."
+  2. Coherence now described as comparing the radar signal from two passes 12 days apart (open water usually low, stable dry surfaces usually coherent), not as measuring surface change. Figure panel titles changed to "dark = low coherence" / "dark AND low coherence = detected" (sambhar/plots.py; docs/figures/comparison_2026-05-11.png regenerated, same data).
+  3. "almost disappears" -> "is much smaller (about 10 km2 vs 35 km2)".
+  4. Citation added where the method is described (website how-it-works, README method step 2, project page step 5, deck slide 4 caption + notes): Festa, Roth, Hassaan, Wagner (2026), Remote Sensing 18(17), 2966, framed as "we apply and test this approach at a salt lake with NISAR". Citation supplied by the team; NOT verified by me (the MDPI link returned 403 to an automated request).
+  5. Threshold timing: -18 dB / 0.3 were set at 18:19 IST and frozen at 19:24; the labelled point files were saved at 19:57, 20:03 and 20:05, and validate.py ran at 20:06. The thresholds were not changed afterwards.
+- Check: grep finds none of the removed phrases in those files. Deck rebuilt 3 times: first render had card 2 text overflowing and the slide 4 caption running into the slide number; shortened; final slide 4 checked, slides 5-7 checked on a contact sheet. Website local test (1280 and 390 px, both pages): no overflow, no load error, map and date buttons work, no console errors (only cancelled image loads when the layer swaps). Tests 6/6. Version tag ?v=9.
+- Not changed: docs/slides_outline.md and docs/video_script.md (not in the request) may still use the old wording.
+- Not pushed: waiting for the user.

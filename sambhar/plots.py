@@ -132,7 +132,7 @@ def slide_comparison(hh_db, coherence, detected, hh_dark, lake, title, path):
     with plt.rc_context(SLIDE_STYLE):
         fig, axes = plt.subplots(1, 3, figsize=(19, 6.5))
         panels = [(hh_db, "gray", -30, 0, "1. Radar brightness (HH, dB)\ndark = smooth surface"),
-                  (coherence, "magma", 0, 1, "2. 12-day coherence\ndark = surface changed")]
+                  (coherence, "magma", 0, 1, "2. 12-day coherence\ndark = low coherence")]
         for ax, (data, cmap, vmin, vmax, panel_title) in zip(axes, panels):
             shown = ax.imshow(data, cmap=cmap, vmin=vmin, vmax=vmax)
             plt.colorbar(shown, ax=ax, fraction=0.035)
@@ -142,7 +142,7 @@ def slide_comparison(hh_db, coherence, detected, hh_dark, lake, title, path):
         result[hh_dark & ~detected] = matplotlib.colors.to_rgb(REMOVED_COLOUR)
         result[detected] = matplotlib.colors.to_rgb(DETECTED_COLOUR)
         axes[2].imshow(result)
-        axes[2].set_title("3. Result\ndark AND changed = detected")
+        axes[2].set_title("3. Result\ndark AND low coherence = detected")
         axes[2].legend(handles=[Patch(color=DETECTED_COLOUR, label="detected: water or wet brine"),
                                 Patch(color=REMOVED_COLOUR, label="dark but stable: removed")],
                        loc="lower left", fontsize=13, framealpha=0.9)

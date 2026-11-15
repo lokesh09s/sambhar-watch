@@ -7,7 +7,7 @@
   <title>Sambhar Watch: the app</title>
   <meta name="description" content="Explore surface water at Sambhar Salt Lake date by date, from NASA-ISRO NISAR radar.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body class="app">
   <nav class="nav" aria-label="App sections">
@@ -53,7 +53,8 @@
 
     <section aria-labelledby="chart-title" id="chart-section">
       <h2 id="chart-title">Detected area over time</h2>
-      <p class="section-lede">Lower bound (with coherence) and upper bound (brightness only), inside the lake outline.</p>
+      <p class="section-lede">&ldquo;Brightness only&rdquo; and &ldquo;Brightness + coherence&rdquo;, inside the lake outline.
+        The methods give different estimates with different error trade-offs; they are not proven limits on the true area.</p>
       <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
       <p class="hint">Tap a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
       <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
@@ -100,7 +101,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js?v=8"></script>
-  <script src="explorer.js?v=8"></script>
+  <script src="app.js?v=9"></script>
+  <script src="explorer.js?v=9"></script>
 </body>
 </html>

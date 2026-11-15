@@ -222,10 +222,10 @@ function makeChart(areaScope) {
   for (const mode of modes) {
     const which = mode && modes.length > 1 ? ", " + (MODE_NAMES[mode] || mode) : "";
     if (rows.some(hasRange)) datasets.push(...band(mode));
-    datasets.push(line("With coherence: lower bound" + which, "water_km2", INK, mode === "QPDH" ? [2, 3] : [], mode));
+    datasets.push(line("Brightness + coherence" + which, "water_km2", INK, mode === "QPDH" ? [2, 3] : [], mode));
   }
   if (rows.some(r => number(r, "hh_only_water_km2") !== null)) {   // same orange as "removed by coherence" on the map
-    datasets.push(line("Brightness only: upper bound", "hh_only_water_km2", "rgb(240, 140, 0)", [5, 3]));
+    datasets.push(line("Brightness only", "hh_only_water_km2", "rgb(240, 140, 0)", [5, 3]));
   }
   datasets.push(line("Inside " + pansLabel, "water_inside_mapped_pans_km2", ACCENT, []));
   datasets.push(line("Outside " + pansLabel, "water_outside_mapped_pans_km2", "#8a959b", [6, 4]));

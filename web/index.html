@@ -7,7 +7,7 @@
   <title>Sambhar Watch</title>
   <meta name="description" content="Surface water at Sambhar Salt Lake through a year of NASA-ISRO NISAR radar, inside and outside mapped salt pans.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
   <div id="progress" aria-hidden="true"></div>
@@ -74,7 +74,7 @@
         <div class="card step"><span class="step-number">1</span><h3>Brightness</h3>
           <p>Calm water reflects the radar pulse away, so it looks dark. But smooth salt crust is dark too.</p></div>
         <div class="card step"><span class="step-number">2</span><h3>Coherence</h3>
-          <p>Compare two passes 12 days apart. Water changes; dry crust and soil stay the same.</p></div>
+          <p>Compare the radar signal from two passes 12 days apart. Open water usually has low coherence; stable dry surfaces usually stay coherent.</p></div>
         <div class="card step"><span class="step-number">3</span><h3>Stress test</h3>
           <p>Repeat with 12 threshold settings, and show the range as an uncertainty band.</p></div>
         <div class="card step"><span class="step-number">4</span><h3>Check</h3>
@@ -86,8 +86,8 @@
       <p>Radar works through cloud and at night, which matters at Sambhar because the lake changes most during the
         monsoon, when optical satellites are often blind.</p>
       <p>Darkness alone is not enough: smooth dry salt crust can look as dark as water. So we also use
-        <em>coherence</em>: how much the ground stayed the same between two passes 12 days apart. Water never stays
-        the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
+        <em>coherence</em>, which compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent.
+        This follows Festa, D., Roth, F., Hassaan, M., Wagner, W. (2026). Improving Backscatter-Based Surface Water Classification in Arid Environments Through Interferometric Coherence. <em>Remote Sensing</em> 18(17), 2966. <a href="https://www.mdpi.com/2072-4292/18/17/2966">mdpi.com/2072-4292/18/17/2966</a>. We apply and test this approach at a salt lake with NISAR.</p>
       <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
         coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
         water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later (or 12 days
@@ -153,8 +153,8 @@
         <div class="card"><h3>Optical water maps</h3><p>Maps such as JRC Global Surface Water can't see through monsoon clouds
           and can confuse white salt crust with water. The JRC record we used ends in 2021.</p></div>
         <div class="card"><h3>Radar flood tools</h3><p>They usually use brightness only. At a salt lake that fails: flat crust looks as
-          dark as water. With brightness alone, the post-monsoon drying almost disappears (about 125 &rarr; 115 km&sup2;,
-          against 91 &rarr; 56 km&sup2; with coherence).</p></div>
+          dark as water. With brightness alone, the post-monsoon drying is much smaller (about 10 km&sup2; vs 35 km&sup2;:
+          about 125 &rarr; 115 km&sup2;, against 91 &rarr; 56 km&sup2; with coherence).</p></div>
         <div class="card"><h3>Sambhar studies</h3><p>The published studies we found give yearly figures. We update every 12 days,
           through clouds.</p></div>
       </div>
@@ -186,8 +186,8 @@
           lake's state: coherence agrees better when crust spreads after the monsoon (late August, 73% vs 62%),
           brightness when the lake is full of calm winter water (January, 86% vs 44%). The drying season, where our
           headline sits, is exactly where coherence validated better.</li>
-        <li><strong>Together they bracket the truth.</strong> Brightness alone gives a rough upper bound and coherence a rough
-          lower bound; the chart shows both.</li>
+        <li><strong>Two estimates, not limits.</strong> The chart shows both &ldquo;Brightness only&rdquo; and
+          &ldquo;Brightness + coherence&rdquo;. The methods give different estimates with different error trade-offs; they are not proven limits on the true area.</li>
         <li><strong>The 11 May optical trap.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
           11 May but water on 6 and 16 May. Radar with coherence called 17 of the 19 white points water.</li>
       </ul>
@@ -214,7 +214,7 @@
         <h3>What this means <span class="tag">Provisional</span></h3>
         <ul>
           <li><strong>Use brightness and coherence together.</strong> Brightness over-counts salt crust; coherence
-            under-counts water. Report both as upper and lower bounds; which is closer depends on the lake's state
+            under-counts water. Report both estimates; which is closer depends on the lake's state
             (coherence after the monsoon, brightness when the lake is full).</li>
           <li><strong>Always show the uncertainty.</strong> Small changes can come from threshold choices, not from the lake.</li>
           <li><strong>Don't mix NISAR radar modes for brightness without checking.</strong> Coherence is more consistent
@@ -237,8 +237,7 @@
         (40&ndash;72 km&sup2;) is larger than the April&ndash;August changes, and shallow water is hard to separate from wet crust.</p>
       <h3>Which polarization?</h3>
       <ul>
-        <li>We used HH backscatter plus 12-day coherence. Coherence is not a polarization: it measures how stable the
-          surface is between two passes.</li>
+        <li>We used HH backscatter plus 12-day coherence. Coherence is not a polarization: it compares the radar signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay coherent.</li>
         <li>We did not test HV. This is a reason, not a result: over the lake HV is likely close to the noise floor
           (about &minus;26.8 dB), and HH usually gives better water/land contrast at L-band.</li>
         <li>Mode check we did do: quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees
@@ -321,7 +320,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js?v=8"></script>
-  <script src="effects.js?v=8"></script>
+  <script src="app.js?v=9"></script>
+  <script src="effects.js?v=9"></script>
 </body>
 </html>

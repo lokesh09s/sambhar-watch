@@ -202,8 +202,8 @@ notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but wh
          "How we are different from what already exists: Optical water maps (e.g. JRC Global Surface Water) can't see "
          "through monsoon clouds and can confuse white salt crust with water; the JRC record we used ends in 2021. "
          "Radar flood tools usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. "
-         "With brightness alone, the post-monsoon drying almost disappears (about 125 to 115 km2 vs 91 to 56 km2 with "
-         "coherence). Published Sambhar studies we found give yearly figures; we update every 12 days, through clouds. "
+         "With brightness alone, the post-monsoon drying is much smaller (about 10 km2 vs 35 km2: about 125 to 115 km2 vs "
+         "91 to 56 km2 with coherence). Published Sambhar studies we found give yearly figures; we update every 12 days, through clouds. "
          "What we add: NISAR (launched 2025); a test for water vs salt crust using coherence; open reliability "
          "(177 check points, 12 threshold settings, stated limits); salt works separated from the natural lake; "
          "built for non-experts.")
@@ -218,11 +218,11 @@ cmp_w = min(12.1, 2.95 * cmp_.width / cmp_.height)   # as wide as fits above the
 picture(s, cmp_, 0.6 + (12.1 - cmp_w) / 2, 1.7, w=cmp_w)
 text(s, 0.6, 4.78, 12.1, 0.6,
      [[("Polarization: ", {"bold": True, "color": TEAL}),
-       ("HH brightness + 12-day coherence (coherence measures stability, it is not a polarization). "
+       ("HH brightness + 12-day coherence (not a polarization: it compares two passes). "
         "HV not tested: over the lake it is likely near the noise floor (about −26.8 dB). "
         "Quad-pol HH is about 0.9 dB brighter than dual-pol; coherence agrees between modes.", {})]], size=16)
 steps = [("1", "Brightness only", "fails: May ≈ Aug ≈ −22 dB"),
-         ("2", "Add coherence", "water changes, crust doesn't"),
+         ("2", "Add coherence", "usually low for water, high for dry crust"),
          ("3", "Stress test", "12 threshold settings"),
          ("4", "Check", "177 Sentinel-2 points")]
 cw = (12.1 - 3 * 0.25) / 4
@@ -231,13 +231,18 @@ for i, (n, head, sub) in enumerate(steps):
     card(s, x, 5.6, cw, 1.35)
     text(s, x + 0.15, 5.65, cw - 0.3, 0.45, [[(n + "  ", {"color": TEAL}), (head, {})]], size=20, bold=True)
     text(s, x + 0.15, 6.1, cw - 0.3, 0.8, [sub], size=18)
-credit(s, f"Radar: {CREDIT_NISAR}, 11 May 2026. Hand-drawn outline: lake 152 km², pans 49.1 km². "
-          "It misses about 10 km² of western lake bed; adding it does not change the Aug → Oct drop.")
+credit(s, f"Radar: {CREDIT_NISAR}, 11 May 2026. Method after Festa et al. 2026 (Remote Sensing 18(17), 2966), tested here "
+          "with NISAR. Hand-drawn outline misses about 10 km² of lake bed.")
 notes(s, "Rule: HH below -18 dB AND 12-day coherence below 0.3 (provisional). Stress test: HH -17 to -20 dB, "
          "coherence 0.25 to 0.35. One date's area can shift 40-72 km2, so small April-August changes are within "
          "uncertainty. Each date uses the 12-day pair starting on that date (else the one ending on it). Modes DHDH and "
          "QPDH kept separate. Polarization: we used HH plus coherence; HV was not tested (likely near the noise "
-         "floor over the lake, and HH usually gives better water/land contrast at L-band).")
+         "floor over the lake, and HH usually gives better water/land contrast at L-band). Coherence compares the radar "
+         "signal from two passes 12 days apart; open water usually has low coherence, stable dry surfaces usually stay "
+         "coherent. Citation: Festa, D., Roth, F., Hassaan, M., Wagner, W. (2026). Improving Backscatter-Based Surface "
+         "Water Classification in Arid Environments Through Interferometric Coherence. Remote Sensing 18(17), 2966. "
+         "https://www.mdpi.com/2072-4292/18/17/2966. We apply and test this approach at a salt lake with NISAR. The "
+         "hand-drawn outline misses about 10 km2 of western lake bed; adding it does not change the Aug to Oct drop.")
 
 # 5. Results (hero) ---------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
@@ -299,7 +304,7 @@ text(s, tx, ty + sum(heights) + 0.1, tw, 0.7,
 card(s, 0.6, 6.27, 12.15, 0.58)
 text(s, 0.75, 6.27, 11.9, 0.58,
      [[("A trade-off: ", {"bold": True, "color": TEAL}),
-       ("brightness over-counts, coherence under-counts. Together they bracket the true area.", {})]],
+       ("brightness over-counts, coherence under-counts. Different estimates, not proven limits.", {})]],
      size=20, anchor=MSO_ANCHOR.MIDDLE)
 text(s, 0.6, 6.9, 12.1, 0.5,
      [f"Top: ESA Copernicus Sentinel-2, 29 Aug, 13 Oct. Bottom: {CREDIT_NISAR}, 15 Aug, 14 Oct; blue = water "
@@ -340,8 +345,8 @@ cx, cwid = 7.1, 5.65
 picture(s, area, cx, 1.4, w=cwid)
 ky = 1.4 + cwid * area.height / area.width + 0.15
 text(s, cx, ky, cwid, 1.25,
-     [[("Orange: ", {"bold": True, "color": ORANGE}), ("brightness only (upper bound)", {})],
-      [("Blue: ", {"bold": True, "color": BLUE}), ("+ coherence (lower bound)", {})],
+     [[("Orange: ", {"bold": True, "color": ORANGE}), ("Brightness only", {})],
+      [("Blue: ", {"bold": True, "color": BLUE}), ("Brightness + coherence", {})],
       [("Band: ", {"bold": True, "color": BLUE}), ("range over 12 threshold settings", {})],
       [("Grey squares: ", {"bold": True, "color": MUTED}), ("quad-pol dates, not comparable", {})]], size=18)
 text(s, cx, ky + 1.6, cwid, 1.1,
@@ -356,7 +361,7 @@ title(s, "Recommendation and proposed use", label="What to do with it")
 card(s, 0.6, 1.2, 12.15, 0.9, fill=TEAL)
 text(s, 0.85, 1.2, 11.7, 0.9,
      ["Use brightness when the lake is full, add coherence when crust is present, "
-      "and report both as upper and lower bounds."], size=20, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
+      "and report both estimates. They are not proven limits on the true area."], size=20, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
 text(s, 0.6, 2.2, 12.1, 0.45, ["Why does the lake change? (hypothesis, not proven)"], size=20, bold=True, color=TEAL)
 drivers = [("Monsoon (Jul–Sep)", "Rain and seasonal streams flow into the shallow lake"),
            ("After the rains", "Evaporation shrinks the water: wet brine, then salt crust"),
