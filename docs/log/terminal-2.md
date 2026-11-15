@@ -44,3 +44,20 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
 - Result: The docs terminal's entries are unchanged; only this terminal's text moved.
   Also seen in their decision log: on real data, dry (May) and monsoon (Aug) lake bed are both about -22 dB HH, so the team is adding NISAR GUNW coherence. The website currently shows HH-threshold water only.
 - Next: Keep the website ready for real results; adapt it if the team adopts a coherence-based water rule.
+
+### 18:17 IST - Stop tracking .venv and outputs (no history rewrite)
+- What: Created .gitignore (.venv/, outputs/, __pycache__/, .pytest_cache/, *.h5, .netrc). Ran `git rm -r --cached .venv outputs`.
+  Commits 12af318 (failed attempt, see below) and d0928ea (the removal).
+- Why: The starting commit e2ec1ed (another terminal) tracked the virtualenv and generated outputs, including FAKE demo data. Team asked to stop tracking them without rewriting history.
+- Result:
+  - FAILED first attempt: I committed with `git commit -- .gitignore .venv outputs`. Naming paths makes git commit them from the
+    working tree, which re-added every file that git rm --cached had just removed. 12af318 therefore contains only .gitignore plus the
+    current outputs/crop_all.log (the other terminal's crop log, picked up by accident). Its message wrongly says it stopped tracking them.
+    Left as it is (no amend, no history rewrite).
+  - Second attempt: repeated git rm --cached, checked that nothing outside .venv/ and outputs/ was staged, then committed the index with
+    no paths. d0928ea: 12,788 files removed from tracking. `git ls-files .venv outputs` now returns 0. Files are still on disk
+    (outputs/crops/*.npz present; .venv/bin/python imports numpy).
+  - Still tracked, not touched because the task didn't ask: sambhar/__pycache__/*.pyc and scripts/__pycache__ (now in .gitignore, but files
+    that are already tracked stay tracked), and .DS_Store. The old commits still contain .venv and outputs, so clones stay large until history is rewritten.
+- Lesson: to commit only some staged changes, check `git diff --cached --name-only` and run plain `git commit`. Don't use `git commit -- <paths>` after git rm --cached.
+- Next: Optional: `git rm -r --cached sambhar/__pycache__ scripts/__pycache__ tests/__pycache__ .DS_Store` (team's call).
