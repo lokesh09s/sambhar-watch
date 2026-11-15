@@ -92,20 +92,24 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 | Checked on 177 Sentinel-2 points | Brightness only | + Coherence |
 |---|---|---|
-| Real water found | 89% | 60% |
-| Salt crust called water | 81% | 24% |
+| **Balanced accuracy** | 58% | **68%** |
+| Water found | 89% | 60% |
+| Non-water found (crust, land) | 28% | 77% |
 | Accuracy, late Aug (crust spreading) | 62% | 73% |
 | Accuracy, 11 Jan (lake full) | 86% | 44% |
-| Accuracy, all dates | 74% | 64% |
 
+- Plain accuracy: 74% vs 64%, but always saying "water" scores 76%.
 - A trade-off: brightness over-counts, coherence under-counts. Together they bracket the true area.
 
-**Visual:** August vs October side by side, with Sentinel-2 on top and the radar map below. Caption under each: brightness only 125 → 115 km², + coherence 91 → 56 km² [IMAGE: Aug vs Oct, S2 + radar]
+**Visual:** August vs October side by side, with Sentinel-2 on top and the radar map below. Under them: brightness only about 125 → 115 km², + coherence about 91 → 56 km² [IMAGE: Aug vs Oct, S2 + radar]
 
-**Footer (small):** Water detected on these dates, inside the 152 km² lake outline. Sentinel-2: 29 Aug and 13 Oct. Radar: DHDH mode.
+**Caption (small):** Water detected on these dates, inside the 152 km² lake outline. Sentinel-2: 29 Aug and 13 Oct. Both radar dates use mixed-mode coherence pairs, so they're treated alike; our mode check found coherence consistent between modes; separate QPDH dates in Sep–Oct (56–60 km²) agree with the October value.
 
 **Notes:**
-- **Don't hide the 64%.** Say it plainly: overall, coherence scores lower than brightness, because it misses some real water, especially in January. The headline is about the post-monsoon drying, which is a crust-spreading period, and that is exactly where coherence validated better (73% vs 62%).
+- **Lead with balanced accuracy, and don't hide the 64%.** Say: "76% of validation points were water, so plain accuracy rewards over-counting; a model that always says 'water' scores 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water." Counts: n = 177 (134 water, 43 non-water = 37 crust + 6 land). Brightness only: water 119/134 (88.8%), non-water 12/43 (27.9%), balanced 58.4%, plain 74.0%. + Coherence: water 80/134 (59.7%), non-water 33/43 (76.7%), balanced 68.2%, plain 63.8%. Always "water": plain 75.7%, balanced 50%.
+- The headline is about the post-monsoon drying, which is a crust-spreading period, and that is exactly where coherence validated better (73% vs 62%).
+- Labels: an MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film pixels; all labels were kept unchanged to avoid post-hoc bias.
+- Areas are approximate: say "about", or give the range across settings.
 - The framing: "It's a trade-off. Brightness alone over-counts (it calls most salt crust water); coherence under-counts (it misses some real water, especially in January). The right method depends on the lake's state: when crust is spreading, as in the post-monsoon drying, coherence is more accurate; when the lake is full, brightness is. Together they bracket the true water area."
 - Full numbers:
   - Brightness + coherence 91.4 → 55.7 km² (range across settings 51–110 → 34–72).
@@ -117,8 +121,10 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 - Sentinel-2: 29 Aug ~55–60% water with a crust band at the edges. 13 Oct ~55–60% white crust across most of the basin, ~20–25% water; 10 Oct looks the same.
 - Honest limits (say them if asked):
   - Radar overestimates in October: 56 vs ~30–40 km² optical, likely the reservoir and wet edges.
-  - Coherence misses winter water: in January (QPDH) radar detects ~50–55% of the lake vs ~85–90% water in Sentinel-2. Why is unexplained; the brighter QPDH mode is one idea, unconfirmed.
+  - Coherence misses winter water: in January (QPDH) radar detects ~50–55% of the lake vs ~85–90% water in Sentinel-2. Unresolved. Hypotheses: calm, stable shallow water or thin brine films; stable sub-pixel features (salt rafts, mud ridges); coherence estimates biased upward at low signal.
   - April–August changes are within uncertainty.
+  - Processing: 20 m nearest-neighbour resampling (no multilooking); 3×3 smoothing done in dB, not linear power; GUNW coherence estimated over a coarser window than the 10 m GCOV.
+  - Strength: all dates share one track and geometry, so the incidence angle is constant through the year.
   - Small samples: 37 crust, 20 white, 6 land points. Labels are by eye from 20 m Sentinel-2.
   - Wet salt crust can look like water; we tested this.
 - Supporting points, if time:

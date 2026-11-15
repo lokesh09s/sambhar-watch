@@ -12,7 +12,7 @@ Sambhar Watch
 
 ## High-Level Summary
 
-Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon; brightness alone missed it, coherence caught it. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from 91 to 56 km², and the drop holds under every threshold setting we tested. Sentinel-2 shows the same drying, from about 55–60% water to about 55–60% white crust. Checked on 177 labelled points, it is a trade-off: brightness alone over-counts (it calls 81% of salt crust water), while coherence under-counts (it finds 60% of real water and is 64% accurate overall, against 74% for brightness). Coherence does better while crust is spreading, brightness when the lake is full, so together they bracket the true water area. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
+Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon; brightness alone missed it, coherence caught it. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from about 91 to about 56 km², and the drop holds under every threshold setting we tested. Sentinel-2 shows the same drying, from about 55–60% water to about 55–60% white crust. Checked on 177 labelled points, it is a trade-off. Brightness alone over-counts: it calls 81% of salt crust water. Coherence under-counts: it finds 60% of real water. Because 76% of the points were water, plain accuracy rewards over-counting, and a model that always says "water" would score 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water. Coherence does better while crust is spreading, brightness when the lake is full, so together they bracket the true water area. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
 
 ---
 
@@ -38,7 +38,7 @@ Sambhar is a Ramsar site with 24,000 ha designated. A 2026 study by NRSC-ISRO an
 5. **Add coherence.** Coherence measures how much the surface changes between two radar passes 12 days apart. Water and wet brine change, so their coherence is low. Stable ground, including dry, smooth salt crust that is as dark as water, stays coherent. Each date uses the 12-day pair that starts on that date. Our provisional rule: a pixel is detected when HH is below −18 dB **and** coherence is below 0.3. This removes [COHERENCE REMOVED km²] of false "water" inside the lake per date, from dark but stable dry fields and dry crust.
 6. **Stress-test the settings.** We re-ran the rule over 12 reasonable settings: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. On a single date, the lake area can change by 40–72 km². That is more than the small changes between April and August (about 10 km²), so we don't claim those. A change only counts if it holds across settings: the drop from 15 August to 14 October holds in all 12 of 12 settings (by 16.9–38.7 km²). Every result is shown with this uncertainty band.
 7. **Keep radar modes apart.** NISAR alternates two modes over Sambhar (DHDH and QPDH). Only April–October forms one consistent series; outside that window the modes are shown separately.
-8. **Validate with Sentinel-2.** We labelled 203 points by eye on cloud-free 20 m Sentinel-2 images (177 inside the lake) as water, salt crust, white surface or land. We scored both methods against them, overall and by date. Wet salt crust can look like water to radar, so we report how often each method calls crust water.
+8. **Validate with Sentinel-2.** We labelled 203 points by eye on cloud-free 20 m Sentinel-2 images (177 inside the lake) as water, salt crust, white surface or land. We scored both methods against them, overall and by date. Because most points are water, we lead with balanced accuracy, which weights water and non-water equally. Wet salt crust can look like water to radar, so we also report how often each method calls crust water. An MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film pixels; all labels were kept unchanged to avoid post-hoc bias.
 9. **Compare with the long-term record.** JRC Global Surface Water's long-term record says the lake is rarely wet, which clashes with what we see in January 2026. Our hypothesis, not yet tested: optical records miss shallow brine.
 
 ### Results
@@ -49,26 +49,32 @@ Water inside the 152 km² lake outline, radar in DHDH mode. Radar areas are wate
 
 | | 15 August | 14 October |
 |---|---|---|
-| Radar, brightness only | 125 km² | 115 km² |
-| Radar, brightness + coherence | 91.4 km² (range 51–110) | 55.7 km² (range 34–72) |
+| Radar, brightness only | about 125 km² | about 115 km² |
+| Radar, brightness + coherence | about 91 km² (51–110 across settings) | about 56 km² (34–72 across settings) |
 | Sentinel-2 | 29 Aug: ~55–60% water, crust band at the edges | 13 Oct: ~55–60% white crust, ~20–25% water |
+
+Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our mode check found coherence consistent between modes, and separate QPDH dates in September–October (56–60 km²) agree with the October value.
 
 - **Brightness alone misses the change.** Dry, smooth salt crust is as dark as water to radar, so brightness drops by only 10 km².
 - **Coherence finds it.** Crust is stable between passes; water isn't. With coherence, the detected area falls by about 35 km².
 - **The drop holds under every threshold setting we tested.** Across all 12 settings, the detected area falls from 15 August to 14 October by 16.9–38.7 km². 14 October is the lowest date in 10 of 12 settings. QPDH-mode dates in September–October agree (56–60 km²).
 - **Sentinel-2 shows the same drying.** White crust covers most of the basin by 13 October; 10 October looks the same, so it persists.
 
-**Validation against Sentinel-2 (177 labelled points inside the lake)**
+**Validation against Sentinel-2 (177 labelled points inside the lake: 134 water, 43 non-water = 37 salt crust + 6 land)**
 
-| | Brightness only | Brightness + coherence |
-|---|---|---|
-| Real water found (recall) | 89% | 60% |
-| Detections that are real water (precision) | 79% | 89% |
-| Salt crust called water | 81% | 24% |
-| Accuracy, all dates | 74% | 64% |
-| Accuracy, 11 January (lake full) | 86% | 44% |
-| Accuracy, 11 May | 78% | 74% |
-| Accuracy, 27/29 August (crust spreading) | 62% | 73% |
+| | Always "water" (baseline) | Brightness only | Brightness + coherence |
+|---|---|---|---|
+| **Balanced accuracy** | 50% | 58.4% | **68.2%** |
+| Water found (water recall) | 100% | 88.8% (119/134) | 59.7% (80/134) |
+| Non-water found (non-water recall) | 0% | 27.9% (12/43) | 76.7% (33/43) |
+| Plain accuracy | 75.7% | 74.0% | 63.8% |
+| Detections that are real water (precision) | | 79% | 89% |
+| Salt crust called water | | 81% | 24% |
+| Accuracy, 11 January (lake full) | | 86% | 44% |
+| Accuracy, 11 May | | 78% | 74% |
+| Accuracy, 27/29 August (crust spreading) | | 62% | 73% |
+
+**Why balanced accuracy.** 76% of validation points were water, so plain accuracy rewards over-counting; a model that always says "water" scores 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while brightness still finds more water.
 
 **It's a trade-off.** Brightness alone over-counts: it calls most salt crust water. Coherence under-counts: it misses some real water, especially in January. The right method depends on the lake's state. When crust is spreading, as in the post-monsoon drying, coherence is more accurate; when the lake is full, brightness is. Together they bracket the true water area. Our headline is about the post-monsoon drying, a crust-spreading period, which is exactly where coherence validated better.
 
@@ -83,16 +89,18 @@ Water inside the 152 km² lake outline, radar in DHDH mode. Radar areas are wate
 - **Works through clouds:** radar covers the monsoon months that optical satellites often miss.
 - **Pans kept apart:** natural lake bed is reported separately from mapped salt pans.
 - **Honest numbers:** every area has an uncertainty band, and we report both methods' scores, including where each one fails.
+- **Consistent geometry:** all dates share one orbit track and viewing geometry, so the incidence angle is constant through the year.
 - **A clear rule for users:** which method to trust depends on the lake's state, and reporting both gives upper and lower bounds.
 - **Open and repeatable:** free data and open code. The same steps can be run on new NISAR passes or other salt lakes.
 
 ### Limitations
 
-- Overall, coherence is less accurate than brightness alone (64% vs 74%), because it misses real water, especially in January (44% accuracy). Why coherence missed January water is unexplained. The brighter QPDH mode used that month is one idea, unconfirmed.
+- Coherence misses real water (water recall 60%), especially in January (44% accuracy), so on plain accuracy it scores lower than brightness alone (64% vs 74%). Why it missed January water is unresolved. Hypotheses: calm, stable shallow water or thin brine films; stable sub-pixel features such as salt rafts or mud ridges; coherence estimates biased upward at low signal.
 - In January (QPDH mode) radar detects about 50–55% of the lake vs about 85–90% water in Sentinel-2.
 - Radar overestimates in October (56 vs about 30–40 km² optical), likely because of the reservoir and wet edges.
 - The validation samples are small for some classes: 37 crust, 20 white-surface and 6 land points.
-- The validation labels were made by eye from 20 m Sentinel-2 images.
+- The validation labels were made by eye from 20 m Sentinel-2 images. An MNDWI audit flagged 5 of 203 blind labels as mixed-edge or white-film pixels; all labels were kept unchanged to avoid post-hoc bias.
+- Processing simplifications: 20 m nearest-neighbour resampling (no multilooking); 3×3 smoothing done in dB, not linear power; GUNW coherence is estimated over a coarser window than the 10 m GCOV pixels.
 - Wet salt crust can look like water in radar. This is the main source of error, and we tested it explicitly.
 - Settings can change one date's area by 40–72 km², so we only report changes that hold across settings (the August → October drop holds in all 12 of 12). April–August changes are within the uncertainty.
 - Only April–October forms one consistent radar series. The two radar modes stay as separate series outside that window.

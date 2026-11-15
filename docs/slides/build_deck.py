@@ -196,7 +196,7 @@ notes(s, "Rule: HH below -18 dB AND 12-day coherence below 0.3 (provisional). St
 s = prs.slides.add_slide(BLANK)
 title(s, "Sambhar dries out after the monsoon. Brightness alone missed it; coherence caught it.",
       size=32, h=1.15)
-gw, gg, gx, gy = 3.0, 0.15, 0.6, 1.95
+gw, gg, gx, gy = 2.7, 0.15, 0.6, 1.92
 text(s, gx, 1.55, gw, 0.4, ["August"], size=18, bold=True, align=PP_ALIGN.CENTER)
 text(s, gx + gw + gg, 1.55, gw, 0.4, ["October"], size=18, bold=True, align=PP_ALIGN.CENTER)
 row_h = None
@@ -207,21 +207,23 @@ for col, (s2d, rd) in enumerate([("2026-08-29", "2026-08-15"), ("2026-10-13", "2
     picture(s, top, x, gy, w=gw)
     picture(s, radar_panel(rd), x, gy + row_h + gg, w=gw)
 sy = gy + 2 * row_h + gg + 0.12
-text(s, gx, sy, 2 * gw + gg, 0.85,
-     [[("Brightness only: ", {}), ("125 → 115 km²", {"bold": True})],
-      [("+ Coherence: ", {"color": TEAL, "bold": True}), ("91 → 56 km²", {"color": TEAL, "bold": True})]],
+text(s, gx, sy, 6.2, 1.0,
+     [[("Brightness only: ", {}), ("about 125 → 115 km²", {"bold": True})],
+      [("+ Coherence: ", {"color": TEAL, "bold": True}), ("about 91 → 56 km²", {"color": TEAL, "bold": True})],
+      [("The drop holds under every threshold setting we tested.", {"bold": True})]],
      size=18)
 
+# Lead with balanced accuracy: 76% of points are water, so plain accuracy rewards over-counting.
 rows = [("Checked on\n177 Sentinel-2 points", "Brightness only", "+ Coherence", None),
-        ("Real water found", "89%", "60%", 1),
-        ("Salt crust called water", "81%", "24%", 2),
+        ("Balanced accuracy", "58%", "68%", 2),
+        ("Water found", "89%", "60%", 1),
+        ("Non-water found\n(crust, land)", "28%", "77%", 2),
         ("Accuracy, late Aug\n(crust spreading)", "62%", "73%", 2),
-        ("Accuracy, 11 Jan\n(lake full)", "86%", "44%", 1),
-        ("Accuracy, all dates", "74%", "64%", 1)]
-tx, ty, tw = 7.0, 1.55, 5.75
-heights = [0.8, 0.45, 0.45, 0.75, 0.75, 0.45]
+        ("Accuracy, 11 Jan\n(lake full)", "86%", "44%", 1)]
+tx, ty, tw = 6.9, 1.55, 5.85
+heights = [0.8, 0.45, 0.45, 0.75, 0.75, 0.75]
 tbl = s.shapes.add_table(len(rows), 3, Inches(tx), Inches(ty), Inches(tw), Inches(sum(heights))).table
-tbl.columns[0].width, tbl.columns[1].width, tbl.columns[2].width = Inches(2.85), Inches(1.45), Inches(1.45)
+tbl.columns[0].width, tbl.columns[1].width, tbl.columns[2].width = Inches(2.95), Inches(1.45), Inches(1.45)
 tbl.first_row = True
 for r, (lab, a, b, win) in enumerate(rows):
     tbl.rows[r].height = Inches(heights[r])
@@ -243,23 +245,33 @@ for r, (lab, a, b, win) in enumerate(rows):
             f = run.font
             f.name = FONT
             f.size = Pt(18)
-            f.bold = r == 0 or (win == c)
+            f.bold = r <= 1 or (win == c)
             f.color.rgb = WHITE if r == 0 else (TEAL if win == c else INK)
-text(s, tx, ty + sum(heights) + 0.15, tw, 0.8,
-     ["The drop holds under every threshold setting we tested."], size=18, bold=True)
-card(s, 0.6, 6.2, 12.15, 0.72)
-text(s, 0.75, 6.2, 11.9, 0.72,
+text(s, tx, ty + sum(heights) + 0.1, tw, 0.7,
+     ["Plain accuracy: 74% vs 64%, but always saying “water” scores 76%."], size=18)
+card(s, 0.6, 6.27, 12.15, 0.58)
+text(s, 0.75, 6.27, 11.9, 0.58,
      [[("A trade-off: ", {"bold": True, "color": TEAL}),
        ("brightness over-counts, coherence under-counts. Together they bracket the true area.", {})]],
      size=20, anchor=MSO_ANCHOR.MIDDLE)
-credit(s, f"Top: ESA Copernicus Sentinel-2, 29 Aug and 13 Oct 2026. Bottom: {CREDIT_NISAR} radar, 15 Aug and 14 Oct "
-          "(blue = detected, orange = removed by coherence). Water detected on these dates, inside the 152 km² lake.")
-notes(s, "Don't hide the 64%: overall, coherence scores lower because it misses real water, especially in January "
-         "(44%). The headline is about the post-monsoon drying, a crust-spreading period, where coherence validated "
-         "better (73% vs 62%). Full numbers: 91.4 to 55.7 km2 (ranges 51-110 to 34-72); the drop holds in 12 of 12 "
-         "settings (16.9-38.7 km2). Precision 79% vs 89%. Limits: radar overestimates in October (56 vs ~30-40 km2 "
-         "optical, likely reservoir and wet edges); January QPDH detects ~50-55% of the lake vs ~85-90% water "
-         "(unexplained); small samples (37 crust, 20 white, 6 land points); labels by eye from 20 m Sentinel-2. "
+text(s, 0.6, 6.9, 12.1, 0.5,
+     [f"Top: ESA Copernicus Sentinel-2, 29 Aug, 13 Oct. Bottom: {CREDIT_NISAR}, 15 Aug, 14 Oct; blue = water "
+      "detected on these dates, orange = removed by coherence; inside the 152 km² lake. "
+      "Both dates use mixed-mode coherence pairs, so they're treated alike; our mode check found coherence "
+      "consistent between modes; separate QPDH dates in Sep–Oct (56–60 km²) agree with the October value."],
+     size=10, color=MUTED)
+notes(s, "76% of validation points were water, so plain accuracy rewards over-counting; a model that always says "
+         "'water' scores 76%. Weighting water and non-water equally, coherence is better (68% vs 58%), while "
+         "brightness still finds more water. Counts: n=177 (134 water, 43 non-water = 37 crust + 6 land); "
+         "brightness water 119/134, non-water 12/43; coherence water 80/134, non-water 33/43. Don't hide the 64% "
+         "plain accuracy. The headline is about the post-monsoon drying, a crust-spreading period, where coherence "
+         "validated better (73% vs 62%). Areas are approximate: about 91 to about 56 km2 (51-110 to 34-72 across "
+         "settings); the drop holds in 12 of 12 settings (16.9-38.7 km2). Labels: an MNDWI audit flagged 5 of 203 "
+         "blind labels as mixed-edge or white-film pixels; all were kept unchanged to avoid post-hoc bias. Limits: "
+         "radar overestimates in October (56 vs ~30-40 km2 optical, likely reservoir and wet edges); January misses "
+         "are unresolved (hypotheses: calm stable shallow water or thin brine films; stable sub-pixel features such "
+         "as salt rafts or mud ridges; coherence biased upward at low signal); 20 m nearest-neighbour resampling, "
+         "3x3 smoothing in dB, GUNW coherence on a coarser window. Strength: one track, constant incidence angle. "
          "Wet salt crust can look like water; we tested this.")
 
 # 6. The app ----------------------------------------------------------------

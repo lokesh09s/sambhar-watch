@@ -135,3 +135,9 @@ Aug #25, #53, #117). **All 203 labels are kept unchanged** to avoid post-hoc bia
 after seeing an automatic index would tilt the "ground truth" towards that index. The flagged
 points stay as they are and are reported here as known uncertainty. This replaces the earlier
 note that by-eye corrections would follow. No correction commits will be made.
+
+## 20:37 IST: decision, no label corrections
+
+All 203 labels are kept exactly as labelled (blind, by eye). The MNDWI audit above flagged 5 of 203
+(May #112, #93; Aug #25, #53, #117) as mixed-edge or white-film pixels, but correcting them after
+seeing the model results would add post-hoc bias. The reported scores use the unchanged labels.
