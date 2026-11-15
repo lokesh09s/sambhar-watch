@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sambhar Watch: the app</title>
+  <meta name="description" content="Explore surface water at Sambhar Salt Lake date by date, from NASA-ISRO NISAR radar.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css?v=6">
+</head>
+<body class="app">
+  <nav class="nav" aria-label="App sections">
+    <div class="wrap nav-row">
+      <a class="brand" href="index.html">Sambhar Watch</a>
+      <div class="nav-links">
+        <a href="#map-section">Map</a>
+        <a href="#chart-section">Chart</a>
+        <a href="#optical-section">Compare</a>
+      </div>
+      <a class="button button-small button-ghost" href="index.html">About the project</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <p id="demo-banner" class="banner" hidden><strong>Demo data.</strong> Synthetic, not NISAR results.</p>
+    <p id="load-error" class="banner" hidden></p>
+
+    <section aria-labelledby="map-title" id="map-section">
+      <h1 id="map-title">Pick a date, see the water</h1>
+      <p class="section-lede">Blue is what NISAR radar detected as <span class="class-name">dark unstable surface (water or wet brine)</span>
+        on the chosen date. Results are provisional.</p>
+      <div class="controls">
+        <div class="control-row">
+          <button type="button" class="round" id="date-prev" aria-label="Previous radar date">&#8249;</button>
+          <button type="button" class="round round-main" id="date-play" aria-label="Play through the dates">&#9654;</button>
+          <button type="button" class="round" id="date-next" aria-label="Next radar date">&#8250;</button>
+          <input id="date-slider" type="range" min="0" max="0" value="0" step="1" aria-label="Radar date">
+        </div>
+        <output id="date-label" for="date-slider" aria-live="polite"></output>
+      </div>
+      <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
+      <ul class="legend">
+        <li><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface (water or wet brine)</span></li>
+        <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Removed by coherence check (dark but stable)</li>
+        <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
+        <li id="legend-lake" hidden><span class="swatch swatch-lake"></span>Lake outline (hand-drawn)</li>
+        <li><span class="swatch swatch-pans"></span><span class="pans-label-cap">Mapped salt pans</span> (hand-drawn)</li>
+      </ul>
+      <p class="hint">Use the layer box on the map to switch layers. Tap any spot to see how often it was detected.
+        Two fingers move the map on a phone.</p>
+    </section>
+
+    <section aria-labelledby="chart-title" id="chart-section">
+      <h2 id="chart-title">Detected area over time</h2>
+      <p class="section-lede">Lower bound (with coherence) and upper bound (brightness only), inside the lake outline.</p>
+      <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
+      <p class="hint">Tap a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
+      <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
+        Seasonal differences smaller than the band are not reliable.</p>
+      <p class="hint" id="robust-note" hidden><strong>Star = robust change.</strong> The only date whose difference from
+        the others holds up across threshold choices: <span id="robust-note-text"></span>.</p>
+      <p class="hint" id="mode-note" hidden>Triangles mark dates from the quad-pol (QPDH) radar mode; they are drawn as separate lines and never joined.</p>
+      <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
+        (the gap is the dark but stable surface that the coherence check removes).</p>
+    </section>
+
+    <section aria-labelledby="optical-title" id="optical-section" hidden>
+      <h2 id="optical-title">Satellite photo vs radar</h2>
+      <p class="section-lede">Choose a photo date. Both panels show exactly the same area: the Sentinel-2 photo, and what NISAR radar
+        detected on the nearest radar date.</p>
+      <div class="optical-tabs" id="optical-tabs" role="group" aria-label="Sentinel-2 image date"></div>
+      <div class="pair">
+        <figure>
+          <img id="swipe-optical" alt="Sentinel-2 true-colour image of Sambhar Salt Lake">
+          <figcaption id="swipe-optical-text">Sentinel-2 optical</figcaption>
+        </figure>
+        <figure id="swipe-radar">
+          <div class="stack">
+            <img id="swipe-radar-base" alt="">
+            <img id="swipe-radar-removed" class="pixelated" alt="">
+            <img id="swipe-radar-detected" class="pixelated" alt="Radar detection overlay">
+          </div>
+          <figcaption id="swipe-tag-right">NISAR radar</figcaption>
+        </figure>
+      </div>
+      <p class="hint" id="optical-caption"></p>
+      <p class="headline" id="optical-headline" hidden>
+        <strong>11 May 2026.</strong> Optical image: the lake looks white and dry. 5 days before and after, it&rsquo;s water.
+        NISAR radar on the same day: <span id="may-result">[result to be added]</span>.
+        <span class="tag">Provisional</span>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Sambhar Watch &middot; NASA Space Apps Challenge 2026 &middot; <a href="index.html">About the project</a><br>
+      Data: NASA/ASF NISAR (GCOV, GUNW) and ESA Copernicus Sentinel-2. Basemap: Esri World Imagery. Results are provisional.</div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="app.js?v=6"></script>
+  <script src="explorer.js?v=6"></script>
+</body>
+</html>

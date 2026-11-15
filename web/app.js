@@ -1,6 +1,11 @@
 // Sambhar Watch website. Reads the files that scripts/export_web.py puts in data/.
 
 const DATA = "data/";
+
+// The landing page and the app page each hold only some of the parts. A missing element is replaced by a
+// detached one, so writing to it does nothing; whole parts are skipped in main() when their element is absent.
+const has = id => document.getElementById(id) !== null;
+const byId = id => document.getElementById(id) || document.createElement("div");
 const ACCENT = "#0f5c6e";
 const INK = "#1d2327";
 
@@ -44,23 +49,23 @@ async function main() {
     document.querySelectorAll(".class-name-cap").forEach(el => { el.textContent = capitalise(className); });
     pansLabel = info.pans_label || pansLabel;
     document.querySelectorAll(".pans-label-cap").forEach(el => { el.textContent = capitalise(pansLabel); });
-    document.getElementById("rule-figure").hidden = !(await fileExists("rule_comparison.png"));
+    byId("rule-figure").hidden = !(await fileExists("rule_comparison.png"));
 
-    document.getElementById("demo-banner").hidden = !info.demo;
-    document.getElementById("legend-stable").hidden = !hasComparison;
+    byId("demo-banner").hidden = !info.demo;
+    byId("legend-stable").hidden = !hasComparison;
     if (info.coherence_threshold !== undefined) {
-      document.getElementById("rule-values").textContent =
+      byId("rule-values").textContent =
         " (here: HH below " + info.threshold_db + " dB and coherence below " + info.coherence_threshold + ")";
     }
-    document.getElementById("legend-lake").hidden = !lake;
-    makeMap(info, lookup, pans, lake, hasComparison);
-    makeChart(info.area_scope);
-    await makeHero(info.demo);
-    await makeOptical(info.demo);
-    makeSlider();
-    showDate(0);
+    byId("legend-lake").hidden = !lake;
+    if (has("map")) makeMap(info, lookup, pans, lake, hasComparison);
+    if (has("area-chart")) makeChart(info.area_scope);
+    if (has("hero")) await makeHero(info.demo);
+    if (has("optical-section")) await makeOptical(info.demo);
+    if (has("date-slider")) makeSlider();
+    if (has("map")) showDate(0);
   } catch (error) {
-    const box = document.getElementById("load-error");
+    const box = byId("load-error");
     box.hidden = false;
     box.textContent = "Could not load the data (" + error.message + "). " +
       "Run scripts/export_web.py, and open the page through a web server, e.g. python -m http.server -d web";
@@ -70,13 +75,13 @@ async function main() {
 // ---------- loading ----------
 
 async function getText(name) {
-  const response = await fetch(DATA + name);
+  const response = await fetch(DATA + name, { cache: "no-cache" });   // always check for a newer file
   if (!response.ok) throw new Error(name + " not found");
   return response.text();
 }
 
 async function fileExists(name) {
-  const response = await fetch(DATA + name, { method: "HEAD" });
+  const response = await fetch(DATA + name, { method: "HEAD", cache: "no-cache" });
   return response.ok;
 }
 
@@ -223,7 +228,7 @@ function makeChart(areaScope) {
   datasets.push(line("Inside " + pansLabel, "water_inside_mapped_pans_km2", ACCENT, []));
   datasets.push(line("Outside " + pansLabel, "water_outside_mapped_pans_km2", "#8a959b", [6, 4]));
 
-  chart = new Chart(document.getElementById("area-chart"), {
+  chart = new Chart(byId("area-chart"), {
     type: "line",
     data: { datasets },
     options: {
@@ -250,12 +255,12 @@ function makeChart(areaScope) {
     },
   });
 
-  document.getElementById("band-note").hidden = !rows.some(hasRange);
+  byId("band-note").hidden = !rows.some(hasRange);
   const robust = rows.filter(r => ROBUST_DATES[r.date]);
-  document.getElementById("robust-note").hidden = robust.length === 0;
-  document.getElementById("robust-note-text").textContent =
+  byId("robust-note").hidden = robust.length === 0;
+  byId("robust-note-text").textContent =
     robust.map(r => shortDate(Date.parse(r.date)) + ": " + ROBUST_DATES[r.date]).join("; ");
-  document.getElementById("mode-note").hidden = modes.length < 2;
+  byId("mode-note").hidden = modes.length < 2;
 }
 
 /** "Robust change: ..." for the dates in ROBUST_DATES, otherwise "". */
@@ -290,19 +295,19 @@ async function makeHero(demo) {
   const imagesThere = await fileExists("optical/" + HERO.before.optical + ".jpg") &&
     await fileExists("optical/" + HERO.after.optical + ".jpg");
   if (!before || !after || !imagesThere) return;
-  document.getElementById("hero").hidden = false;
+  byId("hero").hidden = false;
 
   for (const [side, row] of [["before", before], ["after", after]]) {
     const optical = DATA + "optical/" + HERO[side].optical + ".jpg";
-    document.getElementById("hero-optical-" + side).src = optical;
-    document.getElementById("hero-radar-" + side + "-base").src = optical;
-    document.getElementById("hero-radar-" + side + "-removed").src = DATA + "comparison/" + row.date + ".png";
-    document.getElementById("hero-radar-" + side + "-detected").src = DATA + "overlays/" + row.date + ".png";
-    document.getElementById("hero-optical-" + side + "-text").textContent =
+    byId("hero-optical-" + side).src = optical;
+    byId("hero-radar-" + side + "-base").src = optical;
+    byId("hero-radar-" + side + "-removed").src = DATA + "comparison/" + row.date + ".png";
+    byId("hero-radar-" + side + "-detected").src = DATA + "overlays/" + row.date + ".png";
+    byId("hero-optical-" + side + "-text").textContent =
       "Sentinel-2 optical, " + shortDate(Date.parse(HERO[side].optical));
-    document.getElementById("hero-radar-" + side + "-text").textContent =
+    byId("hero-radar-" + side + "-text").textContent =
       "NISAR radar, " + shortDate(Date.parse(row.date)) + (demo ? " (DEMO data)" : " (provisional)");
-    document.getElementById("hero-col-" + side).textContent = shortDate(Date.parse(row.date));
+    byId("hero-col-" + side).textContent = shortDate(Date.parse(row.date));
   }
 
   // withRange: also show the water_km2 threshold range, e.g. "91 (51–110)"
@@ -313,13 +318,13 @@ async function makeHero(demo) {
     return "<tr" + (strong ? ' class="strong"' : "") + "><td>" + label + "</td><td>" + cellText(before, key, strong) +
       "</td><td>" + cellText(after, key, strong) + "</td><td>" + (change > 0 ? "+" : "") + change + "</td></tr>";
   };
-  document.getElementById("hero-table-body").innerHTML =
+  byId("hero-table-body").innerHTML =
     tableRow("HH only (brightness)", "hh_only_water_km2", false) +
     tableRow("HH + coherence", "water_km2", true);
 
   const days = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86400000;
   const paired = await pairedComparison(before, after);
-  document.getElementById("hero-note").textContent =
+  byId("hero-note").textContent =
     (paired ? paired + " " : "") +
     "Radar dates are the nearest DHDH dates: the August optical image is " + days(HERO.before.optical, before.date) +
     " days after its radar date, the October one " + days(HERO.after.optical, after.date) + " day before. " +
@@ -358,9 +363,9 @@ async function pairedComparison(before, after) {
 async function makeOptical(demo) {
   const images = await getJSON("optical/index.json").catch(() => null);
   if (!images || !images.length) return;
-  document.getElementById("optical-section").hidden = false;
+  byId("optical-section").hidden = false;
 
-  const tabs = document.getElementById("optical-tabs");
+  const tabs = byId("optical-tabs");
   const buttons = images.map(entry => {
     const button = document.createElement("button");
     button.type = "button";
@@ -374,33 +379,31 @@ async function makeOptical(demo) {
     return button;
   });
 
-  const slider = document.getElementById("swipe-slider");
-  slider.addEventListener("input", () => setSwipe(Number(slider.value)));
-  setSwipe(Number(slider.value));
-
   const start = Math.max(0, images.findIndex(e => e.s2_date === "2026-05-11"));   // the headline date
   buttons[start].click();
 }
 
-/** Show one Sentinel-2 date on the left and the radar result of its nearest NISAR date on the right. */
+/** Show one Sentinel-2 date in the left panel and the radar result of its nearest NISAR date in the right panel.
+    Both panels are the whole study area on the same grid, so they show exactly the same extent. */
 function showOptical(entry, demo) {
   const optical = DATA + "optical/" + entry.s2_date + ".jpg";
-  document.getElementById("swipe-optical").src = optical;
-  document.getElementById("swipe-radar-base").src = optical;
+  byId("swipe-optical").src = optical;
+  byId("swipe-radar-base").src = optical;
 
-  const radar = document.getElementById("swipe-radar");
-  const caption = document.getElementById("optical-caption");
+  const radar = byId("swipe-radar");
+  const caption = byId("optical-caption");
   const s2Text = "Sentinel-2 image " + shortDate(Date.parse(entry.s2_date));
+  byId("swipe-optical-text").textContent = "Sentinel-2 optical, " + shortDate(Date.parse(entry.s2_date));
   if (entry.nisar_date) {
     radar.hidden = false;
-    document.getElementById("swipe-radar-detected").src = DATA + "overlays/" + entry.nisar_date + ".png";
-    const removed = document.getElementById("swipe-radar-removed");
-    removed.hidden = document.getElementById("legend-stable").hidden;   // hidden when there is no comparison layer
+    byId("swipe-radar-detected").src = DATA + "overlays/" + entry.nisar_date + ".png";
+    const removed = byId("swipe-radar-removed");
+    removed.hidden = byId("legend-stable").hidden;   // hidden when there is no comparison layer
     removed.src = DATA + "comparison/" + entry.nisar_date + ".png";
     caption.textContent = s2Text + " vs NISAR radar " + shortDate(Date.parse(entry.nisar_date)) +
       (entry.days_apart === 0 ? " (same day)" : " (" + entry.days_apart + " days apart)") +
       ". Blue: " + className + ". Orange: removed by the coherence check. Grey background: the same optical" +
-      " image in grey, for orientation; both halves show the same area." +
+      " image in grey, for orientation. Both panels show exactly the same area." +
       (entry.mode === "QPDH" ? " This radar date is quad-pol (QPDH): outside the main series, about 0.9 dB brighter in HH." : "") +
       (demo ? " Radar side: DEMO data, not NISAR results." : " Radar results are provisional.");
   } else {
@@ -408,16 +411,15 @@ function showOptical(entry, demo) {
     caption.textContent = s2Text + ". No NISAR radar result within 6 days of this image, so only the optical image is shown.";
   }
   // The label names the actual radar date and mode; without a radar result there is no radar half at all.
-  const tag = document.getElementById("swipe-tag-right");
+  const tag = byId("swipe-tag-right");
   tag.hidden = !entry.nisar_date;
-  document.getElementById("swipe-line").hidden = !entry.nisar_date;
   if (entry.nisar_date) {
     const radarDay = new Date(Date.parse(entry.nisar_date))
       .toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
     tag.textContent = demo ? "NISAR radar (DEMO)" : "NISAR radar, " + radarDay + (entry.mode ? " (" + entry.mode + ")" : "");
   }
-  document.getElementById("optical-headline").hidden = entry.s2_date !== "2026-05-11";
-  document.getElementById("may-result").textContent = mayResult();
+  byId("optical-headline").hidden = entry.s2_date !== "2026-05-11";
+  byId("may-result").textContent = mayResult();
 }
 
 /** The radar result on 11 May, with the radar dates just before and after it, read from water_area.csv. */
@@ -432,16 +434,10 @@ function mayResult() {
     (around.length ? ", similar to the radar dates before and after (" + around.join(" and ") + ")" : "");
 }
 
-/** Move the divide: optical on the left of `percent`, radar on the right. */
-function setSwipe(percent) {
-  document.getElementById("swipe-radar").style.clipPath = "inset(0 0 0 " + percent + "%)";
-  document.getElementById("swipe-line").style.left = "calc(" + percent + "% - 1px)";
-}
-
 // ---------- date slider ----------
 
 function makeSlider() {
-  const slider = document.getElementById("date-slider");
+  const slider = byId("date-slider");
   slider.max = rows.length - 1;
   slider.addEventListener("input", () => showDate(Number(slider.value)));
 }
@@ -452,12 +448,12 @@ function showDate(index) {
   const r = rows[index];
   waterLayer.setUrl(overlayUrl(index));
   if (comparisonLayer) comparisonLayer.setUrl(comparisonUrl(index));
-  document.getElementById("date-slider").value = index;
-  document.getElementById("date-label").textContent =
+  byId("date-slider").value = index;
+  byId("date-label").textContent =
     shortDate(Date.parse(r.date)) + " · " + Number(r.water_km2).toFixed(1) + " km²" +
     (hasRange(r) ? " (" + number(r, "water_km2_min").toFixed(1) + "–" + number(r, "water_km2_max").toFixed(1) + ")" : "") +
     " · " + r.mode + (ROBUST_DATES[r.date] ? " · robust change" : "");
-  chart.update("none");
+  if (chart) chart.update("none");
 }
 
 main();

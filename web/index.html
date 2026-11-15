@@ -6,7 +6,7 @@
   <title>Sambhar Watch</title>
   <meta name="description" content="Surface water at Sambhar Salt Lake through a year of NASA-ISRO NISAR radar, inside and outside mapped salt pans.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div id="progress" aria-hidden="true"></div>
@@ -16,12 +16,12 @@
       <div class="nav-links">
         <a href="#problem">Problem</a>
         <a href="#how">How it works</a>
-        <a href="#map-section">Map</a>
+        <a href="app.html">App</a>
         <a href="#results">Results</a>
         <a href="#limits">Limitations</a>
         <a href="#team">Team</a>
       </div>
-      <a class="button button-small" href="#map-section">Open the map</a>
+      <a class="button button-small" href="app.html">Open the app</a>
     </div>
   </nav>
 
@@ -32,7 +32,7 @@
       <p class="lede">Sambhar Watch follows India's largest inland saline lake through one year of
         NASA&ndash;ISRO NISAR radar.</p>
       <p class="actions">
-        <a class="button" href="#map-section">Explore the map</a>
+        <a class="button" href="app.html">Open the app</a>
         <a class="button button-ghost" href="#hero">See the main result</a>
       </p>
       <div class="shot" id="shot">
@@ -137,62 +137,12 @@
       <p class="hint" id="hero-note"></p>
     </section>
 
-    <section aria-labelledby="map-title" id="map-section">
+    <section aria-labelledby="app-title" id="app-teaser">
       <p class="eyebrow">The app</p>
-      <h2 id="map-title">Pick a date, see the water</h2>
-      <div class="date-control">
-        <label for="date-slider">Radar date</label>
-        <input id="date-slider" type="range" min="0" max="0" value="0" step="1">
-        <output id="date-label" for="date-slider" aria-live="polite"></output>
-      </div>
-      <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
-      <ul class="legend">
-        <li><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> on the selected date</li>
-        <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Removed by coherence check: dark in HH but stable (likely dry fields or dry crust)</li>
-        <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
-        <li id="legend-lake" hidden><span class="swatch swatch-lake"></span>Lake outline (hand-drawn)</li>
-        <li><span class="swatch swatch-pans"></span><span class="pans-label-cap">Mapped salt pans</span> (hand-drawn)</li>
-      </ul>
-      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as <span class="class-name">dark unstable surface (water or wet brine)</span>.</p>
-    </section>
-
-    <section aria-labelledby="chart-title">
-      <h2 id="chart-title">Detected area over time: lower and upper bound</h2>
-      <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
-      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
-      <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
-        Seasonal differences smaller than the band are not reliable.</p>
-      <p class="hint" id="robust-note" hidden><strong>Star = robust change.</strong> The only date whose difference from
-        the others holds up across threshold choices: <span id="robust-note-text"></span>.</p>
-      <p class="hint" id="mode-note" hidden>Triangles mark dates from the quad-pol (QPDH) radar mode. Until we have checked that
-        the two radar modes agree, they are drawn as separate lines and never joined.</p>
-      <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
-        (the gap is the dark but stable surface that the coherence check removes).</p>
-    </section>
-
-    <section aria-labelledby="optical-title" id="optical-section" hidden>
-      <h2 id="optical-title">More examples: optical vs radar</h2>
-      <p>A second example is 11 May, when the optical image and the radar disagree most. Drag the slider. Left: a Sentinel-2 satellite photo. Right: what NISAR radar detected on the nearest
-        radar date, drawn on the same area.</p>
-      <div class="optical-tabs" id="optical-tabs" role="group" aria-label="Sentinel-2 image date"></div>
-      <div class="swipe" id="swipe">
-        <img id="swipe-optical" alt="Sentinel-2 true-colour image of Sambhar Salt Lake">
-        <div class="swipe-radar" id="swipe-radar">
-          <img id="swipe-radar-base" alt="">
-          <img id="swipe-radar-removed" class="pixelated" alt="">
-          <img id="swipe-radar-detected" class="pixelated" alt="Radar detection overlay">
-        </div>
-        <div class="swipe-line" id="swipe-line"></div>
-        <span class="swipe-tag swipe-tag-left">Sentinel-2 optical</span>
-        <span class="swipe-tag swipe-tag-right" id="swipe-tag-right">NISAR radar</span>
-      </div>
-      <input type="range" id="swipe-slider" min="0" max="100" value="50" aria-label="Move the divide between optical and radar images">
-      <p class="hint" id="optical-caption"></p>
-      <p class="headline" id="optical-headline" hidden>
-        <strong>11 May 2026.</strong> Optical image: the lake looks white and dry. 5 days before and after, it&rsquo;s water.
-        NISAR radar on the same day: <span id="may-result">[result to be added]</span>.
-        <span class="tag">Provisional</span>
-      </p>
+      <h2 id="app-title">Pick a date, see the water</h2>
+      <p class="section-lede">Step through every radar date on the map, see the area chart with its uncertainty band,
+        and compare each satellite photo with the radar result for the same area.</p>
+      <p class="actions"><a class="button" href="app.html">Open the app</a></p>
     </section>
 
     <section aria-labelledby="found-title" id="results">
@@ -353,7 +303,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js"></script>
-  <script src="effects.js"></script>
+  <script src="app.js?v=6"></script>
+  <script src="effects.js?v=6"></script>
 </body>
 </html>
