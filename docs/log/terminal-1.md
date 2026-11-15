@@ -325,3 +325,12 @@ Notes:
 
 ### 23:29 IST - Urgent website wording; pushed; both live sites confirmed
 - What: web/index.html: exact team sentences for the two-estimates line and the smaller estimated post-monsoon drop; card "Early warning" renamed "Seasonal tracking" with new text; version tag ?v=10. Chart legend names and the Festa citation were already in commit daafc91. Pushed both commits. Fetched both live sites (sambhar-watch.vercel.app and lokesh09s.github.io/sambhar-watch) at 23:28: new sentences present, Festa citation present, chart names "Brightness only" / "Brightness + coherence", none of the removed phrases. Not changed: deck slide 7 and project page still say "Early warning" (request was web/ only).
+
+### 00:07 IST (16 Nov) - App loading screen and faster start
+- Also since the last entry: website AI sentence changed twice at the user's request (now "AI assistants (Claude) helped us research the topic, draft code and review our reasoning."), each pushed and confirmed on both live sites.
+- What: user said the app takes long to open and looks frozen. Start-up data is small (< 1 MB), but app.js fetched five files one after another and waited for the comparison section before showing the first date.
+  - web/app.js: start-up files fetched together (Promise.all); the frequency lookup is only fetched on the page with the map; slider and first date shown before the comparison section loads; loading screen lifted when map and chart are drawn (also on error).
+  - web/app.html: full-screen loading screen (spinner, "Loading radar data..."), lazy loading on the comparison images. If scripts never run, CSS lifts the screen after 12 s.
+  - web/index.html: background prefetch of the app page, its scripts, Leaflet, Chart.js, the frequency lookup and the first radar layers. web/style.css: loading screen styles. Version tag ?v=11.
+- Check (real Chrome, phone size, throttled to 1.5 Mbit/s with 150 ms delay, local server): opened cold: loading screen visible at once, app ready after 4.6 s; opened after 14 s on the landing page: ready after 1.0 s. Landing result section and table still fill; comparison section still has 6 dates; no console errors on either page at 1280 and 390 px.
+- Not measured: load time before this change on the same throttled connection, so no before/after figure.

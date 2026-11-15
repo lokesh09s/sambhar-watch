@@ -37,11 +37,15 @@ const PANS_LAYER_NAME = "Salt-works zones (approximate, hand-drawn)";
 
 async function main() {
   try {
-    const info = await getJSON("map_info.json");
-    rows = parseCSV(await getText("water_area.csv"));
-    const lookup = await getJSON("frequency_lookup.json");
-    const pans = await getJSON("pans.geojson").catch(() => null);   // optional
-    const lake = await getJSON("lake.geojson").catch(() => null);   // optional
+    // Ask for all the start-up files at once: waiting for them one after another made the app slow to appear.
+    const [info, areaText, lookup, pans, lake] = await Promise.all([
+      getJSON("map_info.json"),
+      getText("water_area.csv"),
+      has("map") ? getJSON("frequency_lookup.json") : null,   // only the map needs it
+      getJSON("pans.geojson").catch(() => null),    // optional
+      getJSON("lake.geojson").catch(() => null),    // optional
+    ]);
+    rows = parseCSV(areaText);
 
     const hasComparison = await fileExists("comparison/" + rows[0].date + ".png");
 
@@ -62,11 +66,13 @@ async function main() {
     byId("legend-lake").hidden = !lake;
     if (has("map")) makeMap(info, lookup, pans, lake, hasComparison);
     if (has("area-chart")) makeChart(info.area_scope);
-    if (has("hero")) await makeHero(info.demo);
-    if (has("optical-section")) await makeOptical(info.demo);
     if (has("date-slider")) makeSlider();
     if (has("map")) showDate(0);
+    byId("loading").classList.add("done");   // map and chart are up: lift the loading screen
+    if (has("hero")) await makeHero(info.demo);
+    if (has("optical-section")) await makeOptical(info.demo);
   } catch (error) {
+    byId("loading").classList.add("done");
     const box = byId("load-error");
     box.hidden = false;
     box.textContent = "Could not load the data (" + error.message + "). " +
