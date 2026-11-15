@@ -109,8 +109,8 @@ margins. We haven't checked this pixel by pixel.
 
 ## Label sanity check against MNDWI (labels unchanged)
 
-The labels are in `points_<date>_labelled.csv` in the project root, identical to the copies in
-~/Downloads. Strong disagreement means `water` with MNDWI < 0, or `salt_crust`/`land` with
+The labels are in `validation_data/labels/points_<date>_labelled.csv`; they were in the project
+root at the time of the check, byte-identical. Strong disagreement means `water` with MNDWI < 0, or `salt_crust`/`land` with
 MNDWI > +0.2. Five points are strong disagreements, all labelled `water`:
 May #112, #93; Aug #25, #53, #117. No crust or land label has MNDWI above +0.2. Thirteen more are
 borderline. Chips: `label_check_disagreements.png`.
@@ -119,7 +119,7 @@ Looking at the chips, most disagreements are **mixed pixels**: pan walls, the da
 edge (Aug #53, #117; Jan #38, #39; May #124). Two are **white surfaces labelled `water`**: May #93 and
 Aug #25. Under our rules, May #93 should probably be `white_uncertain`, and Aug #25
 `white_uncertain` or `salt_crust`. One is a **pink salt-works pan** (May #112), which none of our
-classes covers well. Rechecking these by eye is up to the team.
+classes covers well. The team decided not to correct any of them; see the decision below.
 
 ## 20:23 IST: labels moved to `validation_data/labels/` (contents unchanged)
 
@@ -127,3 +127,11 @@ The three `points_<date>_labelled.csv` files moved from the project root to `val
 with no edits (byte-identical). Labelled points: 11 Jan 59, 11 May 68, 29 Aug 76 (203 in total;
 the other rows in each 150-row file have no label). Any by-eye corrections after the MNDWI check
 will be committed separately and listed here with their reasons.
+
+## Decision: no label corrections
+
+The MNDWI audit flagged **5 of the 203 labels** as strong disagreements (May #112, #93;
+Aug #25, #53, #117). **All 203 labels are kept unchanged** to avoid post-hoc bias. Correcting labels
+after seeing an automatic index would tilt the "ground truth" towards that index. The flagged
+points stay as they are and are reported here as known uncertainty. This replaces the earlier
+note that by-eye corrections would follow. No correction commits will be made.
