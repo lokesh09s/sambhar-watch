@@ -110,7 +110,7 @@ What we found:
 3. **14 October is clearly lower** (55.7 km², range 34–72): it is the lowest date in 10 of the 12 threshold choices, 30–40 km² below the next date at −17/−18 dB. The quad-pol dates of September and early October are also low (56–60 km²). *Sentinel-2 check for October: [PLACEHOLDER].*
 4. **The two radar modes cannot be mixed.** On stable ground, quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH): all three mode changes point the same way (−0.43, +0.89, −1.39 dB) while dates in the same mode differ by 0.1–0.7 dB. Coherence agrees across modes (farmland 0.47–0.51 vs 0.39–0.55). So only April–October is one series; January–March and late August–early October (QPDH) are shown separately as grey points (`scripts/check_modes.py`).
 5. **Sentinel-2, compared by eye** (not the validation below):
-   - January: about 85–90% of the lake is water. Radar (QPDH, 11 and 23 Jan) detects only 50–53%. The radar misses much of the January water; a likely part of the reason is the brighter QPDH mode, but we have not confirmed it.
+   - January: about 85–90% of the lake is water. Radar with coherence (QPDH, 11 and 23 Jan) detects only 50–53%. The validation below shows the misses come from the coherence step, not from brightness: HH alone finds 89% of the January water points.
    - May: water under a short-lived white film. Radar on 11 May: 68% of the lake.
    - August: about 55–60% water plus a band of about 30% crust. Radar on 15 Aug: 60%, so the crust band is mostly not counted as water.
 
@@ -118,7 +118,36 @@ What we found:
 
 **Water-detection frequency** (detections ÷ valid observations, 11–12 valid observations per pixel): the central and eastern lake bed is detected on most dates; the edges less often. About 14.5 km² just outside the south-west of the lake outline is detected on at least half the dates; it is not counted in the areas above.
 
-**Validation against labelled Sentinel-2 points** (`scripts/validate.py`): *[PLACEHOLDER: confusion matrix, overall accuracy, water-vs-crust errors, date used]*. Accuracy on one date does not prove accuracy all year.
+### Validation against labelled Sentinel-2 points
+
+The team labelled 203 points by eye on three cloud-free Sentinel-2 images (197 inside the lake) as water, salt crust, land, or white/uncertain (white in the optical image, can't tell). Each was compared with the nearest NISAR date (`scripts/validate.py`). Accuracy counts water against crust + land; white/uncertain points are reported on their own.
+
+**Inside the lake, all three dates:**
+
+| | Brightness + coherence | Brightness only (HH) |
+|---|---|---|
+| Water points detected (recall) | 60% (80/134) | 89% (119/134) |
+| Detections that are water (precision) | 89% (80/90) | 79% (119/150) |
+| Salt crust called water | **24%** (9/37) | **81%** (30/37) |
+| Land called water | 17% (1/6) | 17% (1/6) |
+| White/uncertain called water | 85% (17/20) | 95% (19/20) |
+| Overall accuracy | 64% (113/177) | 74% (131/177) |
+
+**Per date, inside the lake** (accuracy; water recall; crust called water):
+
+| Sentinel-2 date → NISAR date (mode) | Brightness + coherence | Brightness only |
+|---|---|---|
+| 11 Jan → 11 Jan (QPDH) | 44% (25/57); 42%; 0/2 | 86% (49/57); 89%; 2/2 |
+| 11 May → 11 May (DHDH) | 74% (34/46); 77%; 3/8 | 78% (36/46); 91%; 6/8 |
+| 29 Aug → 27 Aug (QPDH) | 73% (54/74); 68%; 6/27 | 62% (46/74); 86%; 22/27 |
+
+**How to read this: the two methods bracket the true water area.**
+- **Brightness only is an upper bound.** It finds nearly all water (89%) but also calls most salt crust water (81%).
+- **Brightness + coherence is a lower bound.** When it says water it is right 89% of the time and it rejects most crust (only 24% called water), but it misses 40% of water points, mostly in January (it finds 42% of January water against 89% for brightness alone). Why some January water stays coherent over 12 days is not explained yet.
+- **Which method to trust depends on the state of the lake.** With a full lake and little crust (January), brightness alone is more accurate (86% vs 44%). When crust is spreading (late August), brightness + coherence is better (73% vs 62%). In May the two are similar (74% vs 78%). In the area chart above, the dashed and solid lines can be read as these upper and lower bounds.
+- On 11 May, 19 points looked white in the optical image but showed water on Sentinel-2 images 5 days before and after; radar with coherence called 17 of them water.
+
+**Limits of this check:** the samples are small (inside the lake: 37 crust points, only 2 of them in January; 20 white/uncertain; 6 land), there are only three dates, and two of them (11 Jan, 27 Aug) are QPDH dates outside the main DHDH series; only 11 May is in it. The 29 Aug optical image is 2 days from the 27 Aug radar date. Labels were made by eye. Accuracy on these dates does not prove accuracy all year.
 
 Figures are made with `python scripts/make_figures.py` after `map_water.py --mode DHDH` and `sensitivity.py --mode QPDH`.
 

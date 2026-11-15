@@ -186,3 +186,8 @@ Notes:
 - Files on disk (.venv, outputs, pycache) are not touched; only history changes. Other terminals share this folder, so nobody needs to re-clone.
 - If anything looks wrong: `git clone ../spaceapp-before-cleanup.bundle restored` gives back the old history.
 - Push to GitHub only after the checks pass (no remote is configured yet).
+
+### 20:11 IST - README validation section from Terminal 2's results
+- What: README Results: replaced the validation placeholder with the inside-lake table for both methods (recall, precision, crust/land/white called water, accuracy), a per-date table (accuracy; recall; crust called water), the upper/lower-bound reading, the recommendation (method depends on lake state), the 11 May white-film result and the sample-size limits. Source: outputs/results/validation_plain_english.txt and validation_summary.txt (Terminal 2, 20:06-20:07; copy of the text in docs/log/terminal-2.md).
+- Correction of my own earlier README text (19:30): finding 5 said the brighter QPDH mode is "a likely part of the reason" radar misses January water. The validation contradicts that: HH alone finds 89% (49/55) of January water points, so the misses come from the coherence step (42%, 23/55). Rewritten accordingly; cause still unexplained.
+- Result: inside the lake, HH+coherence recall 60% / precision 89% / crust called water 24%; HH only 89% / 79% / 81%. Per date accuracy HH+coh vs HH: 11 Jan 44% vs 86%, 11 May 74% vs 78%, 27 Aug 73% vs 62%. Small samples: 37 crust (2 in January), 20 white, 6 land inside the lake; only 11 May is a main-series (DHDH) date.
