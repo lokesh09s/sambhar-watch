@@ -72,3 +72,16 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
   - QPDH Jan-Mar (separate, consistency with DHDH not yet checked): 01-11 80.5, 01-23 52.7, 02-04 49.4, 02-16 51.7, 02-28 59.9, 03-12 83.7 km2. The two highest (01-11, 03-12) are exactly the one-pair dates. Jan-Mar values are lower than Apr-Aug DHDH, the opposite of "extra water after the monsoon" - could be real, a mode (QPDH vs DHDH) difference, or the method; cannot tell yet.
   - Coverage: with --mode DHDH, 2025-11-12 (no 12-day pair) and all Jan-Mar 2026 (QPDH) are absent; after the monsoon only 2026-10-14 is DHDH.
 - Next: report to the team; decision needed on one-pair bias; QPDH vs DHDH consistency check; Sentinel-2 to choose thresholds.
+
+### 18:59 IST - Per-date coherence = pair starting on the date; uncertainty columns
+- Correction: the previous entry's heading "19:00 IST" was an estimate; the system clock read 18:55 shortly after, so that work finished at about 18:53.
+- What:
+  - sambhar/coherence.py: coherence_for_date() now returns the 12-day pair STARTING on the date (coherence, pair), or (None, None). Removed the "higher of both pairs" logic.
+  - scripts/map_water.py: column coherence_pairs removed, coherence_pair_end added (second date of the pair used); new columns water_km2_min / water_km2_max = range of in-lake water_km2 over the 12 threshold pairs of config.SENSITIVITY_*; new helper area_range().
+  - scripts/sensitivity.py: same pair rule.
+  - config.py comment, README method, tests updated (test_date_coherence_uses_pair_starting_on_date). Tests 5/5.
+- Why: team decision (option a) after the one-pair bias found at ~18:53; min/max columns so the website and slides can show an uncertainty band.
+  - Dropped coherence_pairs (rather than writing a constant 1) because web/app.js draws hollow points when coherence_pairs < 2; without the column it draws normal points.
+- Result (partial, DHDH, inside lake, km2, chosen [min-max]): 04-05 101.6 [45.8-118.1]; 04-17 110.3 [83.5-121.0]; 04-29 106.3 [77.3-117.1]; 05-11 102.9 [84.5-112.7]; 05-23 107.8 [84.5-119.1]; 06-04 110.4 [82.6-122.2]; 08-15 91.4 [51.0-110.5].
+  - Dates with no starting 12-day pair, now dropped: 2025-11-12, 2026-03-12, 2026-07-22, 2026-10-14, 2026-11-07. So 2026-10-14, the only post-monsoon DHDH date, is lost; after 2026-08-15 the DHDH series has no dates.
+- Next: QPDH vs DHDH consistency check (max 20 min).

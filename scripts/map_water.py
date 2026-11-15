@@ -10,14 +10,16 @@ Reads outputs/crops/*.npz (crop_lake.py) and outputs/coherence/*.npz
     water_area.csv        area per date (km2) with the combined rule (water_*) and HH only (hh_only_water_*),
                           all INSIDE the lake outline (data/lake.geojson; whole study box if missing):
                           total, inside / outside mapped pans ("salt works and mapped pans"), plus
-                          *_study_box_km2 for context. coherence_pairs = 1 or 2 pairs used.
+                          *_study_box_km2 for context. water_km2_min / _max: range of water_km2 over
+                          the threshold pairs in config.SENSITIVITY_*. coherence_pair_end: second date
+                          of the 12-day pair used (the pair starting on the date).
     rule_comparison.png   HH-only vs combined area per date
     frequency.png         detection frequency (detections / valid observations) and observation count
     overlays/<date>.png           combined-rule layers for the web map
     overlays_hh_only/<date>.png   HH-only layers, for comparison
     map_info.json         map bounds, dates, thresholds and class name, used by the web app
 
-Dates with no 12-day coherence pair cannot use the rule and are left out.
+Each date uses the 12-day coherence pair that starts on it; dates with no such pair are left out.
 
 Examples
     python scripts/map_water.py                         # thresholds from config.py
@@ -90,6 +92,13 @@ def areas(detected, regions: dict, pixel_area_km2: float, prefix: str) -> dict:
             for suffix, region in regions.items()}
 
 
+def area_range(hh_db, coherence, region, pixel_area_km2: float) -> tuple[float, float]:
+    """Smallest and largest detected area in `region` over all threshold pairs of the sensitivity check."""
+    found = [float((classify_dark_unstable(hh_db, coherence, t, c)[0] & region).sum()) * pixel_area_km2
+             for t in config.SENSITIVITY_THRESHOLDS_DB for c in config.SENSITIVITY_COHERENCE]
+    return round(min(found), 3), round(max(found), 3)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--threshold", type=float, default=config.WATER_THRESHOLD_DB,
@@ -125,9 +134,9 @@ def main():
         if c.grid.shape != grid.shape or c.grid.epsg != grid.epsg:
             print(f"[{c.date}] different grid, skipping")
             continue
-        coherence, n_pairs = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
+        coherence, pair = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
         if coherence is None:
-            print(f"[{c.date}] no 12-day coherence pair, left out")
+            print(f"[{c.date}] no 12-day coherence pair starts on this date, left out")
             continue
 
         detected, valid = classify_dark_unstable(hh_db[c.date], coherence, args.threshold,
@@ -140,16 +149,18 @@ def main():
         water_overlay(hh_dark, out / "overlays_hh_only" / f"{c.date}.png")
 
         row = {"date": c.date, "mode": c.mode, "release": c.release, "threshold_db": args.threshold,
-               "coherence_threshold": args.coherence_threshold, "coherence_pairs": n_pairs,
+               "coherence_threshold": args.coherence_threshold, "coherence_pair_end": pair.secondary_date,
                "valid_area_km2": round(float((valid & regions[""]).sum()) * grid.pixel_area_km2, 3)}
         row.update(areas(detected, regions, grid.pixel_area_km2, "water"))
+        row["water_km2_min"], row["water_km2_max"] = area_range(hh_db[c.date], coherence, regions[""],
+                                                               grid.pixel_area_km2)
         row.update(areas(hh_dark, regions, grid.pixel_area_km2, "hh_only_water"))
         rows.append(row)
         print(f"[{c.date}] {scope_label}, km2 (pans / outside pans):"
               f"  HH only {row['hh_only_water_km2']} ({row['hh_only_water_inside_mapped_pans_km2']}"
               f" / {row['hh_only_water_outside_mapped_pans_km2']})"
               f"  ->  HH + coherence {row['water_km2']} ({row['water_inside_mapped_pans_km2']}"
-              f" / {row['water_outside_mapped_pans_km2']})  [{n_pairs} pair{'s' if n_pairs > 1 else ''}]")
+              f" / {row['water_outside_mapped_pans_km2']}), range {row['water_km2_min']}-{row['water_km2_max']}")
 
     if not rows:
         raise SystemExit("No date has coherence. Run scripts/check_coherence.py all first.")

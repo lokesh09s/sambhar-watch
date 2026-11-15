@@ -73,16 +73,14 @@ def pair_file(pair: GunwPair, folder: Path) -> Path:
 
 
 def coherence_for_date(date: str, pairs: list[GunwPair], folder: Path):
-    """Coherence for one radar date, from the cropped 12-day pairs that include it.
+    """Coherence for one radar date: the 12-day pair that STARTS on that date.
 
-    Uses the HIGHER of the pair before and the pair after, pixel by pixel, so a
-    pixel counts as unstable only if it was unstable in both. Where only one
-    pair has data, that pair is used. Returns (coherence, number of pairs),
-    or (None, 0) if no cropped pair includes this date.
+    Every date uses exactly one pair, so all dates are treated the same way.
+    (Combining the pairs before and after a date, as tried first, made dates with
+    one pair about 10-15 km2 wetter than dates with two.) Returns (coherence, pair),
+    or (None, None) if no cropped 12-day pair starts on this date.
     """
-    files = [pair_file(p, folder) for p in pairs if date in (p.reference_date, p.secondary_date)]
-    files = [f for f in files if f.exists()]
-    if not files:
-        return None, 0
-    stack = np.array([np.load(f)["coherence"] for f in files])
-    return np.fmax.reduce(stack, axis=0), len(files)
+    for pair in pairs:
+        if pair.reference_date == date and pair_file(pair, folder).exists():
+            return np.load(pair_file(pair, folder))["coherence"], pair
+    return None, None

@@ -51,6 +51,9 @@ CHECK_REGIONS = {
 # - Coherence 0.3 lies between the lake (25-75%: 0.15-0.29) and farmland (0.41-0.69) in both seasons.
 # - Low lake coherence is not just noise: the noise floor is about -26.8 dB, so a stable surface
 #   at -23 dB could still reach coherence of about 0.5-0.8.
+# Each date uses the coherence of the 12-day pair STARTING on that date; dates without one are dropped.
+# (Taking the higher of the pairs before and after was tried first: dates with only one pair came out
+#  10-15 km2 wetter inside the lake than dates with two, as large as the difference between dates.)
 WATER_THRESHOLD_DB = -18.0
 COHERENCE_THRESHOLD = 0.3
 CLASS_NAME = "dark unstable surface (water or wet brine)"   # until Sentinel-2 confirms it is water
