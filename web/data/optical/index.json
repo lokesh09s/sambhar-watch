@@ -1,8 +1,8 @@
 [
  {
   "s2_date": "2026-01-11",
-  "nisar_date": "2026-01-11",
-  "days_apart": 0
+  "nisar_date": null,
+  "days_apart": null
  },
  {
   "s2_date": "2026-05-06",
@@ -21,7 +21,7 @@
  },
  {
   "s2_date": "2026-08-29",
-  "nisar_date": "2026-08-27",
-  "days_apart": 2
+  "nisar_date": null,
+  "days_apart": null
  }
 ]

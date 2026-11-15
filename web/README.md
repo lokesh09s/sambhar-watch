@@ -47,12 +47,15 @@ The page works with the plain HH-only results too; these extras switch on the co
 `water_area.csv` columns stay `water_*`. Other columns (`hh_only_water_*`, `*_study_box_km2`,
 `coherence_pair_end`) are ignored by the page. Blank or missing min/max values just leave the band out.
 
-Radar modes: the team rule is not to mix DHDH and QPDH until a consistency check is done. `SPLIT_MODES = true`
+Robust changes: `ROBUST_DATES` at the top of `app.js` lists dates whose change holds up across threshold
+choices (currently 14 Oct, from Terminal 1's sensitivity check); they get a star on the chart and a note.
+
+Radar modes: the mode check found QPDH about 0.9 dB brighter in HH, so the main results are DHDH only. `SPLIT_MODES = true`
 at the top of `app.js` draws one total line per mode and never joins points from different modes. If the check
 shows the modes agree, set it to `false` to draw a single line.
 
 `make_demo_data.py` makes fake crops and fake coherence, then runs the real `map_water.py`,
-so the demo uses exactly the team's rule (the 12-day pair starting on each date; dates without one left out).
+so the demo always uses exactly the team's current rule.
 
 ### Optical vs radar section
 

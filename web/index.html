@@ -48,6 +48,8 @@
       <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
       <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
         Seasonal differences smaller than the band are not reliable.</p>
+      <p class="hint" id="robust-note" hidden><strong>Star = robust change.</strong> The only date whose difference from
+        the others holds up across threshold choices: <span id="robust-note-text"></span>.</p>
       <p class="hint" id="mode-note" hidden>Triangles mark dates from the quad-pol (QPDH) radar mode. Until we have checked that
         the two radar modes agree, they are drawn as separate lines and never joined.</p>
       <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
@@ -91,8 +93,8 @@
         the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
       <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
         coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
-        water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later; dates without
-        one are left out.</p>
+        water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later (or 12 days
+        earlier when there is no later one); dates with neither are left out.</p>
       <p>The <em>detection frequency</em> of a spot is the number of dates it was detected as a dark unstable surface
         divided by the number of dates with a valid radar observation there.</p>
     </section>
@@ -120,11 +122,12 @@
         <li>The NISAR data are provisional: calibrated but only partly validated by the mission.</li>
         <li>Wet salt crust and brine are dark and unstable too, so they are counted with water. Dry crust that is dark
           but stable is removed by the coherence check. Both are tested separately against Sentinel-2.</li>
-        <li>Coherence needs a second pass 12 days later, so dates without one are left out.</li>
+        <li>Coherence needs a second pass 12 days before or after, so dates without one are left out.</li>
         <li>The areas depend on the chosen thresholds. The shaded band on the chart shows by how much; differences
           between dates smaller than the band are not reliable.</li>
-        <li>Two radar modes alternate (dual-pol DHDH and quad-pol QPDH). Until we have checked that they agree,
-          they are shown separately.</li>
+        <li>Two radar modes alternate (dual-pol DHDH and quad-pol QPDH). On stable ground QPDH reads about 0.9 dB
+          brighter in HH, so the main series uses only the 12 DHDH dates (April to October); QPDH dates are kept
+          separate. Two DHDH dates (15 Aug, 14 Oct) take their coherence from a pair that mixes the modes.</li>
         <li>Radar dates are 12 days apart at best, with some longer gaps. The maps show water on those dates, not
           continuous presence.</li>
         <li>Radar tells us where the surface is wet, not how deep the water is.</li>

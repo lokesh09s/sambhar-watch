@@ -180,3 +180,22 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   - Real 2026-05-11 (for the headline, NOT filled in): water_km2 = 102.9 km2 inside the lake outline (HH only 144.3).
   - web/data/optical is 4.5 MB; web/data total 6.4 MB. Screenshot of the section checked. node --check OK.
 - Next: the team fills in the 11 May result sentence; switch web/data to real results (python scripts/export_web.py) when the team says so.
+
+### 19:25 IST - Website switched to REAL results; 14 Oct marked as the robust change
+- What:
+  - Ran `python scripts/export_web.py` (defaults: outputs/results, data/pans.geojson, data/lake.geojson). web/data now holds REAL provisional
+    NISAR results: 12 DHDH dates, 2026-04-05 to 2026-10-14, T = -18 dB, C = 0.3, areas inside the lake outline.
+  - web/app.js: ROBUST_DATES constant (2026-10-14, with Terminal 1's reason). That date gets a star on the chart, a tooltip line,
+    a note under the chart and "robust change" next to the slider.
+  - web/index.html: explainer and limitations updated for the backward-pair fallback and the mode check (QPDH about 0.9 dB brighter, so the
+    main series is DHDH only; 08-15 and 10-14 use mixed-mode coherence pairs). README updated.
+  - make_demo_data.py: no change needed. Terminal 1 said it still used the two-pairs rule, but since 4ac4aa3 it just calls map_water.py, so it already
+    follows the current rule (checked: no averaging or "higher of two" code left).
+- Why: Team request: real data on the site, no demo banner, 14 Oct marked (Terminal 1: lowest date in 10 of 12 threshold pairs).
+- Result: map_info.json has no "demo" key, so the banner and the on-map demo label are hidden (the code stays, for future demo runs).
+  Optical section: only the May images (6, 11 and 16 May) have a radar date within 6 days (2026-05-11). 11 Jan and 29 Aug show the optical image
+  alone with a note. web/data is 11 MB. Screenshot checked: real map, band, star, notes, no banner.
+  Note: 14 Oct's band (34.1-71.8 km2) overlaps some other dates' bands (04-05 from 45.8, 06-16 from 38.6). "Robust" here means Terminal 1's
+  rank test (lowest in 10/12 threshold pairs), not separate bands; the note on the page says this.
+- Next: the team fills in the 11 May headline result and "What we found". The header still says "through one year" while the main series is
+  Apr-Oct: the team may want to reword it. Replace the GitHub link TODO.

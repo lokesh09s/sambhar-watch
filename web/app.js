@@ -9,6 +9,13 @@ const INK = "#1d2327";
 const SPLIT_MODES = true;
 const MODE_NAMES = { DHDH: "dual-pol DHDH", QPDH: "quad-pol QPDH" };
 
+// Dates whose change holds up across threshold choices, with the reason shown on the page.
+// Source: Terminal 1 sensitivity check, 19:20 IST (docs/log/terminal-1.md): 14 Oct is the lowest
+// date in 10 of 12 threshold pairs. Its coherence pair is mixed-mode (QPDH to DHDH).
+const ROBUST_DATES = {
+  "2026-10-14": "the lowest date for 10 of 12 threshold choices (coherence from a QPDH-to-DHDH pair; provisional)",
+};
+
 let current = 0;   // index of the date shown on the map
 let rows = [];     // rows of water_area.csv
 let waterLayer, comparisonLayer, chart;
@@ -184,8 +191,9 @@ function makeChart(areaScope) {
     borderDash: dash,
     borderWidth: 2,
     segment: { borderColor: ctx => (joinsModes(ctx) ? "transparent" : undefined) },
-    pointStyle: ctx => (rows[ctx.dataIndex].mode === "QPDH" ? "triangle" : "circle"),
-    pointRadius: ctx => (ctx.dataIndex === current ? 6 : 3),
+    pointStyle: ctx => (ROBUST_DATES[rows[ctx.dataIndex].date] ? "star"
+      : rows[ctx.dataIndex].mode === "QPDH" ? "triangle" : "circle"),
+    pointRadius: ctx => (ROBUST_DATES[rows[ctx.dataIndex].date] ? 9 : ctx.dataIndex === current ? 6 : 3),
     pointHoverRadius: 7,
   });
 
@@ -223,7 +231,7 @@ function makeChart(areaScope) {
           callbacks: {
             title: items => shortDate(items[0].parsed.x) + " · " + rows[items[0].dataIndex].mode,
             label: item => item.dataset.label + ": " + item.parsed.y.toFixed(1) + " km²",
-            footer: items => rangeText(rows[items[0].dataIndex]),
+            footer: items => [rangeText(rows[items[0].dataIndex]), robustText(rows[items[0].dataIndex])],
           },
         },
       },
@@ -234,7 +242,16 @@ function makeChart(areaScope) {
   });
 
   document.getElementById("band-note").hidden = !rows.some(hasRange);
+  const robust = rows.filter(r => ROBUST_DATES[r.date]);
+  document.getElementById("robust-note").hidden = robust.length === 0;
+  document.getElementById("robust-note-text").textContent =
+    robust.map(r => shortDate(Date.parse(r.date)) + ": " + ROBUST_DATES[r.date]).join("; ");
   document.getElementById("mode-note").hidden = modes.length < 2;
+}
+
+/** "Robust change: ..." for the dates in ROBUST_DATES, otherwise "". */
+function robustText(row) {
+  return ROBUST_DATES[row.date] ? "Robust change: " + ROBUST_DATES[row.date] : "";
 }
 
 /** "Range 26.5-27.9 km² with other thresholds", or "" when the CSV has no range. */
@@ -333,7 +350,7 @@ function showDate(index) {
   document.getElementById("date-label").textContent =
     shortDate(Date.parse(r.date)) + " · " + Number(r.water_km2).toFixed(1) + " km²" +
     (hasRange(r) ? " (" + number(r, "water_km2_min").toFixed(1) + "–" + number(r, "water_km2_max").toFixed(1) + ")" : "") +
-    " · " + r.mode;
+    " · " + r.mode + (ROBUST_DATES[r.date] ? " · robust change" : "");
   chart.update("none");
 }
 
