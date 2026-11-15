@@ -21,7 +21,7 @@ The lake changes most during the monsoon, when clouds often block optical satell
 | Sentinel-2 (ESA) | Cloud-free optical images | Independent validation |
 | Hand-drawn polygons | Salt-pan boundaries, `data/pans.geojson`; lake outline, `data/lake.geojson` | Inside/outside comparison; areas within the lake only |
 
-`data/granules.csv` lists every NISAR file used. Two radar modes alternate (`DHDH` dual-pol, `QPDH` quad-pol); both contain HH and HV. One date (7 Nov 2026) comes from the later validated release and is analysed separately.
+`data/granules.csv` lists every NISAR file used. Two radar modes alternate (`DHDH` dual-pol, `QPDH` quad-pol); both contain HH and HV. One date (7 Nov 2026) comes from the later validated release and is analysed separately. On stable ground QPDH HH is about 0.9 dB brighter than DHDH (`scripts/check_modes.py`), so the main series uses DHDH dates only (Apr–Oct 2026) and QPDH dates are shown separately.
 
 GCOV values are gamma-zero backscatter in linear power, terrain-corrected (RTC), on a 10 m UTM grid (EPSG:32643). Pixels flagged invalid by the file's own `mask` layer are treated as "no observation". **Thermal noise correction is not applied in these products**, so the darkest pixels (calm water, very smooth crust) may be close to the radar's noise floor, where their brightness no longer tells them apart.
 
@@ -52,6 +52,7 @@ scripts/            the steps you run
   map_water.py      step 2
   check_coherence.py  water vs salt crust: brightness and coherence of test regions
   sensitivity.py    how much the areas change with the chosen thresholds
+  check_modes.py    do the two radar modes (DHDH, QPDH) agree on stable ground?
 tests/              synthetic end-to-end test (lake of known area)
 data/               granule and interferogram-pair lists, salt-pan polygons
 outputs/            generated files (not committed)
@@ -72,6 +73,7 @@ python scripts/check_coherence.py all                     # coherence for every 
 python scripts/map_water.py --suggest-threshold      # look, then choose a threshold
 python scripts/map_water.py --mode DHDH              # HH + coherence rule, and HH-only for comparison
 python scripts/sensitivity.py --mode DHDH            # areas for a range of thresholds
+python scripts/check_modes.py                        # DHDH vs QPDH brightness on stable ground
 ```
 
 A free [NASA Earthdata](https://urs.earthdata.nasa.gov) account is needed to stream NISAR data.
