@@ -11,15 +11,17 @@ Reads outputs/crops/*.npz (crop_lake.py) and outputs/coherence/*.npz
                           all INSIDE the lake outline (data/lake.geojson; whole study box if missing):
                           total, inside / outside mapped pans ("salt works and mapped pans"), plus
                           *_study_box_km2 for context. water_km2_min / _max: range of water_km2 over
-                          the threshold pairs in config.SENSITIVITY_*. coherence_pair_end: second date
-                          of the 12-day pair used (the pair starting on the date).
+                          the threshold pairs in config.SENSITIVITY_*. coherence_pair: the one 12-day pair
+                          used; pair_direction: forward (starts on the date) or backward (ends on it,
+                          used only when no pair starts on it); pair_modes: radar modes of its two dates.
     rule_comparison.png   HH-only vs combined area per date
     frequency.png         detection frequency (detections / valid observations) and observation count
     overlays/<date>.png           combined-rule layers for the web map
     overlays_hh_only/<date>.png   HH-only layers, for comparison
     map_info.json         map bounds, dates, thresholds and class name, used by the web app
 
-Each date uses the 12-day coherence pair that starts on it; dates with no such pair are left out.
+Each date uses one 12-day coherence pair: the one starting on it, else the one ending on it.
+Dates with neither are left out.
 
 Examples
     python scripts/map_water.py                         # thresholds from config.py
@@ -40,7 +42,7 @@ import numpy as np
 
 from sambhar import config
 from sambhar.coherence import coherence_for_date
-from sambhar.granules import load_gunw_pairs
+from sambhar.granules import load_granules, load_gunw_pairs
 from sambhar.pans import pans_mask
 from sambhar.plots import frequency_map, rule_comparison, water_overlay
 from sambhar.storage import load_all_crops
@@ -124,6 +126,7 @@ def main():
 
     regions, scope_label = region_masks(grid)
     pairs = load_gunw_pairs()
+    modes = {g.date: g.mode for g in load_granules()}
     out = config.RESULTS_DIR
     for folder in ("overlays", "overlays_hh_only"):
         shutil.rmtree(out / folder, ignore_errors=True)   # drop dates from earlier runs
@@ -134,9 +137,9 @@ def main():
         if c.grid.shape != grid.shape or c.grid.epsg != grid.epsg:
             print(f"[{c.date}] different grid, skipping")
             continue
-        coherence, pair = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
+        coherence, pair, direction = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
         if coherence is None:
-            print(f"[{c.date}] no 12-day coherence pair starts on this date, left out")
+            print(f"[{c.date}] no 12-day coherence pair starts or ends on this date, left out")
             continue
 
         detected, valid = classify_dark_unstable(hh_db[c.date], coherence, args.threshold,
@@ -149,7 +152,9 @@ def main():
         water_overlay(hh_dark, out / "overlays_hh_only" / f"{c.date}.png")
 
         row = {"date": c.date, "mode": c.mode, "release": c.release, "threshold_db": args.threshold,
-               "coherence_threshold": args.coherence_threshold, "coherence_pair_end": pair.secondary_date,
+               "coherence_threshold": args.coherence_threshold,
+               "coherence_pair": f"{pair.reference_date} to {pair.secondary_date}", "pair_direction": direction,
+               "pair_modes": f"{modes[pair.reference_date]}-{modes[pair.secondary_date]}",
                "valid_area_km2": round(float((valid & regions[""]).sum()) * grid.pixel_area_km2, 3)}
         row.update(areas(detected, regions, grid.pixel_area_km2, "water"))
         row["water_km2_min"], row["water_km2_max"] = area_range(hh_db[c.date], coherence, regions[""],

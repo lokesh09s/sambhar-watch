@@ -30,7 +30,7 @@ def area_table(crops, regions, pairs) -> list[dict]:
     """In-lake areas for every date and every threshold pair."""
     rows = []
     for c in crops:
-        coherence, pair = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
+        coherence, pair, direction = coherence_for_date(c.date, pairs, config.COHERENCE_DIR)
         if coherence is None:
             print(f"[{c.date}] no 12-day coherence pair, left out")
             continue
@@ -39,7 +39,8 @@ def area_table(crops, regions, pairs) -> list[dict]:
             for coh in config.SENSITIVITY_COHERENCE:
                 detected, _ = classify_dark_unstable(hh_db, coherence, t, coh)
                 rows.append({"date": c.date, "mode": c.mode, "threshold_db": t, "coherence_threshold": coh,
-                             "coherence_pair_end": pair.secondary_date,
+                             "coherence_pair": f"{pair.reference_date} to {pair.secondary_date}",
+                             "pair_direction": direction,
                              **areas(detected, regions, c.grid.pixel_area_km2, "water")})
     return rows
 

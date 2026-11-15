@@ -18,3 +18,5 @@ Format: HH:MM IST | decision | reason | evidence
 - 18:57 IST | Output water_km2_min / water_km2_max per date = range over T in {-17,-18,-19,-20} dB x C in {0.25,0.30,0.35} | threshold-induced range (median ~50 km2) exceeds the between-date difference (7-46 km2) | outputs/results/sensitivity_DHDH.csv
 - 18:57 IST | If QPDH and DHDH disagree on stable ground, DHDH dates are the main series and QPDH dates are shown separately | science rule: don't mix modes before checking consistency | consistency check pending
 - 18:57 IST | Method freeze at 20:00 IST; afterwards only reruns, validation and results | deadline 23:59 IST, team target 23:00 | team decision
+- 19:11 IST | If no 12-day pair starts on a date, use the pair ending on it (still one pair per date); record pair_direction and pair_modes | recovers 2026-07-22 and 2026-10-14 (the only post-monsoon DHDH date) without mixing one- and two-pair dates | outputs/results/water_area.csv
+- 19:11 IST | The QPDH vs DHDH consistency check decides the series: full year (Jan-Oct) if the modes agree on stable ground, else Apr-Aug DHDH only (QPDH separately) | science rule: check modes before mixing | scripts/check_modes.py

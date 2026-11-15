@@ -93,10 +93,12 @@ def test_date_coherence_uses_pair_starting_on_date(tmp_path=Path("/tmp")):
     np.savez(pair_file(before, tmp_path), coherence=np.array([0.2, 0.6]))
     np.savez(pair_file(after, tmp_path), coherence=np.array([0.5, 0.1]))
 
-    coherence, pair = coherence_for_date("2026-05-23", [before, after], tmp_path)
-    assert pair == after                                  # the pair starting on the date, not the one ending
+    coherence, pair, direction = coherence_for_date("2026-05-23", [before, after], tmp_path)
+    assert (pair, direction) == (after, "forward")        # the pair starting on the date, not the one ending
     assert coherence.tolist() == [0.5, 0.1]
-    assert coherence_for_date("2026-06-04", [before, after], tmp_path) == (None, None)   # no pair starts here
+    coherence, pair, direction = coherence_for_date("2026-06-04", [before, after], tmp_path)
+    assert (pair, direction) == (after, "backward")       # no pair starts here: use the one ending here
+    assert coherence_for_date("2026-07-10", [before, after], tmp_path) == (None, None, None)
 
 
 def test_dark_stable_surface_is_not_detected():

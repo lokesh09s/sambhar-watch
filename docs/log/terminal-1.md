@@ -96,3 +96,11 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
   - => the first mixed pair's HH change (-0.43 dB) is inside the same-mode range (-0.30 to -0.72 dB): no sign of a mode offset there.
   - Farmland coherence: QPDH-QPDH Jan-Mar 0.56-0.71; DHDH-DHDH Apr-May 0.50-0.59, Jun 0.33-0.38; MIXED 08-15->08-27 0.51 (not lower than same-mode pairs in Apr-May; needs 08-27->09-08 for a seasonal neighbour).
 - Next: 08-15/08-27 and 10-02/10-14 once 08-27, 10-02, 10-14 are cropped.
+
+### 19:11 IST - Backward-pair fallback; pair_direction and pair_modes columns
+- What: sambhar/coherence.py coherence_for_date() returns (coherence, pair, direction): the pair starting on the date ("forward"), else the pair ending on it ("backward"). scripts/map_water.py and scripts/sensitivity.py: column coherence_pair_end replaced by coherence_pair ("<ref> to <sec>"; for backward pairs the end date would just repeat the date), plus pair_direction and pair_modes (e.g. DHDH-QPDH). config.py comment, README, test updated (test now also checks the backward case). Tests 5/5.
+- Why: team decision: keep exactly one pair per date but recover dates with no starting pair.
+- Result: DHDH dates with results rise from 10 to 12: 2026-07-22 (backward, 07-10 to 07-22, DHDH-DHDH) and 2026-10-14 (backward, 10-02 to 10-14, QPDH-DHDH). 2025-11-12 still has none (its only pair is 60 days). Mixed-mode pairs used by DHDH dates: 08-15 (DHDH-QPDH) and 10-14 (QPDH-DHDH).
+  - Note: 07-10 (forward) and 07-22 (backward) use the same pair, so their coherence is identical; only their HH differs.
+  - In-lake areas (chosen [range]): 07-22 115.6 [76.9-126.3]; 10-14 55.7 [34.1-71.8], about half of every other DHDH date and based on a mixed-mode pair, so it waits for the mode check.
+- Next: finish the mode check once 08-27->09-08 and 09-08->09-20 are cropped.
