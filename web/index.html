@@ -117,7 +117,7 @@
       <p class="hint" id="optical-caption"></p>
       <p class="headline" id="optical-headline" hidden>
         <strong>11 May 2026.</strong> Optical image: the lake looks white and dry. 5 days before and after, it&rsquo;s water.
-        NISAR radar on the same day: <span class="placeholder">[result to be added]</span>.
+        NISAR radar on the same day: <span id="may-result">[result to be added]</span>.
         <span class="tag">Provisional</span>
       </p>
     </section>
@@ -142,7 +142,24 @@
 
     <section aria-labelledby="found-title">
       <h2 id="found-title">What we found</h2>
-      <p class="placeholder">To be added once all NISAR dates are processed and checked against Sentinel-2.</p>
+      <p><strong>Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence.</strong>
+        <span class="tag">Provisional</span></p>
+      <ul>
+        <li><strong>Brightness alone misses the change.</strong> Between 15 August and 14 October, radar brightness
+          alone barely changes (125 to 115 km&sup2; inside the lake outline), because dry, smooth salt crust is as dark as water.</li>
+        <li><strong>Coherence finds it.</strong> Crust stays the same between passes 12 days apart; water doesn't.
+          With coherence, the detected area falls from 91 to 56 km&sup2;.</li>
+        <li><strong>The low holds across settings.</strong> 14 October is the lowest radar date in 10 of 12 threshold
+          settings. Quad-pol dates in September and October agree (56&ndash;60 km&sup2;).</li>
+        <li><strong>Sentinel-2 confirms the drying.</strong> The basin goes from about 55&ndash;60% water in late August
+          to about 55&ndash;60% white crust by 13 October; 10 October looks the same.</li>
+        <li><strong>Validation points:</strong> <span class="placeholder">[validation results to be added]</span></li>
+      </ul>
+      <p><strong>Honest limits.</strong> Radar still overestimates in October (56 km&sup2; against about 30&ndash;40 km&sup2;
+        of water seen in Sentinel-2, likely the reservoir and wet edges). Changes between April and August are within
+        the uncertainty. Only April to October forms one consistent radar series.</p>
+      <p><strong>Also worth knowing.</strong> A single optical image can mislead: Sentinel-2 shows a white lake on
+        11 May, but water on 6 and 16 May (see the examples below the chart).</p>
       <div class="box">
         <h3>What this means <span class="tag">Provisional</span></h3>
         <ul>

@@ -314,14 +314,33 @@ async function makeHero(demo) {
     tableRow("HH + coherence", "water_km2", true);
 
   const days = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86400000;
+  const paired = await pairedComparison(before, after);
   document.getElementById("hero-note").textContent =
+    (paired ? paired + " " : "") +
     "Radar dates are the nearest DHDH dates: the August optical image is " + days(HERO.before.optical, before.date) +
     " days after its radar date, the October one " + days(HERO.after.optical, after.date) + " day before. " +
-    (hasRange(before) && hasRange(after)
-      ? "With other reasonable thresholds, HH + coherence gives " + rangeKm2(before) + " in August and " +
-        rangeKm2(after) + " in October. "
-      : "") +
     (demo ? "Radar values are DEMO data." : "Results are provisional.");
+}
+
+/**
+ * "At the same threshold settings, 14 Oct is lower than 15 Aug in N of 12 combinations (drop of a-b km²)."
+ * Read from sensitivity_<mode>.csv, which has the area of every date for every threshold pair. "" if missing.
+ */
+async function pairedComparison(before, after) {
+  const table = await getText("sensitivity_" + before.mode + ".csv").catch(() => null);
+  if (!table) return "";
+  const settings = row => row.threshold_db + "/" + row.coherence_threshold;
+  const areaBefore = {};
+  const all = parseCSV(table);
+  all.filter(r => r.date === before.date).forEach(r => { areaBefore[settings(r)] = Number(r.water_km2); });
+  const drops = all.filter(r => r.date === after.date && settings(r) in areaBefore)
+    .map(r => areaBefore[settings(r)] - Number(r.water_km2));
+  if (!drops.length) return "";
+  const lower = drops.filter(d => d > 0);
+  const name = date => new Date(Date.parse(date)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  return "At the same threshold settings, " + name(after.date) + " is lower than " + name(before.date) + " in " +
+    lower.length + " of " + drops.length + " combinations" +
+    (lower.length ? " (drop of " + Math.min(...lower).toFixed(1) + "–" + Math.max(...lower).toFixed(1) + " km²)." : ".");
 }
 
 // ---------- optical vs radar ----------
@@ -379,6 +398,19 @@ function showOptical(entry, demo) {
   }
   document.getElementById("swipe-tag-right").textContent = demo ? "NISAR radar (DEMO)" : "NISAR radar (provisional)";
   document.getElementById("optical-headline").hidden = entry.s2_date !== "2026-05-11";
+  document.getElementById("may-result").textContent = mayResult();
+}
+
+/** The radar result on 11 May, with the radar dates just before and after it, read from water_area.csv. */
+function mayResult() {
+  const i = rows.findIndex(r => r.date === "2026-05-11");
+  if (i < 0) return "[no radar result for 11 May]";
+  const r = rows[i];
+  const around = [rows[i - 1], rows[i + 1]].filter(Boolean)
+    .map(n => Math.round(number(n, "water_km2")) + " km² on " + shortDate(Date.parse(n.date)));
+  return Math.round(number(r, "water_km2")) + " km² of " + className + " inside the lake outline" +
+    (hasRange(r) ? " (range " + Math.round(number(r, "water_km2_min")) + "–" + Math.round(number(r, "water_km2_max")) + ")" : "") +
+    (around.length ? ", similar to the radar dates before and after (" + around.join(" and ") + ")" : "");
 }
 
 /** Move the divide: optical on the left of `percent`, radar on the right. */

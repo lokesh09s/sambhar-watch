@@ -214,3 +214,20 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   Caveat shown on the page: the HH + coherence ranges overlap (Aug 51.0-110.5, Oct 34.1-71.8 km2). The August optical image is 14 days after its radar date.
   Screenshot checked; node --check OK.
 - Next: the team fills in the 11 May headline result and "What we found"; GitHub link TODO.
+
+### 19:38 IST - Paired Aug/Oct comparison; 11 May radar result; "What we found" from the final story (D)
+- What:
+  - scripts/export_web.py copies outputs/results/sensitivity_*.csv into web/data/.
+  - web/app.js: pairedComparison() reads sensitivity_<mode>.csv and, for each of the 12 (T, C) pairs, compares 14 Oct with 15 Aug at the SAME settings.
+    It replaces the range-overlap caveat under the hero table. The note that the August optical and radar dates are 14 days apart is kept.
+    mayResult() fills the 11 May headline from water_area.csv: area, range, and the radar dates before and after.
+  - web/index.html: "What we found" written from Terminal 4's final version (D) in docs/project_page.md (headline, 4 findings, honest limits,
+    the 11 May optical trap). The validation line stays a marked placeholder.
+- Why: Team request. The paired comparison is the right test for a change between two dates: same thresholds on both dates, rather than overlapping min-max bands.
+- Result (rendered DOM checked, numbers match a Python check of sensitivity_DHDH.csv):
+  - "At the same threshold settings, 14 Oct is lower than 15 Aug in 12 of 12 combinations (drop of 16.9-38.7 km2)."
+  - 11 May: "103 km2 of dark unstable surface (water or wet brine) inside the lake outline (range 84-113), similar to the radar dates before and after
+    (106 km2 on 29 Apr and 108 km2 on 23 May)." Kept factual. I did not write "radar is not fooled by the white film", because Terminal 4's log
+    marks that as an overstatement that was withdrawn.
+  - No git remote and no repo URL anywhere yet, so the GitHub link stays TODO.
+- Next: GitHub link once the repo exists; validation numbers into "What we found".
