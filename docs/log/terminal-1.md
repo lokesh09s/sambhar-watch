@@ -60,3 +60,15 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
 - Result: partial run (7 DHDH dates cropped so far), inside lake, km2, HH only -> HH + coherence: 2026-04-05 119.6 -> 101.6; 04-17 132.7 -> 99.5; 04-29 126.7 -> 96.3; 05-11 131.8 -> 93.6; 05-23 130.3 -> 92.2; 08-15 125.3 -> 91.4. Tests 5/5.
   - Note for other terminals: water_km2 changed meaning from "whole study box" to "inside lake outline".
 - Next: bulk crop at 12/24 (18:49), slower than estimated (~3 min/date with mask + parallel coherence); full rerun expected ~19:30.
+
+### 19:00 IST - Threshold sensitivity check (scripts/sensitivity.py)
+- What: new scripts/sensitivity.py (reuses map_water.select_crops/region_masks/areas); config SENSITIVITY_THRESHOLDS_DB = (-17,-18,-19,-20), SENSITIVITY_COHERENCE = (0.25,0.30,0.35). Ran `--mode DHDH` (7 dates with coherence so far) and `--mode QPDH` (Jan-Mar, reported separately, not mixed). Output outputs/results/sensitivity_<mode>.csv. First version wrote sensitivity.csv for every mode (would overwrite); renamed per mode and deleted the old file.
+- Why: team asked whether the seasonal signal survives reasonable threshold choices.
+- Result (in-lake km2, DHDH, chosen T=-18/C=0.3 then min-max over 12 threshold pairs):
+  04-05 101.6 (45.8-118.1); 04-17 99.5 (65.5-114.4); 04-29 96.3 (61.0-111.3); 05-11 93.6 (66.8-107.5); 05-23 92.2 (65.0-106.4); 06-04 95.7 (62.5-112.2); 08-15 91.3 (51.0-110.5).
+  - Threshold-induced range on one date: 41-72 km2 (median 49.7). Difference between dates: 7.3-46.3 km2 depending on thresholds (10.3 at the chosen pair). => The seasonal difference is SMALLER than the threshold-induced range.
+  - The order of dates flips: 2026-04-05 is the largest at T=-17/-18 and the smallest at T=-19/-20. The monsoon date 2026-08-15 is never larger than the dry-season dates (rank 1-3 of 7 from the bottom in all 12 pairs).
+  - One-pair bias: on 2-pair dates, using a single pair gives 102.5-110.6 km2 vs 92.2-99.5 with the higher of both, i.e. +10-15 km2 (11-14%). One-pair dates (04-05, 08-15, 01-11, 03-12) are biased upward by about the size of the whole between-date difference.
+  - QPDH Jan-Mar (separate, consistency with DHDH not yet checked): 01-11 80.5, 01-23 52.7, 02-04 49.4, 02-16 51.7, 02-28 59.9, 03-12 83.7 km2. The two highest (01-11, 03-12) are exactly the one-pair dates. Jan-Mar values are lower than Apr-Aug DHDH, the opposite of "extra water after the monsoon" - could be real, a mode (QPDH vs DHDH) difference, or the method; cannot tell yet.
+  - Coverage: with --mode DHDH, 2025-11-12 (no 12-day pair) and all Jan-Mar 2026 (QPDH) are absent; after the monsoon only 2026-10-14 is DHDH.
+- Next: report to the team; decision needed on one-pair bias; QPDH vs DHDH consistency check; Sentinel-2 to choose thresholds.

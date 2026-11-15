@@ -54,3 +54,7 @@ CHECK_REGIONS = {
 WATER_THRESHOLD_DB = -18.0
 COHERENCE_THRESHOLD = 0.3
 CLASS_NAME = "dark unstable surface (water or wet brine)"   # until Sentinel-2 confirms it is water
+
+# Threshold values tried in the sensitivity check (scripts/sensitivity.py).
+SENSITIVITY_THRESHOLDS_DB = (-17.0, -18.0, -19.0, -20.0)
+SENSITIVITY_COHERENCE = (0.25, 0.30, 0.35)
