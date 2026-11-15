@@ -32,10 +32,13 @@
   // Thin progress bar and menu shadow while scrolling.
   const bar = document.getElementById("progress");
   const nav = document.querySelector(".nav");
+  const shot = document.getElementById("shot");
   function onScroll() {
     const scrollable = root.scrollHeight - window.innerHeight;
     bar.style.transform = "scaleX(" + (scrollable > 0 ? window.scrollY / scrollable : 0) + ")";
     nav.classList.toggle("scrolled", window.scrollY > 8);
+    // The opening image grows from 86% to full width over the first 40% of a screen of scrolling.
+    shot.style.setProperty("--grow", Math.min(1, window.scrollY / (0.4 * window.innerHeight)));
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();

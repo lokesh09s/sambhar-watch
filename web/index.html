@@ -28,16 +28,18 @@
   <header class="landing" id="top">
     <div class="wrap">
       <p class="eyebrow">NASA Space Apps Challenge 2026 &middot; Dancing with the SARs</p>
-      <h1>Sambhar Watch</h1>
-      <p class="lede">Watching India's largest inland saline lake through the clouds, with one year of
+      <h1>A salt lake, <span class="grad">seen through the clouds.</span></h1>
+      <p class="lede">Sambhar Watch follows India's largest inland saline lake through one year of
         NASA&ndash;ISRO NISAR radar.</p>
       <p class="actions">
         <a class="button" href="#map-section">Explore the map</a>
         <a class="button button-ghost" href="#hero">See the main result</a>
       </p>
-      <p class="credit">Background: Sambhar Salt Lake on 11 January 2026, ESA Copernicus Sentinel-2.</p>
+      <div class="shot" id="shot">
+        <img src="data/optical/2026-01-11.jpg" alt="Sambhar Salt Lake from space: green water, white salt crust and salt pans">
+        <span class="chip">Sambhar Salt Lake &middot; 11 Jan 2026 &middot; ESA Copernicus Sentinel-2</span>
+      </div>
     </div>
-    <a class="scroll-cue" href="#problem" aria-label="Scroll to the problem"></a>
   </header>
 
   <section class="band" id="problem" aria-labelledby="problem-title">
@@ -93,7 +95,7 @@
         divided by the number of dates with a valid radar observation there.</p>
     </section>
 
-    <section aria-labelledby="hero-title" id="hero" hidden>
+    <section aria-labelledby="hero-title" id="hero" class="dark" hidden>
       <p class="eyebrow">Main result</p>
       <h2 id="hero-title">After the monsoon: August vs October</h2>
       <p class="headline">After the monsoon, salt crust spread across the lake. Brightness alone missed it;
