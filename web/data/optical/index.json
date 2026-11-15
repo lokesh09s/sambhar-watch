@@ -1,32 +1,38 @@
 [
  {
   "s2_date": "2026-01-11",
-  "nisar_date": null,
-  "days_apart": null
+  "nisar_date": "2026-01-11",
+  "days_apart": 0,
+  "mode": "QPDH"
  },
  {
   "s2_date": "2026-05-06",
   "nisar_date": "2026-05-11",
-  "days_apart": 5
+  "days_apart": 5,
+  "mode": "DHDH"
  },
  {
   "s2_date": "2026-05-11",
   "nisar_date": "2026-05-11",
-  "days_apart": 0
+  "days_apart": 0,
+  "mode": "DHDH"
  },
  {
   "s2_date": "2026-05-16",
   "nisar_date": "2026-05-11",
-  "days_apart": 5
+  "days_apart": 5,
+  "mode": "DHDH"
  },
  {
   "s2_date": "2026-08-29",
-  "nisar_date": null,
-  "days_apart": null
+  "nisar_date": "2026-08-27",
+  "days_apart": 2,
+  "mode": "QPDH"
  },
  {
   "s2_date": "2026-10-13",
   "nisar_date": "2026-10-14",
-  "days_apart": 1
+  "days_apart": 1,
+  "mode": "DHDH"
  }
 ]

@@ -399,13 +399,23 @@ function showOptical(entry, demo) {
     removed.src = DATA + "comparison/" + entry.nisar_date + ".png";
     caption.textContent = s2Text + " vs NISAR radar " + shortDate(Date.parse(entry.nisar_date)) +
       (entry.days_apart === 0 ? " (same day)" : " (" + entry.days_apart + " days apart)") +
-      ". Blue: " + className + ". Orange: removed by the coherence check." +
+      ". Blue: " + className + ". Orange: removed by the coherence check. Grey background: the same optical" +
+      " image in grey, for orientation; both halves show the same area." +
+      (entry.mode === "QPDH" ? " This radar date is quad-pol (QPDH): outside the main series, about 0.9 dB brighter in HH." : "") +
       (demo ? " Radar side: DEMO data, not NISAR results." : " Radar results are provisional.");
   } else {
     radar.hidden = true;
     caption.textContent = s2Text + ". No NISAR radar result within 6 days of this image, so only the optical image is shown.";
   }
-  document.getElementById("swipe-tag-right").textContent = demo ? "NISAR radar (DEMO)" : "NISAR radar (provisional)";
+  // The label names the actual radar date and mode; without a radar result there is no radar half at all.
+  const tag = document.getElementById("swipe-tag-right");
+  tag.hidden = !entry.nisar_date;
+  document.getElementById("swipe-line").hidden = !entry.nisar_date;
+  if (entry.nisar_date) {
+    const radarDay = new Date(Date.parse(entry.nisar_date))
+      .toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+    tag.textContent = demo ? "NISAR radar (DEMO)" : "NISAR radar, " + radarDay + (entry.mode ? " (" + entry.mode + ")" : "");
+  }
   document.getElementById("optical-headline").hidden = entry.s2_date !== "2026-05-11";
   document.getElementById("may-result").textContent = mayResult();
 }
