@@ -145,3 +145,19 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   On the real validation_data/points_2026-05-11.csv: "No labelled points (150 rows without a label)". The file is not labelled yet, so no real result.
   validation_data columns (id, lon, lat, date, label) are compatible; date there is the NISAR date (S2 is 4-5 days earlier, within --max-days 6).
 - Next: run on real outputs once the points are labelled: python scripts/validate.py validation_data/points_2026-05-11.csv (and 08-15). Then the website feedback.
+
+### 19:04 IST - Website feedback: on-map demo label, lake outline, real pans, zoom to lake, renamed comparison layer, compact layer box
+- What:
+  - web/app.js: a "DEMO DATA: synthetic, not NISAR results" label on the map (bottom left, only when map_info demo is true); "Lake outline"
+    layer from data/lake.geojson, on by default (yellow #ffd84d); the map zooms to the lake outline (study-box bounds if there is no outline);
+    the comparison layer is renamed "Removed by coherence check".
+  - web/index.html: legend "Removed by coherence check: dark in HH but stable (likely dry fields or dry crust)"; lake legend item.
+  - web/style.css: compact layer box; demo label style; the page-wide 'section { margin }' rule is now 'main > section'.
+  - scripts/export_web.py: new --lake option (default data/lake.geojson); copy_outline() handles both pans and lake.
+  - scripts/make_demo_data.py: the demo now uses the real data/pans.geojson (7 shapes), not pans_example.geojson; --pans is no longer needed in the commands.
+- Why: Team website feedback (the earlier message did not reach this terminal; done from the list in the latest request).
+- Result: Screenshot checked: the map opens on the lake outline; real pans dashed; demo label visible on the map; legend wording right.
+  Dead end: the first compact-box CSS did nothing. The empty space came from my own 'section { margin: 36px 0 }', which also applied to
+  Leaflet's <section class="leaflet-control-layers-list">. Scoping it to 'main > section' fixed it.
+  Demo 2026-05-11 with real pans: HH only 114.0 -> HH + coherence 62.5 km2 inside the lake outline (range 59.9-62.9).
+- Next: the layer name "Removed by coherence check" was my choice (the feedback did not give one); rename it if the team prefers another.

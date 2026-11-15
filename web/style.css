@@ -24,7 +24,7 @@ header { background: var(--accent); color: #fff; padding: 28px 0 22px; }
 header h1 { margin: 0; font-size: 1.9rem; letter-spacing: 0.01em; }
 .lede { margin: 6px 0 0; max-width: 40em; opacity: 0.92; }
 
-section { margin: 36px 0; }
+main > section { margin: 36px 0; }   /* not Leaflet's own <section> in the layer box */
 h2 { font-size: 1.3rem; margin: 0 0 12px; color: var(--accent); }
 a { color: var(--accent); }
 ul { padding-left: 1.2em; }
@@ -45,12 +45,22 @@ li { margin: 4px 0; }
 #map { height: 480px; border: 1px solid var(--line); border-radius: 4px; }
 .pixelated { image-rendering: pixelated; }
 
+.map-demo-label {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-left: 4px solid var(--accent);
+}
+
 .legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 10px 0 0; font-size: 0.93rem; }
 .swatch { display: inline-block; width: 26px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; }
 .swatch-water { background: var(--water); }
 .swatch-stable { background: rgb(240, 140, 0); }   /* as COMPARISON_RGBA in export_web.py */
 .swatch-frequency { background: linear-gradient(to right, #b7d4ea, #3b8bc2, #08306b); }  /* Blues 30%-100%, as export_web.py */
 .swatch-pans { border: 2px dashed var(--ink); }
+.swatch-lake { border: 2.5px solid #e0b400; }   /* lake outline is #ffd84d on the map; darker here to show on white */
 
 .hint { color: var(--muted); font-size: 0.93rem; margin: 8px 0 0; }
 .placeholder { color: var(--muted); font-style: italic; }
@@ -68,3 +78,8 @@ footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9r
 
 /* Leaflet draws an empty base-layer list and separator when there are only overlays. */
 .leaflet-control-layers-base, .leaflet-control-layers-separator { display: none; }
+
+/* Compact layer box. */
+.leaflet-control-layers-expanded { padding: 4px 8px 4px 6px; font-size: 12px; line-height: 1.3; }
+.leaflet-control-layers-overlays label { margin: 2px 0; }
+.leaflet-control-layers-selector { margin: 0 4px 0 0; vertical-align: -2px; }

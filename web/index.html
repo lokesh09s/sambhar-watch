@@ -34,8 +34,9 @@
       <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
       <ul class="legend">
         <li><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> on the selected date</li>
-        <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Dark but stable: dark in HH, removed by the coherence check (likely dry salt crust)</li>
+        <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Removed by coherence check: dark in HH but stable (likely dry fields or dry crust)</li>
         <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
+        <li id="legend-lake" hidden><span class="swatch swatch-lake"></span>Lake outline (hand-drawn)</li>
         <li><span class="swatch swatch-pans"></span><span class="pans-label-cap">Mapped salt pans</span> (hand-drawn)</li>
       </ul>
       <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as <span class="class-name">dark unstable surface (water or wet brine)</span>.</p>
@@ -50,7 +51,7 @@
       <p class="hint" id="mode-note" hidden>Triangles mark dates from the quad-pol (QPDH) radar mode. Until we have checked that
         the two radar modes agree, they are drawn as separate lines and never joined.</p>
       <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
-        (the gap is the dark but stable surface that coherence removes).</p>
+        (the gap is the dark but stable surface that the coherence check removes).</p>
     </section>
 
     <section aria-labelledby="how-title">

@@ -5,7 +5,7 @@
 For each NISAR date in data/granules.csv, a synthetic NISAR-like file is made
 with tests/test_pipeline.py's make_fake_gcov, then painted with:
     - a lake that shrinks in the dry season and fills in the monsoon
-    - salt pans (data/pans_example.geojson) that hold brine for part of the year
+    - the mapped salt pans (data/pans.geojson) holding brine for part of the year
     - a ring of wet salt crust after the lake retreats (dark and unstable, like water)
     - smooth dry crust on the exposed lake bed in Mar-Jun (dark like water, but stable)
     - one date with the eastern part missing, so valid-observation counts differ
@@ -22,7 +22,7 @@ Everything is written to outputs/demo/ (never outputs/crops or outputs/results),
 so it cannot mix with real NISAR results.
 
 Run:   python scripts/make_demo_data.py
-Then:  python scripts/export_web.py --results outputs/demo/results --pans data/pans_example.geojson
+Then:  python scripts/export_web.py --results outputs/demo/results
 """
 import json
 import shutil
@@ -47,7 +47,7 @@ from scripts import crop_lake, map_water
 from tests.test_pipeline import EPSG, make_fake_gcov
 
 DEMO_DIR = ROOT / "outputs" / "demo"
-DEMO_PANS = config.DATA_DIR / "pans_example.geojson"
+DEMO_PANS = config.PANS_GEOJSON   # the real hand-mapped pans, so the demo map matches
 
 # Lake size per month, as a fraction of the full 9 km x 4 km ellipse:
 # lowest before the monsoon (May-June), highest just after it (September).
@@ -152,11 +152,10 @@ def main():
     if DEMO_DIR.exists():
         shutil.rmtree(DEMO_DIR)   # only ever our own demo folder
 
-    # Point the real pipeline at the demo folders and the example pans.
+    # Point the real pipeline at the demo folders.
     config.CROPS_DIR = DEMO_DIR / "crops"
     config.RESULTS_DIR = DEMO_DIR / "results"
     config.COHERENCE_DIR = DEMO_DIR / "coherence"
-    config.PANS_GEOJSON = DEMO_PANS
 
     granules = [g for g in load_granules() if g.release == "provisional"]
     rng = np.random.default_rng(1)

@@ -26,7 +26,8 @@ python scripts/export_web.py           # copies results into web/data/
 - `frequency_lookup.json`: frequency and valid-observation count on a coarser grid
   (at most 400 cells on the long side), used when you click the map
 
-Salt pans are shown if `data/pans.geojson` exists (or the file given with `--pans`).
+The salt pans and lake outline are shown if `data/pans.geojson` and `data/lake.geojson` exist
+(or the files given with `--pans` / `--lake`). The map opens zoomed to the lake outline.
 
 ### What the site expects from the coherence rule (provisional: HH < T AND coherence < C)
 
@@ -59,7 +60,7 @@ To test the page before real results exist:
 
 ```bash
 python scripts/make_demo_data.py
-python scripts/export_web.py --results outputs/demo/results --pans data/pans_example.geojson
+python scripts/export_web.py --results outputs/demo/results
 ```
 
 Demo data lives in `outputs/demo/`, never in `outputs/crops` or `outputs/results`.

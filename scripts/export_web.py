@@ -7,11 +7,11 @@ Reads outputs/results/ (made by map_water.py) and writes to web/data/:
     frequency_lookup.json    frequency and valid-observation count on a coarse grid, for map clicks
     comparison/<date>.png    pixels dark in HH but removed by the coherence rule
                              (only if results has overlays_hh_only/)
-    pans.geojson             salt-pan polygons (only if the pans file exists)
+    pans.geojson, lake.geojson   salt-pan and lake outlines (only if the files exist)
 
 Examples
     python scripts/export_web.py
-    python scripts/export_web.py --results outputs/demo/results --pans data/pans_example.geojson   # FAKE demo
+    python scripts/export_web.py --results outputs/demo/results   # FAKE demo
 """
 import argparse
 import json
@@ -74,12 +74,24 @@ def frequency_lookup(frequency: np.ndarray, n_valid: np.ndarray) -> dict:
     }
 
 
+def copy_outline(source: Path, name: str) -> None:
+    """Copy a hand-drawn outline to web/data/<name>, or remove an old copy if the file does not exist."""
+    target = WEB_DATA / name
+    if source.exists():
+        shutil.copy(source, target)
+    else:
+        target.unlink(missing_ok=True)
+        print(f"Note: {source} not found, so the map has no {name} layer.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--results", type=Path, default=config.RESULTS_DIR,
                         help="folder written by map_water.py (default outputs/results)")
     parser.add_argument("--pans", type=Path, default=config.PANS_GEOJSON,
                         help="salt-pan polygons to show on the map (default data/pans.geojson)")
+    parser.add_argument("--lake", type=Path, default=config.LAKE_GEOJSON,
+                        help="lake outline to show on the map (default data/lake.geojson)")
     args = parser.parse_args()
 
     results = args.results
@@ -110,12 +122,8 @@ def main():
     with open(WEB_DATA / "frequency_lookup.json", "w") as f:
         json.dump(frequency_lookup(saved["frequency"], saved["n_valid"]), f, separators=(",", ":"))
 
-    pans_out = WEB_DATA / "pans.geojson"
-    if args.pans.exists():
-        shutil.copy(args.pans, pans_out)
-    else:
-        pans_out.unlink(missing_ok=True)
-        print(f"Note: {args.pans} not found, so the map has no salt-pan layer.")
+    copy_outline(args.pans, "pans.geojson")
+    copy_outline(args.lake, "lake.geojson")
 
     info = json.loads((results / "map_info.json").read_text())
     label = "FAKE DEMO data" if info.get("demo") else "results"

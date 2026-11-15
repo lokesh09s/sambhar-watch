@@ -21,6 +21,7 @@ async function main() {
     rows = parseCSV(await getText("water_area.csv"));
     const lookup = await getJSON("frequency_lookup.json");
     const pans = await getJSON("pans.geojson").catch(() => null);   // optional
+    const lake = await getJSON("lake.geojson").catch(() => null);   // optional
 
     const hasComparison = await fileExists("comparison/" + rows[0].date + ".png");
 
@@ -38,7 +39,8 @@ async function main() {
       document.getElementById("rule-values").textContent =
         " (here: HH below " + info.threshold_db + " dB and coherence below " + info.coherence_threshold + ")";
     }
-    makeMap(info, lookup, pans, hasComparison);
+    document.getElementById("legend-lake").hidden = !lake;
+    makeMap(info, lookup, pans, lake, hasComparison);
     makeChart(info.area_scope);
     makeSlider();
     showDate(0);
@@ -79,9 +81,15 @@ function parseCSV(text) {
 
 // ---------- map ----------
 
-function makeMap(info, lookup, pans, hasComparison) {
+function makeMap(info, lookup, pans, lake, hasComparison) {
   const bounds = info.bounds_latlon;   // [[south, west], [north, east]]
   const map = L.map("map", { scrollWheelZoom: false }).fitBounds(bounds);
+
+  if (info.demo) {   // keep the warning on the map itself, so screenshots of the map carry it too
+    const label = L.control({ position: "bottomleft" });
+    label.onAdd = () => L.DomUtil.create("div", "map-demo-label");
+    label.addTo(map).getContainer().textContent = "DEMO DATA: synthetic, not NISAR results";
+  }
 
   L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 18,
@@ -97,7 +105,7 @@ function makeMap(info, lookup, pans, hasComparison) {
   if (hasComparison) {
     // Orange: dark in HH alone, removed by the coherence rule. Never overlaps the blue layer.
     comparisonLayer = L.imageOverlay(comparisonUrl(0), bounds, { className: "pixelated" }).addTo(map);
-    layers["Dark but stable (HH only vs HH + coherence)"] = comparisonLayer;
+    layers["Removed by coherence check"] = comparisonLayer;
   }
   layers["Detection frequency"] = frequencyLayer;
   if (pans) {
@@ -105,6 +113,14 @@ function makeMap(info, lookup, pans, hasComparison) {
       style: { color: "#ffffff", weight: 2, dashArray: "6 4", fill: false },
       interactive: false,
     }).addTo(map);
+  }
+  if (lake) {
+    const lakeLayer = L.geoJSON(lake, {
+      style: { color: "#ffd84d", weight: 2.5, fill: false },
+      interactive: false,
+    }).addTo(map);
+    layers["Lake outline"] = lakeLayer;
+    map.fitBounds(lakeLayer.getBounds(), { padding: [12, 12] });
   }
   L.control.layers(null, layers, { collapsed: window.innerWidth < 600 }).addTo(map);
 
