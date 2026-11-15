@@ -9,13 +9,51 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <nav class="nav" aria-label="Page sections">
+    <div class="wrap nav-row">
+      <a class="brand" href="#top">Sambhar Watch</a>
+      <div class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#how">How it works</a>
+        <a href="#map-section">Map</a>
+        <a href="#results">Results</a>
+        <a href="#limits">Limitations</a>
+        <a href="#team">Team</a>
+      </div>
+      <a class="button button-small" href="#map-section">Open the map</a>
+    </div>
+  </nav>
+
+  <header class="landing" id="top">
     <div class="wrap">
+      <p class="eyebrow">NASA Space Apps Challenge 2026 &middot; Dancing with the SARs</p>
       <h1>Sambhar Watch</h1>
-      <p class="lede">Surface water at Sambhar Salt Lake, India, through one year of NASA&ndash;ISRO NISAR radar,
-        inside and outside hand-mapped salt pans.</p>
+      <p class="lede">Watching India's largest inland saline lake through the clouds, with one year of
+        NASA&ndash;ISRO NISAR radar.</p>
+      <p class="actions">
+        <a class="button" href="#map-section">Explore the map</a>
+        <a class="button button-ghost" href="#hero">See the main result</a>
+      </p>
+      <p class="credit">Background: Sambhar Salt Lake on 11 January 2026, ESA Copernicus Sentinel-2.</p>
     </div>
   </header>
+
+  <section class="band" id="problem" aria-labelledby="problem-title">
+    <div class="wrap">
+      <p class="eyebrow">The problem</p>
+      <h2 id="problem-title">A lake that is hard to watch</h2>
+      <p class="section-lede">Sambhar Salt Lake, about 70 km west of Jaipur, is a Ramsar wetland of 24,000 hectares.
+        Salt works operate inside it. It changes most during the monsoon, when clouds hide it from optical satellites,
+        and its salt crust can look like water.</p>
+      <div class="cards cards-3">
+        <div class="card stat"><strong>131 &rarr; 117 km&sup2;</strong><span>natural water area, 2022 to 2023</span></div>
+        <div class="card stat"><strong>49.5 &rarr; 51.5 km&sup2;</strong><span>salt-pan area, same years</span></div>
+        <div class="card stat"><strong>18,000+</strong><span>bird deaths from avian botulism, 2019</span></div>
+      </div>
+      <p class="hint">Sources: Ramsar Sites Information Service; NRSC-ISRO / VIT-AP study (2026), whose authors note that
+        salt pans need to be told apart from natural wetland; IVRI report (2019).</p>
+    </div>
+  </section>
 
   <main class="wrap">
     <p id="demo-banner" class="banner" hidden>
@@ -24,7 +62,37 @@
     </p>
     <p id="load-error" class="banner" hidden></p>
 
+    <section aria-labelledby="how-title" id="how">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-title">How radar sees water</h2>
+      <div class="cards cards-4">
+        <div class="card step"><span class="step-number">1</span><h3>Brightness</h3>
+          <p>Calm water reflects the radar pulse away, so it looks dark. But smooth salt crust is dark too.</p></div>
+        <div class="card step"><span class="step-number">2</span><h3>Coherence</h3>
+          <p>Compare two passes 12 days apart. Water changes; dry crust and soil stay the same.</p></div>
+        <div class="card step"><span class="step-number">3</span><h3>Stress test</h3>
+          <p>Repeat with 12 threshold settings, and show the range as an uncertainty band.</p></div>
+        <div class="card step"><span class="step-number">4</span><h3>Check</h3>
+          <p>Compare with 203 points labelled by eye on Sentinel-2 images (177 inside the lake).</p></div>
+      </div>
+      <p>NISAR sends microwave pulses down at an angle and records how much comes back. Calm water acts like a mirror:
+        it bounces the pulse away from the satellite, so water looks dark. Land, plants and buildings scatter some
+        of the pulse back, so they look brighter.</p>
+      <p>Radar works through cloud and at night, which matters at Sambhar because the lake changes most during the
+        monsoon, when optical satellites are often blind.</p>
+      <p>Darkness alone is not enough: smooth dry salt crust can look as dark as water. So we also use
+        <em>coherence</em>: how much the ground stayed the same between two passes 12 days apart. Water never stays
+        the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
+      <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
+        coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
+        water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later (or 12 days
+        earlier when there is no later one); dates with neither are left out.</p>
+      <p>The <em>detection frequency</em> of a spot is the number of dates it was detected as a dark unstable surface
+        divided by the number of dates with a valid radar observation there.</p>
+    </section>
+
     <section aria-labelledby="hero-title" id="hero" hidden>
+      <p class="eyebrow">Main result</p>
       <h2 id="hero-title">After the monsoon: August vs October</h2>
       <p class="headline">After the monsoon, salt crust spread across the lake. Brightness alone missed it;
         coherence caught it. <span class="tag">Provisional</span></p>
@@ -65,8 +133,9 @@
       <p class="hint" id="hero-note"></p>
     </section>
 
-    <section aria-labelledby="map-title">
-      <h2 id="map-title">Map</h2>
+    <section aria-labelledby="map-title" id="map-section">
+      <p class="eyebrow">The app</p>
+      <h2 id="map-title">Pick a date, see the water</h2>
       <div class="date-control">
         <label for="date-slider">Radar date</label>
         <input id="date-slider" type="range" min="0" max="0" value="0" step="1">
@@ -122,25 +191,8 @@
       </p>
     </section>
 
-    <section aria-labelledby="how-title">
-      <h2 id="how-title">How radar sees water</h2>
-      <p>NISAR sends microwave pulses down at an angle and records how much comes back. Calm water acts like a mirror:
-        it bounces the pulse away from the satellite, so water looks dark. Land, plants and buildings scatter some
-        of the pulse back, so they look brighter.</p>
-      <p>Radar works through cloud and at night, which matters at Sambhar because the lake changes most during the
-        monsoon, when optical satellites are often blind.</p>
-      <p>Darkness alone is not enough: smooth dry salt crust can look as dark as water. So we also use
-        <em>coherence</em>: how much the ground stayed the same between two passes 12 days apart. Water never stays
-        the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
-      <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
-        coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
-        water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later (or 12 days
-        earlier when there is no later one); dates with neither are left out.</p>
-      <p>The <em>detection frequency</em> of a spot is the number of dates it was detected as a dark unstable surface
-        divided by the number of dates with a valid radar observation there.</p>
-    </section>
-
-    <section aria-labelledby="found-title">
+    <section aria-labelledby="found-title" id="results">
+      <p class="eyebrow">Results</p>
       <h2 id="found-title">What we found</h2>
       <p><strong>Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence.</strong>
         <span class="tag">Provisional</span></p>
@@ -201,7 +253,41 @@
       </div>
     </section>
 
-    <section aria-labelledby="limits-title">
+    <section aria-labelledby="why-title" id="why">
+      <p class="eyebrow">Hypothesis, not proven</p>
+      <h2 id="why-title">Why does the lake change?</h2>
+      <div class="cards cards-3">
+        <div class="card"><h3>Monsoon</h3><p>Roughly July to September: rain and seasonal streams flow into the shallow lake.</p></div>
+        <div class="card"><h3>After the rains</h3><p>Strong evaporation shrinks the water, leaving wet brine and then salt crust.</p></div>
+        <div class="card"><h3>Salt works</h3><p>Brine is pumped into the mapped pans to evaporate, so the pans follow a managed cycle, not only the weather.</p></div>
+      </div>
+      <p><strong>What we did not see:</strong> no clear monsoon rise in radar water area. The per-date uncertainty
+        (40&ndash;72 km&sup2;) is larger than the April&ndash;August changes, and shallow water is hard to separate from wet crust.</p>
+      <h3>Which polarization?</h3>
+      <ul>
+        <li>We used HH backscatter plus 12-day coherence. Coherence is not a polarization: it measures how stable the
+          surface is between two passes.</li>
+        <li>We did not test HV. This is a reason, not a result: over the lake HV is likely close to the noise floor
+          (about &minus;26.8 dB), and HH usually gives better water/land contrast at L-band.</li>
+        <li>Mode check we did do: quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees
+          between the modes.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="use-title" id="use">
+      <p class="eyebrow">Proposed use</p>
+      <h2 id="use-title">Who this is for</h2>
+      <div class="cards cards-4">
+        <div class="card"><h3>Who</h3><p>Wetland managers, researchers and bird-watch groups.</p></div>
+        <div class="card"><h3>Every 12 days</h3><p>Each new NISAR pass could update the map.</p></div>
+        <div class="card"><h3>Early warning</h3><p>Flag when the lake dries fast.</p></div>
+        <div class="card"><h3>Free and open</h3><p>Free NASA data and open code; the same steps could run on other salt lakes.</p></div>
+      </div>
+      <p class="hint">These are proposed uses, not something already running.</p>
+    </section>
+
+    <section aria-labelledby="limits-title" id="limits">
+      <p class="eyebrow">Honest limits</p>
       <h2 id="limits-title">Limitations</h2>
       <ul>
         <li>The NISAR data are provisional: calibrated but only partly validated by the mission.</li>
@@ -219,6 +305,9 @@
         <li>Salt-pan boundaries were drawn by hand. &ldquo;Outside mapped pans&rdquo; may still include unmapped pans,
           channels or roads.</li>
         <li>These are surface observations only. They say nothing about whether any salt pan is legal.</li>
+        <li>The lake outline was hand-drawn from optical imagery and misses part of the western lake bed (10.7 km&sup2;,
+          visible in the radar). Reported areas are inside the outline only, so they understate the full lake bed.
+          Including it does not change the August to October drop: it holds in all 12 threshold settings.</li>
         <li>Processing shortcuts: radar images are resampled to 20 m by nearest neighbour (no multilooking); the 3&times;3
           smoothing is done in decibels, not in linear power; and GUNW coherence is estimated over a coarser window than the
           10 m GCOV backscatter.</li>
@@ -227,7 +316,18 @@
         incidence angle is constant through the year.</p>
     </section>
 
-    <section aria-labelledby="data-title">
+    <section aria-labelledby="team-title" id="team">
+      <p class="eyebrow">Team</p>
+      <h2 id="team-title">Who built this</h2>
+      <div class="cards cards-2">
+        <div class="card person"><span class="avatar" aria-hidden="true">LC</span><h3>Lokesh Chaudhary</h3></div>
+        <div class="card person"><span class="avatar" aria-hidden="true">BM</span><h3>Bhagya Modi</h3></div>
+      </div>
+      <p class="hint">AI assistants (Claude) were used to research the topic, draft code and review our reasoning.
+        All results were run, checked and interpreted by the team.</p>
+    </section>
+
+    <section aria-labelledby="data-title" id="data">
       <h2 id="data-title">Data and code</h2>
       <ul>
         <li>Radar: NISAR GCOV (L-band HH and HV backscatter), NASA&ndash;ISRO, distributed by the
@@ -241,7 +341,8 @@
   </main>
 
   <footer>
-    <div class="wrap">NASA Space Apps Challenge 2026 &middot; Dancing with the SARs</div>
+    <div class="wrap">Sambhar Watch &middot; NASA Space Apps Challenge 2026 &middot; Dancing with the SARs<br>
+      Data: NASA/ASF NISAR (GCOV, GUNW) and ESA Copernicus Sentinel-2. Results are provisional.</div>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>

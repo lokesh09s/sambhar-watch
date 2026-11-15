@@ -247,3 +247,11 @@ Notes:
   - Aug -> Oct with the arm added: default 97.7 -> 59.5 (drop 38.3; 35.6 inside the outline alone); October lower in 12 of 12 threshold pairs, drop 18.9 (T=-20, C=0.25) to 41.2 km2 (T=-17, C=0.35).
   - Consistent with the cruder box version in scripts/check_outline.py (arm 10.0 km2; 97.9 -> 58.9).
 - Next: wait for the GitHub URL, team name and members.
+
+### 21:32 IST - Website restructured as a landing page (same app code)
+- What: user asked for a site in the style of two reference sites (quenaris.vercel.app, spacegenes-plus.framer.website). Screenshotted both with headless Chrome and read their text. Common pattern: sticky menu, opening screen with a one-line pitch and buttons, problem, how it works in steps, the tool, impact/use, team, footer. Took the structure only; no branding, text or assets copied.
+  - web/index.html: sticky menu; opening screen over our own Sentinel-2 image (web/data/optical/2026-01-11.jpg); "problem" band with 3 stat cards (numbers already in the deck/README, with sources); "How radar sees water" moved up, with 4 step cards; eyebrow labels and anchors on existing sections; new sections "Why does the lake change? (hypothesis, not proven)" + "Which polarization?" (same text as README), "Who this is for (proposed)", "Team" (Lokesh Chaudhary, Bhagya Modi; no roles invented); outline limitation added (10.7 km2, drop holds in 12 of 12); footer.
+  - web/style.css: new layout styles (menu, opening screen, cards, buttons), wider page, phone breakpoints.
+  - web/app.js NOT changed; every element id it uses is kept.
+- Result: screenshots at 1440 px and 500 px checked: map, slider, August/October comparison and tables load; no horizontal overflow on the phone width; menu links hide below 860 px (the "Open the map" button stays).
+- Not done: the code link is still the placeholder https://github.com/ (needs the repo URL); the optical swipe and chart sections were not re-inspected closely after the restyle (they use unchanged markup).
