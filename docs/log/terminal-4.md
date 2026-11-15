@@ -43,3 +43,15 @@ Role: slides and project-page text. Only Terminal 4 writes to this file. Entries
 - Why: Team message 19:07 IST. Optical shows a real seasonal change while radar stays fairly flat; radar roughly agrees in August and looks low in January. Kept "roughly agrees" / "underestimates" wording, and said nothing about the cause of the January gap until the mode check is done.
 - Result: 7 slides in the deck (5A/5B/5C are alternates). The wording grep found one "A first by-eye comparison"; changed it to "An initial" to keep "first" out entirely.
 - Next: After validation (~21:00 IST), delete two of the three versions and fill the validation numbers.
+
+### 19:36 IST - Final story (version D) written into slides and project page; A/B/C marked superseded
+- What: Edited `docs/slides_outline.md` and `docs/project_page.md`.
+  - Added slide 5D (FINAL): headline "Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence". A table for 15 Aug vs 14 Oct (brightness only 125/115, + coherence 91/56, Sentinel-2 water vs white crust), the "why" line, "lowest date in 10 of 12 settings", and a validation placeholder. Visual: Aug vs Oct, Sentinel-2 + radar, with both sets of numbers. The notes hold the full numbers, the honest limits (Oct overestimate 56 vs ~30–40 km², Apr–Aug within uncertainty, only Apr–Oct consistent) and the supporting points (11 May trap, JRC clash).
+  - Slide 4: the bottom line is now "Every number has an uncertainty band", replacing "No seasonal trend claimed"; the stress test is now "only changes that hold across settings count".
+  - Project page: (D) summary and (D) results with a table, honest limits and supporting findings; steps 5, 6 and 8 updated; new step 9 (JRC comparison); limitations rewritten; JRC moved from "(if used)" to used.
+  - Marked 5A/5B/5C and (A)/(B)/(C) "SUPERSEDED by D" and kept them, because the team said to replace them after the validation numbers arrive.
+- Why: Team message 19:34 IST decided the final story.
+- Result: The deck is exactly 7 slides when superseded ones are excluded (grep count = 7). The wording grep is clean.
+  - Two of my own overstatements were caught and fixed before committing: "the drop holds in 10 of 12 settings" (the team said "14 Oct is the lowest date in 10 of 12") and "radar isn't fooled" by the 11 May film (not shown).
+  - **Inconsistency found:** the earlier "coherence removes 25–40 km² on every date" clashes with 14 Oct (115 → 55.7 = ~59 km² removed). Replaced it in slide 4 and step 5 with [COHERENCE REMOVED km²]; the team needs to confirm the range. The shared lines under the superseded versions still say 25–40 and go when those versions are deleted.
+- Next: When the validation numbers arrive, fill [VALIDATION ACCURACY %], [N POINTS], [WATER POINTS CORRECT %] and [CRUST POINTS CORRECT %], confirm [COHERENCE REMOVED km²], delete A/B/C, recheck 7 slides, and commit.

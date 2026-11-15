@@ -2,7 +2,7 @@
 
 **This deck is our main deliverable. The video is optional, only if time allows.**
 
-**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has three drafts (5A, 5B, 5C). Only ONE goes in the deck. **Likely final: 5C** (by-eye Sentinel-2 comparison, 19:07 IST). Keep 5A and 5B until validation (~21:00 IST) decides.
+**Hard limit: 7 slides in total, title and intro included. Do not add any.** **FINAL: Slide 5D** (decided 19:34 IST). 5A, 5B and 5C are superseded and will be deleted when the validation numbers arrive. Only 5D goes in the deck.
 
 Placeholders in `[BRACKETS]` get filled in once results exist. Keep the words on each slide short; the notes under each slide are for us, not for the slide.
 
@@ -62,10 +62,10 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 **On slide**
 1. **Brightness only fails:** dry May and monsoon August lake bed are both about −22 dB
-2. **Add 12-day coherence:** removes 25–40 km² of false "water" on every date (mostly stable dry fields)
-3. **Stress test:** fair settings shift the area by 40–72 km². Dates differ by only ~10 km².
+2. **Add 12-day coherence:** removes [COHERENCE REMOVED km²] of false "water" per date (stable dry fields and dry crust)
+3. **Stress test:** 12 fair settings. Only changes that hold across them count.
 
-**Bottom line (large):** No seasonal trend claimed from radar alone. Every number has an uncertainty band.
+**Bottom line (large):** Every number has an uncertainty band.
 
 **Footer (small):** Data: NISAR GCOV + GUNW (NASA ASF) · Lake 152 km², pans inside 49.1 km² (outlines drawn by hand on satellite imagery)
 
@@ -74,15 +74,51 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 **Notes:**
 - Coherence measures how much the ground changes between two passes 12 days apart. Water and wet brine change; stable dry ground doesn't.
 - Rule (provisional, until Sentinel-2): HH below −18 dB **and** coherence below 0.3.
-- Stress test: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. The 40–72 km² spread is for a single date.
+- Stress test: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. One date's area can shift by 40–72 km², so the small April–August changes (~10 km²) are within uncertainty. 14 October is the lowest date in 10 of 12 settings (slide 5).
+- [COHERENCE REMOVED km²] was "25–40 km² on every date", but 14 Oct (115 → 55.7 km²) implies ~59 km². Confirm the range before filling it in.
 - Each date uses the 12-day pair that starts on that date.
 - The two radar modes (DHDH, QPDH) are separate lines until a consistency check shows they agree.
 
 ---
 
-## Slide 5A: Results, IF Sentinel-2 confirms dry-season water
+## Slide 5D: Results (FINAL)
 
-*Use only one of 5A, 5B, 5C.*
+**Headline:** Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence.
+
+**On slide** (water inside the 152 km² lake outline, 15 Aug → 14 Oct)
+
+| | 15 Aug | 14 Oct |
+|---|---|---|
+| Radar, brightness only | 125 km² | 115 km² |
+| Radar + coherence | 91 km² | 56 km² |
+| Sentinel-2 | ~55–60% water | ~55–60% white crust |
+
+- Dry crust looks as dark as water, but stays stable. Coherence spots it.
+- 14 Oct is the lowest date in 10 of 12 settings
+- Validation points: [VALIDATION ACCURACY %] agree ([N POINTS] points)
+
+**Visual:** August vs October side by side, with Sentinel-2 on top and the radar map below, and the brightness-only vs brightness + coherence numbers under each [IMAGE: Aug vs Oct, S2 + radar]
+
+**Footer (small):** Water detected on these dates. Sentinel-2: 29 Aug and 13 Oct. Radar: DHDH mode.
+
+**Notes:**
+- Full numbers: brightness + coherence 91.4 → 55.7 km² (range across settings 51–110 → 34–72). 14 Oct is the lowest date in 10 of 12 threshold settings. QPDH dates in Sep–Oct agree (56–60 km²).
+- Sentinel-2: 29 Aug ~55–60% water with a crust band at the edges. 13 Oct ~55–60% white crust spread across most of the basin, ~20–25% water; 10 Oct looks the same, so the crust persists.
+- Honest limits (say them if asked):
+  - Radar overestimates in October: 56 vs ~30–40 km² optical. This is likely the reservoir and wet edges.
+  - April–August changes are within uncertainty.
+  - Only April–October is one consistent radar series (radar-mode check).
+  - Wet salt crust can still look like water; we tested this.
+- Supporting points, if time:
+  - The 11 May optical trap: a white lake on 11 May only, with water on 6 and 16 May. One optical image can mislead.
+  - JRC's long-term record says the lake is rarely wet, which clashes with January 2026. Our hypothesis is that optical misses shallow brine; this is not tested.
+- Water vs crust from validation points: [WATER POINTS CORRECT %] water correct, [CRUST POINTS CORRECT %] crust correct.
+
+---
+
+## Slide 5A (SUPERSEDED by 5D): Results, IF Sentinel-2 confirms dry-season water
+
+*Superseded. Delete when validation numbers arrive.*
 
 **Headline:** Sambhar appears to keep shallow water or brine through the dry season.
 
@@ -105,9 +141,9 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 ---
 
-## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season
+## Slide 5B (SUPERSEDED by 5D): Results, IF Sentinel-2 shows dry crust in the dry season
 
-*Use only one of 5A, 5B, 5C.*
+*Superseded. Delete when validation numbers arrive.*
 
 **Headline:** At Sambhar, L-band radar maps the active wet lake bed, not open water.
 
@@ -122,9 +158,9 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 ---
 
-## Slide 5C: Results, radar agrees in some seasons, not others (LIKELY FINAL)
+## Slide 5C (SUPERSEDED by 5D): Results, radar agrees in some seasons, not others
 
-*Use only one of 5A, 5B, 5C.*
+*Superseded. Delete when validation numbers arrive.*
 
 **Headline:** Sentinel-2 shows Sambhar changes a lot through the year. NISAR roughly agrees in some seasons and underestimates in others.
 
