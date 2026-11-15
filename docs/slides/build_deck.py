@@ -7,7 +7,7 @@ outputs/results/overlays and web/data/comparison; the app screenshot is docs/sli
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
@@ -18,9 +18,9 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent / "Sambhar_Watch.pptx"
 
 TEAL = RGBColor(0x0F, 0x5C, 0x6E)      # same accent as the web app
-INK = RGBColor(0x17, 0x25, 0x2B)
-MUTED = RGBColor(0x5B, 0x6B, 0x70)
-TINT = RGBColor(0xE7, 0xF1, 0xF3)
+INK = RGBColor(0x1D, 0x1D, 0x1F)
+MUTED = RGBColor(0x6E, 0x6E, 0x73)
+TINT = RGBColor(0xF2, 0xF4, 0xF6)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 FONT = "Calibri"
 
@@ -31,10 +31,18 @@ CREDIT_S2 = "Images: ESA Copernicus Sentinel-2"
 CREDIT_NISAR = "NASA/ASF NISAR"
 
 
-def picture(slide, img, x, y, w=None, h=None):
-    """Add a PIL image (saved as JPEG) at inches x, y with width or height in inches."""
+def picture(slide, img, x, y, w=None, h=None, radius=0.025):
+    """Add a PIL image (saved as JPEG) at inches x, y with width or height in inches.
+
+    Corners are rounded onto the white slide background (radius = share of the image width; 0 = square).
+    """
+    img = img.convert("RGB")
+    if radius:
+        mask = Image.new("L", img.size, 0)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, img.width - 1, img.height - 1), int(radius * img.width), fill=255)
+        img = Image.composite(img, Image.new("RGB", img.size, (255, 255, 255)), mask)
     buf = BytesIO()
-    img.convert("RGB").save(buf, "JPEG", quality=88)
+    img.save(buf, "JPEG", quality=88)
     buf.seek(0)
     kw = {}
     if w is not None:
@@ -94,7 +102,7 @@ def text(slide, x, y, w, h, paras, size=18, color=INK, bold=False, align=PP_ALIG
 
 def card(slide, x, y, w, h, fill=TINT):
     shp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
-    shp.adjustments[0] = 0.08
+    shp.adjustments[0] = 0.14
     shp.fill.solid()
     shp.fill.fore_color.rgb = fill
     shp.line.fill.background()
@@ -102,7 +110,9 @@ def card(slide, x, y, w, h, fill=TINT):
     return shp
 
 
-def title(slide, t, size=34, h=0.9):
+def title(slide, t, size=34, h=0.9, label=None):
+    if label:
+        text(slide, 0.6, 0.12, 12.1, 0.3, [label.upper()], size=11, bold=True, color=TEAL)
     text(slide, 0.6, 0.35, 12.1, h, [t], size=size, bold=True, color=INK, anchor=MSO_ANCHOR.TOP)
 
 
@@ -120,11 +130,12 @@ BLANK = prs.slide_layouts[6]
 
 # 1. Title ------------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
-text(s, 0.6, 1.5, 5.9, 1.1, ["Sambhar Watch"], size=54, bold=True, color=TEAL)
-text(s, 0.6, 2.6, 5.9, 1.3, ["Watching India's largest saline lake through clouds, with NISAR radar"], size=24)
-text(s, 0.6, 4.2, 5.9, 0.5, ["Team [TEAM NAME]"], size=22, bold=True)
-text(s, 0.6, 4.7, 5.9, 0.9, ["[MEMBERS]"], size=20)
-text(s, 0.6, 5.7, 5.9, 0.8, ["NASA Space Apps Challenge 2026", "Dancing with the SARs"], size=18, color=MUTED)
+text(s, 0.6, 1.25, 5.9, 0.35, ["NASA SPACE APPS CHALLENGE 2026 · DANCING WITH THE SARS"], size=11, bold=True, color=TEAL)
+text(s, 0.6, 1.6, 5.9, 1.1, ["Sambhar Watch"], size=58, bold=True)
+text(s, 0.6, 2.75, 5.9, 1.5, [[("A salt lake, ", {}), ("seen through the clouds.", {"color": TEAL})]], size=30, bold=True)
+text(s, 0.6, 4.25, 5.9, 0.9, ["India's largest inland saline lake, followed through one year of NASA–ISRO NISAR radar."], size=18, color=MUTED)
+text(s, 0.6, 5.5, 5.9, 0.4, ["TEAM"], size=11, bold=True, color=TEAL)
+text(s, 0.6, 5.8, 5.9, 0.5, ["Lokesh Chaudhary  ·  Bhagya Modi"], size=20, bold=True)
 freq = Image.open(ROOT / "docs/figures/frequency_map.png").convert("RGB").crop((36, 125, 1105, 672))
 picture(s, freq, 6.75, 1.75, w=6.0)
 text(s, 6.75, 1.75 + 6.0 * freq.height / freq.width + 0.1, 6.0, 0.6,
@@ -135,7 +146,7 @@ notes(s, "Team name and members go here. Challenge: Dancing with the SARs. The i
 
 # 2. Problem ----------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
-title(s, "A lake that is hard to watch")
+title(s, "A lake that is hard to watch", label="The problem")
 jan = lake(S2 / "2026-01-11_truecolour.png")
 picture(s, jan, 0.6, 1.45, w=6.2)
 text(s, 0.6, 1.45 + 6.2 * jan.height / jan.width + 0.1, 6.2, 0.9,
@@ -157,7 +168,7 @@ notes(s, "The 2026 NRSC-ISRO / VIT-AP study found natural water fell from 131 to
 
 # 3. Why radar --------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
-title(s, "Why radar: clouds, and optical traps")
+title(s, "Why radar: clouds, and optical traps", label="Why radar")
 text(s, 0.6, 1.3, 12.1, 0.9,
      ["Monsoon clouds hide the lake from optical satellites. NISAR's L-band radar sees through them."], size=20)
 w, gap, y0 = 3.9, 0.2, 2.35
@@ -167,7 +178,7 @@ for i, (d, lab) in enumerate([("2026-05-06", "6 May: water"), ("2026-05-11", "11
     im = lake(S2 / f"{d}_truecolour.png", 1000)
     if d == "2026-05-11":
         card(s, x - 0.07, y0 - 0.07, w + 0.14, w * im.height / im.width + 0.14, fill=TEAL)
-    picture(s, im, x, y0, w=w)
+    picture(s, im, x, y0, w=w, radius=0)
     text(s, x, y0 + w * im.height / im.width + 0.15, w, 0.5, [lab], size=20, bold=True,
          color=TEAL if d == "2026-05-11" else INK, align=PP_ALIGN.CENTER)
 card(s, 0.6, 5.5, 12.15, 1.1)
@@ -180,7 +191,7 @@ notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but wh
 
 # 4. Method -----------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
-title(s, "How we tested it")
+title(s, "How we tested it", label="Method")
 text(s, 0.6, 1.15, 12.1, 0.45, ["11 May 2026. Rule: HH below −18 dB and 12-day coherence below 0.3."], size=18)
 cmp_ = Image.open(ROOT / "docs/figures/comparison_2026-05-11.png").convert("RGB")
 cmp_ = trim(cmp_.crop((0, int(0.19 * cmp_.height), cmp_.width, cmp_.height)))   # drop the figure's own title
@@ -212,7 +223,7 @@ notes(s, "Rule: HH below -18 dB AND 12-day coherence below 0.3 (provisional). St
 # 5. Results (hero) ---------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
 title(s, "Sambhar dries out after the monsoon. Brightness alone missed it; coherence caught it.",
-      size=32, h=1.15)
+      size=32, h=1.15, label="Main result")
 gw, gg, gx, gy = 2.7, 0.15, 0.6, 1.92
 text(s, gx, 1.55, gw, 0.4, ["August"], size=18, bold=True, align=PP_ALIGN.CENTER)
 text(s, gx + gw + gg, 1.55, gw, 0.4, ["October"], size=18, bold=True, align=PP_ALIGN.CENTER)
@@ -293,7 +304,7 @@ notes(s, "76% of validation points were water, so plain accuracy rewards over-co
 
 # 6. The app ----------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
-title(s, "The app: pick a date, see the water")
+title(s, "The app: pick a date, see the water", label="The app")
 # The app's own legend is too small for a projector, so crop it off and restate it at 18 pt.
 app = Image.open(Path(__file__).resolve().parent / "assets/app_map.jpg").crop((0, 0, 928, 575))
 aw = 6.2
@@ -322,7 +333,7 @@ notes(s, "This is the user experience. Who would use it: wetland managers, resea
 
 # 7. Recommendation and proposed use -----------------------------------------
 s = prs.slides.add_slide(BLANK)
-title(s, "Recommendation and proposed use")
+title(s, "Recommendation and proposed use", label="What to do with it")
 card(s, 0.6, 1.2, 12.15, 0.9, fill=TEAL)
 text(s, 0.85, 1.2, 11.7, 0.9,
      ["Use brightness when the lake is full, add coherence when crust is present, "
