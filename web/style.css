@@ -39,9 +39,56 @@ section[id], header[id] { scroll-margin-top: 70px; }   /* anchors stop below the
 .button-small { padding: 6px 14px; font-size: 0.9rem; }
 
 /* Opening screen: the lake itself, darkened so the white text stays readable. */
-.landing {
-  color: #fff; padding: 110px 0 90px;
-  background: linear-gradient(rgba(6, 30, 38, 0.72), rgba(6, 30, 38, 0.82)), url("data/optical/2026-01-11.jpg") center / cover;
+.landing { position: relative; overflow: hidden; color: #fff; padding: 130px 0 110px; background: #061e26; }
+.landing::before {   /* the lake image, drifting slowly */
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(rgba(6, 30, 38, 0.68), rgba(6, 30, 38, 0.84)), url("data/optical/2026-01-11.jpg") center / cover;
+  animation: drift 32s ease-in-out infinite alternate;
+}
+.landing::after {    /* a radar-style scan line crossing the lake */
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 22%;
+  background: linear-gradient(to right, transparent, rgba(120, 220, 240, 0.16) 85%, rgba(170, 240, 255, 0.55));
+  animation: scan 7s linear infinite;
+}
+.landing .wrap { position: relative; z-index: 1; }
+.landing .wrap > * { animation: rise 0.8s ease both; }
+.landing .wrap > :nth-child(2) { animation-delay: 0.12s; }
+.landing .wrap > :nth-child(3) { animation-delay: 0.24s; }
+.landing .wrap > :nth-child(4) { animation-delay: 0.36s; }
+.landing .wrap > :nth-child(5) { animation-delay: 0.48s; }
+.scroll-cue {
+  position: absolute; z-index: 1; left: 50%; bottom: 26px; width: 22px; height: 22px; margin-left: -11px;
+  border-right: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(45deg); opacity: 0.8;
+  animation: bob 1.8s ease-in-out infinite;
+}
+@keyframes drift { from { transform: scale(1); } to { transform: scale(1.12) translateX(-2%); } }
+@keyframes scan { from { transform: translateX(-100%); } to { transform: translateX(460%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(8px) rotate(45deg); } }
+
+/* Scroll progress, menu state, reveal-on-scroll (classes set by effects.js) */
+#progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1200; background: #2fb6cf; transform: scaleX(0); transform-origin: left; }
+.nav { transition: box-shadow 0.3s; }
+.nav.scrolled { box-shadow: 0 4px 18px rgba(6, 30, 38, 0.12); }
+.nav-links a.current { color: var(--accent); font-weight: 700; box-shadow: 0 2px 0 var(--accent); }
+.js .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+.js .cards .reveal:nth-child(2) { transition-delay: 0.1s; }
+.js .cards .reveal:nth-child(3) { transition-delay: 0.2s; }
+.js .cards .reveal:nth-child(4) { transition-delay: 0.3s; }
+.card { transition: opacity 0.7s ease, transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+.js .card.reveal.in:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(6, 30, 38, 0.14); border-color: #9cc9d3; }
+.button { transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(6, 30, 38, 0.25); }
+.step-number { transition: transform 0.3s; }
+.card:hover .step-number { transform: scale(1.15); }
+.hero-grid img, #map, .swipe { box-shadow: 0 6px 22px rgba(6, 30, 38, 0.12); }
+
+@media (prefers-reduced-motion: reduce) {   /* visitors who ask for less motion get a still page */
+  html { scroll-behavior: auto; }
+  .landing::before, .landing::after, .landing .wrap > *, .scroll-cue { animation: none; }
+  .landing::after { display: none; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
 }
 .landing h1 { margin: 0; font-size: clamp(2.6rem, 7vw, 4.4rem); line-height: 1.05; letter-spacing: -0.01em; }
 .landing .eyebrow { color: #9fd6e2; }

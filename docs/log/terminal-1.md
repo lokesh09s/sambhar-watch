@@ -255,3 +255,8 @@ Notes:
   - web/app.js NOT changed; every element id it uses is kept.
 - Result: screenshots at 1440 px and 500 px checked: map, slider, August/October comparison and tables load; no horizontal overflow on the phone width; menu links hide below 860 px (the "Open the map" button stays).
 - Not done: the code link is still the placeholder https://github.com/ (needs the repo URL); the optical swipe and chart sections were not re-inspected closely after the restyle (they use unchanged markup).
+
+### 21:35 IST - Website animations (web/effects.js)
+- What: user asked for more animation. New web/effects.js (display only, ~40 lines, no data logic): sections and cards fade up as they scroll into view, the menu highlights the current section, a thin scroll-progress bar, menu shadow after scrolling. CSS: opening screen image drifts slowly, a radar-style scan line crosses it, title/pitch/buttons rise in on load, bouncing scroll arrow, cards lift on hover, buttons lift on hover, soft shadows on the map and images.
+- Safety: content is only hidden when effects.js has run (html.js class), so the page still shows everything if the script fails; visitors with "reduce motion" set get a still page; app.js unchanged.
+- Result: headless screenshots show the opening screen, problem, steps, map and chart rendering. First reveal trigger (8% of the section visible) was fragile for very tall sections; changed to a screen-edge margin. The August/October section was caught mid-fade in the screenshot (it appears after data loads); not checked in a real browser by me.
