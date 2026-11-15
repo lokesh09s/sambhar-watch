@@ -36,16 +36,22 @@ The page works with the plain HH-only results too; these extras switch on the co
 |---|---|---|
 | `overlays/<date>.png` | final rule, HH < T AND coherence < C | "Dark unstable surface (water or wet brine)" layer |
 | `overlays_hh_only/<date>.png` | HH < T only, same PNG format, same dates | orange "Dark but stable" comparison layer (`export_web.py` makes `comparison/<date>.png` = HH-only minus final) |
-| `water_area.csv` column `coherence_pairs` | number of 12-day pairs used for that date (1 or 2) | dates with 1 pair: hollow chart points and a note by the slider |
+| `water_area.csv` columns `water_km2_min`, `water_km2_max` | range of `water_km2` over reasonable thresholds | shaded band around the total line, range in the tooltip and next to the slider |
+| `water_area.csv` column `mode` | DHDH (dual-pol) or QPDH (quad-pol) | each mode its own total line and band; QPDH points are triangles (see `SPLIT_MODES` in `app.js`) |
 | `map_info.json` key `coherence_threshold` | the value of C | shown in the explainer next to T (`threshold_db`) |
+| `map_info.json` keys `area_scope`, `pans_label` | e.g. "inside lake outline", "salt works and mapped pans" | chart series names, pans layer and legend |
 | `map_info.json` key `class_name` | what is mapped, e.g. "dark unstable surface (water or wet brine)" | layer name, legend, chart title and axis, popups (falls back to "water") |
 | `rule_comparison.png` | HH only vs HH + coherence area per date | linked under the chart |
 
-`water_area.csv` columns stay `water_*`. Other columns (`hh_only_water_*`, `water_in_lake_*`, blank until
-`data/lake.geojson` exists) are ignored by the page, so blanks are harmless.
+`water_area.csv` columns stay `water_*`. Other columns (`hh_only_water_*`, `*_study_box_km2`,
+`coherence_pair_end`) are ignored by the page. Blank or missing min/max values just leave the band out.
+
+Radar modes: the team rule is not to mix DHDH and QPDH until a consistency check is done. `SPLIT_MODES = true`
+at the top of `app.js` draws one total line per mode and never joins points from different modes. If the check
+shows the modes agree, set it to `false` to draw a single line.
 
 `make_demo_data.py` makes fake crops and fake coherence, then runs the real `map_water.py`,
-so the demo uses exactly the team's rule (higher coherence of the two pairs; dates with no pair left out).
+so the demo uses exactly the team's rule (the 12-day pair starting on each date; dates without one left out).
 
 ## Demo data (FAKE)
 

@@ -14,13 +14,14 @@
   "threshold_db": -18.0,
   "coherence_threshold": 0.3,
   "class_name": "dark unstable surface (water or wet brine)",
+  "pans_label": "salt works and mapped pans",
+  "area_scope": "inside lake outline",
   "dates": [
     "2026-01-11",
     "2026-01-23",
     "2026-02-04",
     "2026-02-16",
     "2026-02-28",
-    "2026-03-12",
     "2026-04-05",
     "2026-04-17",
     "2026-04-29",
@@ -30,13 +31,11 @@
     "2026-06-16",
     "2026-06-28",
     "2026-07-10",
-    "2026-07-22",
     "2026-08-15",
     "2026-08-27",
     "2026-09-08",
     "2026-09-20",
-    "2026-10-02",
-    "2026-10-14"
+    "2026-10-02"
   ],
   "demo": true,
   "note": "FAKE demo data made by scripts/make_demo_data.py. Not NISAR results."

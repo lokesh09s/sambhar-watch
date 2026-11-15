@@ -2,11 +2,18 @@
 
 const DATA = "data/";
 const ACCENT = "#0f5c6e";
+const INK = "#1d2327";
+
+// Draw each radar mode (DHDH dual-pol, QPDH quad-pol) as its own "Total" line and never join the
+// two modes with a line. Set to false once the team has checked that the two modes agree.
+const SPLIT_MODES = true;
+const MODE_NAMES = { DHDH: "dual-pol DHDH", QPDH: "quad-pol QPDH" };
 
 let current = 0;   // index of the date shown on the map
 let rows = [];     // rows of water_area.csv
 let waterLayer, comparisonLayer, chart;
 let className = "water";   // replaced by map_info.json class_name
+let pansLabel = "mapped pans";   // replaced by map_info.json pans_label
 
 async function main() {
   try {
@@ -21,6 +28,8 @@ async function main() {
     className = info.class_name || "water";
     document.querySelectorAll(".class-name").forEach(el => { el.textContent = className; });
     document.querySelectorAll(".class-name-cap").forEach(el => { el.textContent = capitalise(className); });
+    pansLabel = info.pans_label || pansLabel;
+    document.querySelectorAll(".pans-label-cap").forEach(el => { el.textContent = capitalise(pansLabel); });
     document.getElementById("rule-figure").hidden = !(await fileExists("rule_comparison.png"));
 
     document.getElementById("demo-banner").hidden = !info.demo;
@@ -30,7 +39,7 @@ async function main() {
         " (here: HH below " + info.threshold_db + " dB and coherence below " + info.coherence_threshold + ")";
     }
     makeMap(info, lookup, pans, hasComparison);
-    makeChart();
+    makeChart(info.area_scope);
     makeSlider();
     showDate(0);
   } catch (error) {
@@ -92,7 +101,7 @@ function makeMap(info, lookup, pans, hasComparison) {
   }
   layers["Detection frequency"] = frequencyLayer;
   if (pans) {
-    layers["Mapped salt pans"] = L.geoJSON(pans, {
+    layers[capitalise(pansLabel)] = L.geoJSON(pans, {
       style: { color: "#ffffff", weight: 2, dashArray: "6 4", fill: false },
       interactive: false,
     }).addTo(map);
@@ -110,11 +119,6 @@ function overlayUrl(index) {
 
 function comparisonUrl(index) {
   return DATA + "comparison/" + rows[index].date + ".png";
-}
-
-/** Dates with fewer than two coherence pairs are less certain. Files without the column are never flagged. */
-function fewPairs(row) {
-  return row.coherence_pairs !== undefined && Number(row.coherence_pairs) < 2;
 }
 
 /** Popup text for a clicked spot: water-detection frequency and number of valid observations. */
@@ -137,28 +141,57 @@ function describeSpot(latlng, bounds, lookup) {
 
 // ---------- chart ----------
 
-function makeChart() {
-  const series = (label, key, color, dash) => ({
+/** A number from the CSV, or null when the column is missing or blank (the chart leaves a gap). */
+function number(row, key) {
+  return row[key] === undefined || row[key] === "" ? null : Number(row[key]);
+}
+
+function hasRange(row) {
+  return number(row, "water_km2_min") !== null && number(row, "water_km2_max") !== null;
+}
+
+/** True where the line from one date to the next would join two different radar modes. */
+function joinsModes(ctx) {
+  return SPLIT_MODES && rows[ctx.p0DataIndex].mode !== rows[ctx.p1DataIndex].mode;
+}
+
+function makeChart(areaScope) {
+  const modes = SPLIT_MODES ? [...new Set(rows.map(r => r.mode))].sort() : [null];   // DHDH (main series) first
+  const points = (key, mode) => rows.map(r => ({ x: Date.parse(r.date), y: !mode || r.mode === mode ? number(r, key) : null }));
+
+  const line = (label, key, color, dash, mode = null) => ({
     label,
-    data: rows.map(r => ({ x: Date.parse(r.date), y: Number(r[key]) })),
+    data: points(key, mode),
     borderColor: color,
     backgroundColor: color,
     borderDash: dash,
     borderWidth: 2,
+    segment: { borderColor: ctx => (joinsModes(ctx) ? "transparent" : undefined) },
+    pointStyle: ctx => (rows[ctx.dataIndex].mode === "QPDH" ? "triangle" : "circle"),
     pointRadius: ctx => (ctx.dataIndex === current ? 6 : 3),
-    pointBackgroundColor: ctx => (fewPairs(rows[ctx.dataIndex]) ? "#ffffff" : color),   // hollow = only 1 pair
     pointHoverRadius: 7,
   });
 
+  // Uncertainty band: an invisible "min" line, and a "max" line filled down to it ("-1" = previous dataset).
+  const band = mode => [
+    { label: "band", data: points("water_km2_min", mode), borderWidth: 0, pointRadius: 0, pointHitRadius: 0, fill: false },
+    { label: "band", data: points("water_km2_max", mode), borderWidth: 0, pointRadius: 0, pointHitRadius: 0,
+      fill: "-1", backgroundColor: "rgba(29, 35, 39, 0.13)" },
+  ];
+
+  const datasets = [];
+  for (const mode of modes) {
+    const which = mode && modes.length > 1 ? ", " + (MODE_NAMES[mode] || mode) : "";
+    if (rows.some(hasRange)) datasets.push(...band(mode));
+    datasets.push(line("Total" + (areaScope ? " " + areaScope : "") + which, "water_km2", INK,
+                       mode === "QPDH" ? [2, 3] : [], mode));
+  }
+  datasets.push(line("Inside " + pansLabel, "water_inside_mapped_pans_km2", ACCENT, []));
+  datasets.push(line("Outside " + pansLabel, "water_outside_mapped_pans_km2", "#8a959b", [6, 4]));
+
   chart = new Chart(document.getElementById("area-chart"), {
     type: "line",
-    data: {
-      datasets: [
-        series("Total", "water_km2", "#1d2327", []),
-        series("Inside mapped pans", "water_inside_mapped_pans_km2", ACCENT, []),
-        series("Outside mapped pans", "water_outside_mapped_pans_km2", "#8a959b", [6, 4]),
-      ],
-    },
+    data: { datasets },
     options: {
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
@@ -167,11 +200,13 @@ function makeChart() {
         y: { beginAtZero: true, title: { display: true, text: capitalise(className) + " (km²)" } },
       },
       plugins: {
+        legend: { labels: { filter: item => item.text !== "band" } },
         tooltip: {
+          filter: item => item.dataset.label !== "band" && item.parsed.y !== null,
           callbacks: {
-            title: items => shortDate(items[0].parsed.x),
+            title: items => shortDate(items[0].parsed.x) + " · " + rows[items[0].dataIndex].mode,
             label: item => item.dataset.label + ": " + item.parsed.y.toFixed(1) + " km²",
-            footer: items => (fewPairs(rows[items[0].dataIndex]) ? "Only 1 coherence pair: less certain" : ""),
+            footer: items => rangeText(rows[items[0].dataIndex]),
           },
         },
       },
@@ -180,6 +215,16 @@ function makeChart() {
       },
     },
   });
+
+  document.getElementById("band-note").hidden = !rows.some(hasRange);
+  document.getElementById("mode-note").hidden = modes.length < 2;
+}
+
+/** "Range 26.5-27.9 km² with other thresholds", or "" when the CSV has no range. */
+function rangeText(row) {
+  if (!hasRange(row)) return "";
+  return "Range " + number(row, "water_km2_min").toFixed(1) + "–" + number(row, "water_km2_max").toFixed(1) +
+    " km² with other thresholds";
 }
 
 function capitalise(text) {
@@ -207,7 +252,8 @@ function showDate(index) {
   document.getElementById("date-slider").value = index;
   document.getElementById("date-label").textContent =
     shortDate(Date.parse(r.date)) + " · " + Number(r.water_km2).toFixed(1) + " km²" +
-    (fewPairs(r) ? " · only 1 coherence pair" : "");
+    (hasRange(r) ? " (" + number(r, "water_km2_min").toFixed(1) + "–" + number(r, "water_km2_max").toFixed(1) + ")" : "") +
+    " · " + r.mode;
   chart.update("none");
 }
 

@@ -11,7 +11,7 @@ with tests/test_pipeline.py's make_fake_gcov, then painted with:
     - one date with the eastern part missing, so valid-observation counts differ
 Fake 12-day coherence is made for each pair in data/gunw_pairs.csv. Everything then goes
 through the real pipeline: crop_lake.py --local, then map_water.py (with its own rule,
-HH < T AND coherence < C, and thresholds from config.py).
+HH < T AND coherence < C, thresholds from config.py, area range over the sensitivity thresholds).
 
 Output, in the format the website expects (see web/README.md):
     outputs/demo/crops/             cropped dates, from crop_lake.py

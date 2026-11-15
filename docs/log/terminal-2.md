@@ -113,3 +113,21 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   water_in_lake_* columns are blank (no data/lake.geojson); the page ignores them. Screenshot checked: class_name everywhere, hollow
   1-pair points, rule figure link. node --check OK; pytest tests: 5 passed in 1.49s.
 - Next: update validate.py to the HH + coherence rule (it still tests HH only). Run export_web.py on real outputs/results when ready.
+
+### 19:00 IST - Area chart: uncertainty band, radar modes kept apart, labels from map_info.json
+- What:
+  - web/app.js chart rewritten: shaded min-max band (water_km2_min / water_km2_max) behind each total line; one total line per radar mode
+    (SPLIT_MODES = true at the top of app.js); QPDH points are triangles; no line ever joins a DHDH and a QPDH date (also for the pans lines).
+    The tooltip shows the mode and range, and the slider label shows "km2 (min-max) · mode". Series names use map_info area_scope and pans_label.
+    Removed all one-coherence-pair code (fewPairs, hollow points, notes).
+  - web/index.html: your band note text (shown only when the CSV has a range), a radar-mode note, the explainer now says "the pass 12 days later",
+    limitations updated (thresholds/band, radar modes), pans legend label from map_info. web/README.md table updated.
+  - scripts/make_demo_data.py: briefly added water_km2_min/max from sensitivity.py (add_uncertainty_range), then REMOVED it on finding that
+    map_water.py (commit af45043) already writes both columns. Demo again just calls map_water.py.
+- Why: Team asked for an uncertainty band and the note. The 18:57 decisions: range over T {-17..-20} x C {0.25..0.35}; the 12-day pair starting
+  on each date (coherence_pairs column gone); don't mix QPDH and DHDH until checked.
+- Result: Dead end: my sensitivity-based min/max step duplicated map_water.py's new columns and would have overwritten them; it was removed before committing.
+  Demo now 19 dates (4 dates with no starting pair left out), areas inside the real data/lake.geojson outline. Demo band is narrow (median about 2 km2)
+  because the fake data is clean; the real median range is about 50 km2 (decisions-terminal-1.md 18:57). Screenshot checked: band, 2 mode lines with a gap,
+  triangles, notes, legend. node --check OK.
+- Next: when the QPDH/DHDH consistency check is done, set SPLIT_MODES as decided. Update validate.py to the HH + coherence rule.

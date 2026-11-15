@@ -36,7 +36,7 @@
         <li><span class="swatch swatch-water"></span><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> on the selected date</li>
         <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Dark but stable: dark in HH, removed by the coherence check (likely dry salt crust)</li>
         <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
-        <li><span class="swatch swatch-pans"></span>Mapped salt pans (hand-drawn)</li>
+        <li><span class="swatch swatch-pans"></span><span class="pans-label-cap">Mapped salt pans</span> (hand-drawn)</li>
       </ul>
       <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as <span class="class-name">dark unstable surface (water or wet brine)</span>.</p>
     </section>
@@ -44,8 +44,11 @@
     <section aria-labelledby="chart-title">
       <h2 id="chart-title"><span class="class-name-cap">Dark unstable surface (water or wet brine)</span> over time</h2>
       <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
-      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.
-        Hollow points mark dates with only one coherence pair, which are less certain.</p>
+      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
+      <p class="hint" id="band-note" hidden>The shaded band shows how much the result changes with reasonable threshold choices.
+        Seasonal differences smaller than the band are not reliable.</p>
+      <p class="hint" id="mode-note" hidden>Triangles mark dates from the quad-pol (QPDH) radar mode. Until we have checked that
+        the two radar modes agree, they are drawn as separate lines and never joined.</p>
       <p class="hint" id="rule-figure" hidden><a href="data/rule_comparison.png">Figure: area per date with HH only vs HH + coherence</a>
         (the gap is the dark but stable surface that coherence removes).</p>
     </section>
@@ -62,8 +65,8 @@
         the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
       <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
         coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
-        water, until Sentinel-2 images confirm it. Each date is compared with the dates 12 days before and after
-        when those exist; some dates have only one such pair.</p>
+        water, until Sentinel-2 images confirm it. Each date is compared with the pass 12 days later; dates without
+        one are left out.</p>
       <p>The <em>detection frequency</em> of a spot is the number of dates it was detected as a dark unstable surface
         divided by the number of dates with a valid radar observation there.</p>
     </section>
@@ -79,8 +82,11 @@
         <li>The NISAR data are provisional: calibrated but only partly validated by the mission.</li>
         <li>Wet salt crust and brine are dark and unstable too, so they are counted with water. Dry crust that is dark
           but stable is removed by the coherence check. Both are tested separately against Sentinel-2.</li>
-        <li>Coherence needs a second pass 12 days away. Dates with only one pair are less certain, and dates with
-          no pair are left out.</li>
+        <li>Coherence needs a second pass 12 days later, so dates without one are left out.</li>
+        <li>The areas depend on the chosen thresholds. The shaded band on the chart shows by how much; differences
+          between dates smaller than the band are not reliable.</li>
+        <li>Two radar modes alternate (dual-pol DHDH and quad-pol QPDH). Until we have checked that they agree,
+          they are shown separately.</li>
         <li>Radar dates are 12 days apart at best, with some longer gaps. The maps show water on those dates, not
           continuous presence.</li>
         <li>Radar tells us where the surface is wet, not how deep the water is.</li>
