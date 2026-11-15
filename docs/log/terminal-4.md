@@ -33,3 +33,13 @@ Role: slides and project-page text. Only Terminal 4 writes to this file. Entries
 - Why: Team message 19:05 IST: Sentinel-2 shows the May main basin mostly shallow water (green) on 6 and 16 May, with a short-lived white surface on 11 May. Kept "appears to" and kept B because the validation isn't finished. The docs don't say what the white surface is.
 - Result: Still 7 slides (5A/5B are alternates). New placeholder: [NISAR RESULT ON 11 MAY].
 - Next: Once validation confirms, delete 5B / (B), fill [X ± Y], [Z], [ACCURACY %], [PAN WATER km²] and the 11 May result, or drop the highlight.
+
+### 19:08 IST - Added results version C (radar agrees in some seasons, underestimates in others) as likely final
+- What: Edited `docs/slides_outline.md` and `docs/project_page.md`.
+  - Added slide 5C: the team's headline, a 3-row table (Sentinel-2 by eye vs NISAR: Jan ~130 vs ~80 km², May mostly shallow water vs ~94 km², Aug ~85–90 vs ~91 km²), the fixes, and a validation placeholder. Visual: Sentinel-2 on 6/11/16 May next to NISAR on 11 May. Notes give the date and mode details (Aug optical 29 Aug vs radar 15 Aug; Jan radar in QPDH) and the August salt-crust band.
+  - Project page: (C) summary and (C) results table; step 8 now gives the by-eye numbers; two new limitations (possible January mode effect, optical areas are by eye).
+  - Relabelled: C "likely final"; A and B kept with no lean labels. Header says validation at ~21:00 IST decides.
+  - New placeholders: [VALIDATION ACCURACY %], [N POINTS], [WATER POINTS CORRECT %], [CRUST POINTS CORRECT %], [JAN MODE CHECK RESULT].
+- Why: Team message 19:07 IST. Optical shows a real seasonal change while radar stays fairly flat; radar roughly agrees in August and looks low in January. Kept "roughly agrees" / "underestimates" wording, and said nothing about the cause of the January gap until the mode check is done.
+- Result: 7 slides in the deck (5A/5B/5C are alternates). The wording grep found one "A first by-eye comparison"; changed it to "An initial" to keep "first" out entirely.
+- Next: After validation (~21:00 IST), delete two of the three versions and fill the validation numbers.

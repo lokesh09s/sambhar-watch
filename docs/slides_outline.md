@@ -2,7 +2,7 @@
 
 **This deck is our main deliverable. The video is optional, only if time allows.**
 
-**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has two drafts (5A and 5B). Only ONE goes in the deck. **Current lean: 5A** (early Sentinel-2 look, 19:05 IST). Keep 5B as the fallback until validation confirms.
+**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has three drafts (5A, 5B, 5C). Only ONE goes in the deck. **Likely final: 5C** (by-eye Sentinel-2 comparison, 19:07 IST). Keep 5A and 5B until validation (~21:00 IST) decides.
 
 Placeholders in `[BRACKETS]` get filled in once results exist. Keep the words on each slide short; the notes under each slide are for us, not for the slide.
 
@@ -80,9 +80,9 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 ---
 
-## Slide 5A: Results, IF Sentinel-2 confirms dry-season water (CURRENT LEAN)
+## Slide 5A: Results, IF Sentinel-2 confirms dry-season water
 
-*Use this OR 5B, not both.*
+*Use only one of 5A, 5B, 5C.*
 
 **Headline:** Sambhar appears to keep shallow water or brine through the dry season.
 
@@ -105,9 +105,9 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 ---
 
-## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season (FALLBACK)
+## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season
 
-*Use this OR 5A, not both. Keep until validation confirms 5A.*
+*Use only one of 5A, 5B, 5C.*
 
 **Headline:** At Sambhar, L-band radar maps the active wet lake bed, not open water.
 
@@ -119,6 +119,37 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 **Visual:** the same date as radar map vs Sentinel-2 image, crust marked [IMAGE: radar vs Sentinel-2, DATE] plus the area chart with its band [IMAGE: area chart with band]
 
 **Notes:** This is still a result. We tested the obvious method, showed where it breaks, and measured by how much.
+
+---
+
+## Slide 5C: Results, radar agrees in some seasons, not others (LIKELY FINAL)
+
+*Use only one of 5A, 5B, 5C.*
+
+**Headline:** Sentinel-2 shows Sambhar changes a lot through the year. NISAR roughly agrees in some seasons and underestimates in others.
+
+**On slide** (water inside the 152 km² lake outline)
+
+| | Sentinel-2 (optical) | NISAR radar |
+|---|---|---|
+| Jan | ~130 km² | ~80 km² |
+| May | mostly shallow water | ~94 km² |
+| Aug | ~85–90 km² | ~91 km² |
+
+- Radar uncertainty is large
+- Fix: more dates · optical + radar together · field data
+- Validation points: [VALIDATION ACCURACY %] agree ([N POINTS] points)
+
+**Visual:** Sentinel-2 on 6, 11 and 16 May (white lake on 11 May only) next to the NISAR result for 11 May [IMAGE: S2 6/11/16 May + NISAR 11 May]
+
+**Footer (small):** Optical areas by eye, to be confirmed by validation points. Radar: water or brine detected on these dates.
+
+**Notes:**
+- Dates and modes: Jan is 11 Jan for both (radar in QPDH mode). May radar is 11 May (DHDH); the optical image that day shows a short-lived white film over mostly shallow water, with water on 6 and 16 May. Aug optical is 29 Aug, but radar is 15 Aug (DHDH), two weeks earlier.
+- January looks too low in radar. This may be a radar-mode effect (QPDH vs DHDH), which is being checked: [JAN MODE CHECK RESULT]. Don't explain it until the check is done.
+- August optical also shows a band of real salt crust (~30% of the lake). Wet salt crust can look like water, and this is where we tested it.
+- Water vs crust from validation points: [WATER POINTS CORRECT %] water correct, [CRUST POINTS CORRECT %] crust correct.
+- Say "roughly agrees" and "underestimates". Don't put a single accuracy figure on the whole year.
 
 ---
 
