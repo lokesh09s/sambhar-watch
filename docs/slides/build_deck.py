@@ -175,7 +175,13 @@ notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but wh
 s = prs.slides.add_slide(BLANK)
 title(s, "How we tested it")
 cmp_ = Image.open(ROOT / "docs/figures/comparison_2026-05-11.png").convert("RGB")
-picture(s, cmp_, 0.6, 1.3, w=12.1)
+cmp_w = 10.4   # leaves room for the polarization line under the figure
+picture(s, cmp_, 0.6 + (12.1 - cmp_w) / 2, 1.3, w=cmp_w)
+text(s, 0.6, 1.3 + cmp_w * cmp_.height / cmp_.width + 0.05, 12.1, 0.6,
+     [[("Polarization: ", {"bold": True, "color": TEAL}),
+       ("HH brightness + 12-day coherence (coherence measures stability, it is not a polarization). "
+        "HV not tested: over the lake it is likely near the noise floor (about −26.8 dB). "
+        "Quad-pol HH is about 0.9 dB brighter than dual-pol; coherence agrees between modes.", {})]], size=16)
 steps = [("1", "Brightness only", "fails: May ≈ Aug ≈ −22 dB"),
          ("2", "Add coherence", "water changes, crust doesn't"),
          ("3", "Stress test", "12 threshold settings"),
@@ -183,14 +189,16 @@ steps = [("1", "Brightness only", "fails: May ≈ Aug ≈ −22 dB"),
 cw = (12.1 - 3 * 0.25) / 4
 for i, (n, head, sub) in enumerate(steps):
     x = 0.6 + i * (cw + 0.25)
-    card(s, x, 5.45, cw, 1.45)
-    text(s, x + 0.15, 5.52, cw - 0.3, 0.45, [[(n + "  ", {"color": TEAL}), (head, {})]], size=20, bold=True)
-    text(s, x + 0.15, 5.98, cw - 0.3, 0.85, [sub], size=18)
+    card(s, x, 5.6, cw, 1.35)
+    text(s, x + 0.15, 5.65, cw - 0.3, 0.45, [[(n + "  ", {"color": TEAL}), (head, {})]], size=20, bold=True)
+    text(s, x + 0.15, 6.1, cw - 0.3, 0.8, [sub], size=18)
 credit(s, f"Radar: {CREDIT_NISAR} GCOV + GUNW, 11 May 2026. Lake outline 152 km², salt pans inside 49.1 km² "
           "(drawn by hand). Every number has an uncertainty band.")
 notes(s, "Rule: HH below -18 dB AND 12-day coherence below 0.3 (provisional). Stress test: HH -17 to -20 dB, "
          "coherence 0.25 to 0.35. One date's area can shift 40-72 km2, so small April-August changes are within "
-         "uncertainty. Each date uses the 12-day pair starting on that date. Modes DHDH and QPDH kept separate.")
+         "uncertainty. Each date uses the 12-day pair starting on that date (else the one ending on it). Modes DHDH and "
+         "QPDH kept separate. Polarization: we used HH plus coherence; HV was not tested (likely near the noise "
+         "floor over the lake, and HH usually gives better water/land contrast at L-band).")
 
 # 5. Results (hero) ---------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
@@ -305,11 +313,25 @@ notes(s, "This is the user experience. Who would use it: wetland managers, resea
 # 7. Recommendation and proposed use -----------------------------------------
 s = prs.slides.add_slide(BLANK)
 title(s, "Recommendation and proposed use")
-card(s, 0.6, 1.35, 12.15, 1.15, fill=TEAL)
-text(s, 0.85, 1.35, 11.7, 1.15,
+card(s, 0.6, 1.2, 12.15, 0.9, fill=TEAL)
+text(s, 0.85, 1.2, 11.7, 0.9,
      ["Use brightness when the lake is full, add coherence when crust is present, "
-      "and report both as upper and lower bounds."], size=22, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
-text(s, 0.6, 2.75, 12.1, 0.5, ["How this would be used (proposed)"], size=20, bold=True, color=TEAL)
+      "and report both as upper and lower bounds."], size=20, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
+text(s, 0.6, 2.2, 12.1, 0.45, ["Why does the lake change? (hypothesis, not proven)"], size=20, bold=True, color=TEAL)
+drivers = [("Monsoon (Jul–Sep)", "Rain and seasonal streams flow into the shallow lake"),
+           ("After the rains", "Evaporation shrinks the water: wet brine, then salt crust"),
+           ("Salt works", "Brine pumped into the pans: a managed cycle, not only weather")]
+dw = (12.15 - 2 * 0.25) / 3
+for i, (head, body) in enumerate(drivers):
+    x = 0.6 + i * (dw + 0.25)
+    card(s, x, 2.68, dw, 1.2)
+    text(s, x + 0.15, 2.73, dw - 0.3, 0.4, [head], size=18, bold=True, color=TEAL)
+    text(s, x + 0.15, 3.1, dw - 0.3, 0.75, [body], size=16)
+text(s, 0.6, 3.95, 12.1, 0.6,
+     [[("Not seen: ", {"bold": True}),
+       ("no clear monsoon rise in radar water area. Per-date uncertainty (40–72 km²) is larger than the "
+        "April–August changes, and shallow water vs wet crust is hard to separate.", {})]], size=16)
+text(s, 0.6, 4.65, 12.1, 0.45, ["How this would be used (proposed)"], size=20, bold=True, color=TEAL)
 uses = [("Who", "Wetland managers, researchers, bird-watch groups"),
         ("Every 12 days", "Each new NISAR pass updates the map"),
         ("Early warning", "Flag when the lake dries fast"),
@@ -317,15 +339,17 @@ uses = [("Who", "Wetland managers, researchers, bird-watch groups"),
 cw = (12.15 - 3 * 0.25) / 4
 for i, (head, body) in enumerate(uses):
     x = 0.6 + i * (cw + 0.25)
-    card(s, x, 3.35, cw, 2.0)
-    text(s, x + 0.15, 3.47, cw - 0.3, 0.5, [head], size=22, bold=True, color=TEAL)
-    text(s, x + 0.15, 4.0, cw - 0.3, 1.3, [body], size=18)
-text(s, 0.6, 5.6, 12.1, 0.9,
+    card(s, x, 5.12, cw, 1.35)
+    text(s, x + 0.15, 5.17, cw - 0.3, 0.4, [head], size=18, bold=True, color=TEAL)
+    text(s, x + 0.15, 5.55, cw - 0.3, 0.9, [body], size=16)
+text(s, 0.6, 6.55, 12.1, 0.45,
      [[("Next: ", {"bold": True}),
        ("grows with NISAR's record · combine with optical data · ground truth from the wetland authority", {})]],
-     size=20)
+     size=16)
 credit(s, "Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Copernicus Sentinel-2")
-notes(s, "Everything on this slide is a proposed use, not something already running.")
+notes(s, "Everything on this slide is a proposed use, not something already running. The three drivers are a "
+         "hypothesis, not proven: monsoon inflow, evaporation after the rains, and the salt works pumping brine "
+         "into the mapped pans. We did not see a clear monsoon rise in radar water area.")
 
 prs.save(OUT)
 print(f"wrote {OUT} ({len(prs.slides)} slides)")

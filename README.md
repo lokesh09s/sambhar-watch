@@ -171,6 +171,19 @@ Figures are made with `python scripts/make_figures.py` after `map_water.py --mod
 
 One strength: all dates come from the same track and frame (descending track 34, frame 75), so the viewing geometry and incidence angle are the same throughout the year.
 
+## Why does the lake change? (hypothesis, not proven)
+
+- **Monsoon (roughly July–September):** rain and seasonal streams flow into the shallow lake.
+- **After the rains stop:** strong evaporation shrinks the water, leaving wet brine and then salt crust.
+- **Human driver:** the salt works pump brine into the mapped pans to evaporate it, so the pans follow a managed cycle, not only the weather.
+- **What we did NOT see:** no clear monsoon rise in radar water area. The per-date uncertainty (40–72 km²) is larger than the April–August changes, and shallow water vs wet crust is hard to separate.
+
+## Which polarization?
+
+- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it measures how stable the surface is between two passes.
+- **We did not test HV.** This is a reason, not a result: over the lake HV is likely close to the noise floor (about −26.8 dB), and HH usually gives better water/land contrast at L-band.
+- **Mode check we did do:** quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees between the modes.
+
 ## Use of AI
 
 AI assistants (Claude) were used to research the topic, check data availability, draft code and review our reasoning. All results were run, checked and interpreted by the team.

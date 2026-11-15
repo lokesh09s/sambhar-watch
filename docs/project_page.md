@@ -106,9 +106,22 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 - Only April–October forms one consistent radar series. The two radar modes stay as separate series outside that window.
 - The rule (HH below −18 dB and coherence below 0.3) is provisional.
 - The NISAR products are provisional (calibrated, partly validated). One date comes from a later release and is analysed separately.
-- Observations are about 12 days apart, with some gaps, and a date needs a 12-day pair starting on it. The results mean "detected on these dates", not continuous presence. We don't measure depth.
+- Observations are about 12 days apart, with some gaps, and a date needs a 12-day pair starting or ending on it. The results mean "detected on these dates", not continuous presence. We don't measure depth.
 - The lake and pan outlines are hand-drawn. Unmapped pans, channels or roads may remain.
 - The maps show surface changes only. They say nothing about whether any use of the lake is permitted.
+
+### Why does the lake change? (hypothesis, not proven)
+
+- **Monsoon (roughly July–September):** rain and seasonal streams flow into the shallow lake.
+- **After the rains stop:** strong evaporation shrinks the water, leaving wet brine and then salt crust.
+- **Human driver:** the salt works pump brine into the mapped pans to evaporate it, so the pans follow a managed cycle, not only the weather.
+- **What we did NOT see:** no clear monsoon rise in radar water area. The per-date uncertainty (40–72 km²) is larger than the April–August changes, and shallow water vs wet crust is hard to separate.
+
+### Which polarization?
+
+- We used **HH backscatter plus 12-day coherence**. Coherence is not a polarization: it measures how stable the surface is between two passes.
+- **We did not test HV.** This is a reason, not a result: over the lake HV is likely close to the noise floor (about −26.8 dB), and HH usually gives better water/land contrast at L-band.
+- **Mode check we did do:** quad-pol (QPDH) HH is about 0.9 dB brighter than dual-pol (DHDH); coherence agrees between the modes.
 
 ### Tools and languages
 
