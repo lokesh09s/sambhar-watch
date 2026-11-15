@@ -54,6 +54,7 @@ scripts/            the steps you run
   sensitivity.py    how much the areas change with the chosen thresholds
   check_modes.py    do the two radar modes (DHDH, QPDH) agree on stable ground?
   check_outline.py  how much lake bed the hand-drawn outline misses, and whether it matters
+  check_western_arm.py  size of the missed western arm, and the Aug-Oct drop with it added
   make_figures.py   figures for the README and slides (docs/figures/)
 tests/              synthetic end-to-end test (lake of known area)
 data/               granule and interferogram-pair lists, salt-pan polygons
@@ -168,7 +169,7 @@ Figures are made with `python scripts/make_figures.py` after `map_water.py --mod
 - Mapped changes are surface observations only and say nothing about legality.
 - Each date is resampled to 20 m by nearest neighbour (no multilooking), and the 3×3 speckle smoothing is done in dB, not in linear power.
 - GUNW coherence is estimated over a coarser window than the 10 m GCOV pixels, so thin features (shorelines, embankments) are blurred in coherence.
-- The lake outline was hand-drawn from optical imagery and misses part of the western lake bed (about 10 km², visible in the radar). Reported areas are inside the outline only, so they understate the full lake bed. Including it does not change the August → October drop (about 91 → 56 km² inside the outline; about 98 → 59 km² with the western arm added; `scripts/check_outline.py`).
+- The lake outline was hand-drawn from optical imagery and misses part of the western lake bed (about 10 km², visible in the radar). Reported areas are inside the outline only, so they understate the full lake bed. Including it does not change the August → October drop (about 91 → 56 km² inside the outline; about 98 → 59 km² with the western arm added; `scripts/check_outline.py`). A separate check (`scripts/check_western_arm.py`) finds the missed arm is 10.7 km², does not reach the crop edge, and the Aug→Oct drop holds in all 12 threshold combinations with it added.
 
 One strength: all dates come from the same track and frame (descending track 34, frame 75), so the viewing geometry and incidence angle are the same throughout the year.
 

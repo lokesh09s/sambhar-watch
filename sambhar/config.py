@@ -87,3 +87,9 @@ OUTLINE_CHECK_DATES = ("2026-08-15", "2026-10-14")
 # The missed western arm lies in the western 15% of the lake's east-west extent (and beyond its tip);
 # the rest of the zone holds two separate ponds, which are not lake bed.
 OUTLINE_CHECK_ARM_FRACTION = 0.15
+
+# Western-arm check (scripts/check_western_arm.py): the missed arm is delineated on one date as the
+# low-coherence area outside the outline that is connected to the outline's western third.
+ARM_DELINEATION_DATE = "2026-05-11"
+ARM_SMOOTHING_WINDOW = 5      # coherence is averaged over this many pixels first, so lone noisy pixels do not link areas
+ARM_SEED_FRACTION = 1 / 3     # "western third" of the lake's east-west extent

@@ -237,3 +237,13 @@ Notes:
   - Aug -> Oct drop: 35.6 km2 inside the outline; 35.5 with the whole zone; 39.0 with the arm only. => The drop holds.
   - This replaces my earlier "14.5 km2" (19:30), which was everything within 800 m of the outline on all sides, not the arm.
 - Files: README (limitations line, results sentence, layout list), docs/project_page.md (limitations line), docs/slides/build_deck.py (slide 4 caption, slide 7 notes), PPTX + PDF rebuilt. First caption version ran into the slide number; shortened and re-rendered. Tests 6/6.
+
+### 21:17 IST - Western-arm check (scripts/check_western_arm.py); decision: keep the outline
+- What: first run as a throwaway script in my scratchpad (user asked for numbers only, no changes); then, on the user's decision, moved into scripts/check_western_arm.py with config ARM_DELINEATION_DATE = 2026-05-11, ARM_SMOOTHING_WINDOW = 5, ARM_SEED_FRACTION = 1/3. README: one sentence added to the outline limitation bullet; script listed in the layout. The repo script reproduces the scratch numbers exactly. Tests 6/6.
+- Method of the check: arm = pixels outside data/lake.geojson with 5x5-mean coherence < 0.3 on 2026-05-11, connected (4-neighbour) to the outline's western third. Checked by eye on HH and coherence images: follows the dark arm.
+- Result:
+  - Arm geometric area 10.7 km2. Touches no edge of the study grid (0 pixels); westernmost pixel 2.8 km inside the west edge. It only looks cut off in docs/figures/comparison_2026-05-11.png because that figure is cropped to the outline + 800 m.
+  - Detected in the arm per DHDH date (km2): 04-05 6.0; 04-17 9.8; 04-29 8.6; 05-11 9.7; 05-23 8.6; 06-04 8.7; 06-16 3.8; 06-28 7.4; 07-10 7.6; 07-22 8.8; 08-15 6.4; 10-14 3.7.
+  - Aug -> Oct with the arm added: default 97.7 -> 59.5 (drop 38.3; 35.6 inside the outline alone); October lower in 12 of 12 threshold pairs, drop 18.9 (T=-20, C=0.25) to 41.2 km2 (T=-17, C=0.35).
+  - Consistent with the cruder box version in scripts/check_outline.py (arm 10.0 km2; 97.9 -> 58.9).
+- Next: wait for the GitHub URL, team name and members.
