@@ -244,3 +244,22 @@ footer { background: var(--soft); color: var(--muted); font-size: 0.82rem; paddi
 .leaflet-control-layers-overlays label { margin: 2px 0; }
 .leaflet-control-layers-selector { margin: 0 4px 0 0; vertical-align: -2px; }
 .leaflet-container { text-align: left; }   /* sections centre their text; the map's own boxes should not */
+
+/* Layout tidy-up: one centred reading column, components centred on it, captions centred under them. */
+.band, main > section { padding: 84px 0; }
+.hint { text-align: center !important; }
+.swipe, #swipe-slider { max-width: 860px; margin-left: auto; margin-right: auto; }
+#swipe-slider { display: block; margin-top: 14px; }
+.hero-grid { max-width: 940px; margin-left: auto; margin-right: auto; }
+main > section > .hero-table { display: table; width: auto; max-width: 100% !important; margin: 28px auto 0; }
+.hero-table th, .hero-table td { padding: 9px 22px 9px 0; white-space: nowrap; }
+.hero-table th:last-child, .hero-table td:last-child { padding-right: 0; }
+.hero-table caption { text-align: center; padding-bottom: 10px; white-space: normal; }
+.legend { font-size: 0.84rem; gap: 6px 18px; }
+.date-control { max-width: 860px; margin-left: auto; margin-right: auto; }
+main > section > ul, .box ul { padding-left: 1.3em; }
+@media (max-width: 860px) {
+  .band, main > section { padding: 64px 0; }
+  main > section > .hero-table { display: block; overflow-x: auto; }   /* wide tables scroll inside themselves on phones */
+  .hero-table th, .hero-table td { padding-right: 12px; }
+}
