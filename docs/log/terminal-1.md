@@ -308,3 +308,6 @@ Notes:
   - README.md and docs/project_page.md: same section, before "Why does the lake change?".
 - Check: slide 3 rendered and viewed: no overlap. Local site in real Chrome at 1280 and 390 px, both pages: no overflow, no load error, map tiles load, date label updates with the next button, legend and layer box show the new name, new section renders. Console: one 404 on the first load was the browser asking for favicon.ico (fixed with the inline icon); the only other entries were cancelled image loads when the map layer was swapped (not errors). Tests 6/6.
 - Not pushed: waiting for the user's go-ahead (their instruction).
+
+### 23:05 IST - Pushed; Vercel and GitHub Pages both updated
+- What: user asked to update the website on Vercel. Found the repo's homepage set to https://sambhar-watch.vercel.app (the user's Vercel project, deploying from this repo; no Vercel CLI here). Pushed commit c2aac58 to origin/main. Vercel served the new version within ~15 s: new "How we are different" section present, app.html shows "Salt-works zones (approximate, hand-drawn)", app.js / explorer.js / data files return 200. GitHub Pages also updated. So vercel.json works (first real confirmation). README and deck still link the github.io address.
