@@ -1,0 +1,8 @@
+earthaccess
+h5py
+numpy
+matplotlib
+pyproj
+fsspec
+aiohttp
+pytest

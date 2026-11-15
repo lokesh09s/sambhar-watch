@@ -1,0 +1,101 @@
+"""Copy pipeline results into web/data/ so the static website can show them.
+
+Reads outputs/results/ (made by map_water.py) and writes to web/data/:
+    water_area.csv, map_info.json, frequency.png, overlays/<date>.png   copied as they are
+    frequency_overlay.png    water-detection frequency as a transparent map layer
+    frequency_lookup.json    frequency and valid-observation count on a coarse grid, for map clicks
+    pans.geojson             salt-pan polygons (only if the pans file exists)
+
+Examples
+    python scripts/export_web.py
+    python scripts/export_web.py --results outputs/demo/results --pans data/pans_example.geojson   # FAKE demo
+"""
+import argparse
+import json
+import math
+import shutil
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))  # make `sambhar` importable
+
+import matplotlib
+matplotlib.use("Agg")  # draw to files, no window needed
+import matplotlib.pyplot as plt
+import numpy as np
+
+from sambhar import config
+
+WEB_DATA = ROOT / "web" / "data"
+LOOKUP_MAX_SIZE = 400   # longest side of the click-lookup grid; keeps the JSON around 1 MB
+
+
+def frequency_overlay(frequency: np.ndarray, path: Path) -> None:
+    """Transparent PNG: blue, darker where water was detected more often.
+
+    Pixels never detected as water, or with no data, are fully transparent.
+    Colours run from 30% to 100% of matplotlib's "Blues", matching the legend in web/style.css.
+    """
+    f = np.nan_to_num(frequency)
+    rgba = plt.get_cmap("Blues")(0.3 + 0.7 * f, bytes=True)
+    rgba[..., 3] = np.where(f > 0, 220, 0)
+    plt.imsave(path, rgba)
+
+
+def frequency_lookup(frequency: np.ndarray, n_valid: np.ndarray) -> dict:
+    """Every `step`-th pixel of the frequency map, small enough for the browser to load.
+
+    frequency_pct is a whole-number percentage, or -1 where there was no valid observation.
+    """
+    step = max(1, math.ceil(max(frequency.shape) / LOOKUP_MAX_SIZE))
+    start = step // 2
+    f = frequency[start::step, start::step]
+    n = n_valid[start::step, start::step]
+    return {
+        "step": step,
+        "full_rows": frequency.shape[0], "full_cols": frequency.shape[1],
+        "rows": f.shape[0], "cols": f.shape[1],
+        "frequency_pct": np.where(np.isfinite(f), np.rint(f * 100), -1).astype(int).ravel().tolist(),
+        "n_valid": n.astype(int).ravel().tolist(),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--results", type=Path, default=config.RESULTS_DIR,
+                        help="folder written by map_water.py (default outputs/results)")
+    parser.add_argument("--pans", type=Path, default=config.PANS_GEOJSON,
+                        help="salt-pan polygons to show on the map (default data/pans.geojson)")
+    args = parser.parse_args()
+
+    results = args.results
+    if not (results / "map_info.json").exists():
+        raise SystemExit(f"No map_info.json in {results}. Run scripts/map_water.py first.")
+
+    WEB_DATA.mkdir(parents=True, exist_ok=True)
+    for name in ["water_area.csv", "map_info.json", "frequency.png"]:
+        shutil.copy(results / name, WEB_DATA / name)
+
+    shutil.rmtree(WEB_DATA / "overlays", ignore_errors=True)   # drop dates from earlier exports
+    shutil.copytree(results / "overlays", WEB_DATA / "overlays")
+
+    saved = np.load(results / "frequency.npz")
+    frequency_overlay(saved["frequency"], WEB_DATA / "frequency_overlay.png")
+    with open(WEB_DATA / "frequency_lookup.json", "w") as f:
+        json.dump(frequency_lookup(saved["frequency"], saved["n_valid"]), f, separators=(",", ":"))
+
+    pans_out = WEB_DATA / "pans.geojson"
+    if args.pans.exists():
+        shutil.copy(args.pans, pans_out)
+    else:
+        pans_out.unlink(missing_ok=True)
+        print(f"Note: {args.pans} not found, so the map has no salt-pan layer.")
+
+    info = json.loads((results / "map_info.json").read_text())
+    label = "FAKE DEMO data" if info.get("demo") else "results"
+    print(f"Exported {label} for {len(info['dates'])} dates from {results} to {WEB_DATA}")
+
+
+if __name__ == "__main__":
+    main()

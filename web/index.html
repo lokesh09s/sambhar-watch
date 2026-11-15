@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sambhar Watch</title>
+  <meta name="description" content="Surface water at Sambhar Salt Lake through a year of NASA-ISRO NISAR radar, inside and outside mapped salt pans.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Sambhar Watch</h1>
+      <p class="lede">Surface water at Sambhar Salt Lake, India, through one year of NASA&ndash;ISRO NISAR radar,
+        inside and outside hand-mapped salt pans.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p id="demo-banner" class="banner" hidden>
+      <strong>Demo data.</strong> The maps and numbers on this page are synthetic, made to test the website.
+      They are not NISAR results.
+    </p>
+    <p id="load-error" class="banner" hidden></p>
+
+    <section aria-labelledby="map-title">
+      <h2 id="map-title">Map</h2>
+      <div class="date-control">
+        <label for="date-slider">Radar date</label>
+        <input id="date-slider" type="range" min="0" max="0" value="0" step="1">
+        <output id="date-label" for="date-slider" aria-live="polite"></output>
+      </div>
+      <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
+      <ul class="legend">
+        <li><span class="swatch swatch-water"></span>Water on the selected date</li>
+        <li><span class="swatch swatch-frequency"></span>Water-detection frequency, low to high</li>
+        <li><span class="swatch swatch-pans"></span>Mapped salt pans (hand-drawn)</li>
+      </ul>
+      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as water.</p>
+    </section>
+
+    <section aria-labelledby="chart-title">
+      <h2 id="chart-title">Water area over time</h2>
+      <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
+      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
+    </section>
+
+    <section aria-labelledby="how-title">
+      <h2 id="how-title">How radar sees water</h2>
+      <p>NISAR sends microwave pulses down at an angle and records how much comes back. Calm water acts like a mirror:
+        it bounces the pulse away from the satellite, so water looks dark. Land, plants and buildings scatter some
+        of the pulse back, so they look brighter.</p>
+      <p>We call a pixel &ldquo;water&rdquo; when its HH backscatter is darker than a fixed threshold. Radar works
+        through cloud and at night, which matters at Sambhar because the lake changes most during the monsoon,
+        when optical satellites are often blind.</p>
+      <p>The <em>water-detection frequency</em> of a spot is the number of dates it was detected as water divided by the
+        number of dates with a valid radar observation there.</p>
+    </section>
+
+    <section aria-labelledby="found-title">
+      <h2 id="found-title">What we found</h2>
+      <p class="placeholder">To be added once all NISAR dates are processed and checked against Sentinel-2.</p>
+    </section>
+
+    <section aria-labelledby="limits-title">
+      <h2 id="limits-title">Limitations</h2>
+      <ul>
+        <li>The NISAR data are provisional: calibrated but only partly validated by the mission.</li>
+        <li>Wet salt crust can look as dark as water to radar. This is our main source of error, and we test it
+          separately against Sentinel-2.</li>
+        <li>Radar dates are 12 days apart at best, with some longer gaps. The maps show water on those dates, not
+          continuous presence.</li>
+        <li>Radar tells us where the surface is wet, not how deep the water is.</li>
+        <li>Salt-pan boundaries were drawn by hand. &ldquo;Outside mapped pans&rdquo; may still include unmapped pans,
+          channels or roads.</li>
+        <li>These are surface observations only. They say nothing about whether any salt pan is legal.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="data-title">
+      <h2 id="data-title">Data and code</h2>
+      <ul>
+        <li>Radar: NISAR GCOV (L-band HH and HV backscatter), NASA&ndash;ISRO, distributed by the
+          <a href="https://asf.alaska.edu/">NASA Alaska Satellite Facility (ASF) DAAC</a>.</li>
+        <li>Validation: Sentinel-2 optical images, ESA <a href="https://dataspace.copernicus.eu/">Copernicus</a>.</li>
+        <li>Basemap: Esri World Imagery.</li>
+        <!-- TODO: replace with the team's repository URL before publishing -->
+        <li>Code: <a href="https://github.com/">GitHub repository</a> (MIT licence).</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">NASA Space Apps Challenge 2026 &middot; Dancing with the SARs</div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

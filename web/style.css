@@ -1,0 +1,69 @@
+/* Sambhar Watch: one accent colour (teal), plain layout, readable on a phone. */
+:root {
+  --accent: #0f5c6e;
+  --ink: #1d2327;
+  --muted: #5b656b;
+  --line: #dde2e5;
+  --paper: #ffffff;
+  --soft: #f4f6f7;
+  --water: rgb(30, 120, 200);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+
+header { background: var(--accent); color: #fff; padding: 28px 0 22px; }
+header h1 { margin: 0; font-size: 1.9rem; letter-spacing: 0.01em; }
+.lede { margin: 6px 0 0; max-width: 40em; opacity: 0.92; }
+
+section { margin: 36px 0; }
+h2 { font-size: 1.3rem; margin: 0 0 12px; color: var(--accent); }
+a { color: var(--accent); }
+ul { padding-left: 1.2em; }
+li { margin: 4px 0; }
+
+.banner {
+  margin: 20px 0 0;
+  padding: 10px 14px;
+  border-left: 4px solid var(--accent);
+  background: var(--soft);
+}
+
+.date-control { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.date-control label { font-weight: 600; }
+.date-control input { flex: 1 1 220px; accent-color: var(--accent); }
+.date-control output { min-width: 13em; font-variant-numeric: tabular-nums; }
+
+#map { height: 480px; border: 1px solid var(--line); border-radius: 4px; }
+.pixelated { image-rendering: pixelated; }
+
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 10px 0 0; font-size: 0.93rem; }
+.swatch { display: inline-block; width: 26px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; }
+.swatch-water { background: var(--water); }
+.swatch-frequency { background: linear-gradient(to right, #b7d4ea, #3b8bc2, #08306b); }  /* Blues 30%-100%, as export_web.py */
+.swatch-pans { border: 2px dashed var(--ink); }
+
+.hint { color: var(--muted); font-size: 0.93rem; margin: 8px 0 0; }
+.placeholder { color: var(--muted); font-style: italic; }
+
+.chart-box { position: relative; height: 320px; }
+
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; padding: 18px 0 28px; margin-top: 48px; }
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  header h1 { font-size: 1.6rem; }
+  #map { height: 55vh; }
+  .chart-box { height: 260px; }
+}
+
+/* Leaflet draws an empty base-layer list and separator when there are only overlays. */
+.leaflet-control-layers-base, .leaflet-control-layers-separator { display: none; }
