@@ -33,17 +33,19 @@
       </div>
       <div id="map" role="region" aria-label="Map of Sambhar Salt Lake with radar water layers"></div>
       <ul class="legend">
-        <li><span class="swatch swatch-water"></span>Water on the selected date</li>
-        <li><span class="swatch swatch-frequency"></span>Water-detection frequency, low to high</li>
+        <li><span class="swatch swatch-water"></span>Dark unstable surface (water or wet brine) on the selected date</li>
+        <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Dark but stable: dark in HH, removed by the coherence check (likely dry salt crust)</li>
+        <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
         <li><span class="swatch swatch-pans"></span>Mapped salt pans (hand-drawn)</li>
       </ul>
-      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as water.</p>
+      <p class="hint">Use the layer box on the map to switch layers. Click or tap any spot to see how often it was detected as a dark unstable surface.</p>
     </section>
 
     <section aria-labelledby="chart-title">
-      <h2 id="chart-title">Water area over time</h2>
+      <h2 id="chart-title">Dark unstable surface over time</h2>
       <div class="chart-box"><canvas id="area-chart" aria-label="Line chart of detected water area per radar date"></canvas></div>
-      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.</p>
+      <p class="hint">Click a point to show that date on the map. Dates are 12 to 24 days apart; lines join observations, not continuous measurements.
+        Hollow points mark dates with only one coherence pair, which are less certain.</p>
     </section>
 
     <section aria-labelledby="how-title">
@@ -51,11 +53,17 @@
       <p>NISAR sends microwave pulses down at an angle and records how much comes back. Calm water acts like a mirror:
         it bounces the pulse away from the satellite, so water looks dark. Land, plants and buildings scatter some
         of the pulse back, so they look brighter.</p>
-      <p>We call a pixel &ldquo;water&rdquo; when its HH backscatter is darker than a fixed threshold. Radar works
-        through cloud and at night, which matters at Sambhar because the lake changes most during the monsoon,
-        when optical satellites are often blind.</p>
-      <p>The <em>water-detection frequency</em> of a spot is the number of dates it was detected as water divided by the
-        number of dates with a valid radar observation there.</p>
+      <p>Radar works through cloud and at night, which matters at Sambhar because the lake changes most during the
+        monsoon, when optical satellites are often blind.</p>
+      <p>Darkness alone is not enough: smooth dry salt crust can look as dark as water. So we also use
+        <em>coherence</em>: how much the ground stayed the same between two passes 12 days apart. Water never stays
+        the same, so its coherence is low. Dry crust, soil and buildings stay the same, so theirs is high.</p>
+      <p>Our provisional rule: a pixel is a <em>dark unstable surface</em> when it is dark in HH <em>and</em> its
+        coherence is low<span id="rule-values"></span>. We call this &ldquo;water or wet brine&rdquo;, not simply
+        water, until Sentinel-2 images confirm it. Each date is compared with the dates 12 days before and after
+        when those exist; some dates have only one such pair.</p>
+      <p>The <em>detection frequency</em> of a spot is the number of dates it was detected as a dark unstable surface
+        divided by the number of dates with a valid radar observation there.</p>
     </section>
 
     <section aria-labelledby="found-title">
@@ -67,8 +75,10 @@
       <h2 id="limits-title">Limitations</h2>
       <ul>
         <li>The NISAR data are provisional: calibrated but only partly validated by the mission.</li>
-        <li>Wet salt crust can look as dark as water to radar. This is our main source of error, and we test it
-          separately against Sentinel-2.</li>
+        <li>Wet salt crust and brine are dark and unstable too, so they are counted with water. Dry crust that is dark
+          but stable is removed by the coherence check. Both are tested separately against Sentinel-2.</li>
+        <li>Coherence needs a second pass 12 days away. Dates with only one pair are less certain, and dates with
+          no pair are left out.</li>
         <li>Radar dates are 12 days apart at best, with some longer gaps. The maps show water on those dates, not
           continuous presence.</li>
         <li>Radar tells us where the surface is wet, not how deep the water is.</li>

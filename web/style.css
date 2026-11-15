@@ -48,6 +48,7 @@ li { margin: 4px 0; }
 .legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 10px 0 0; font-size: 0.93rem; }
 .swatch { display: inline-block; width: 26px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; }
 .swatch-water { background: var(--water); }
+.swatch-stable { background: rgb(240, 140, 0); }   /* as COMPARISON_RGBA in export_web.py */
 .swatch-frequency { background: linear-gradient(to right, #b7d4ea, #3b8bc2, #08306b); }  /* Blues 30%-100%, as export_web.py */
 .swatch-pans { border: 2px dashed var(--ink); }
 

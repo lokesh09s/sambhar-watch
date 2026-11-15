@@ -4,6 +4,8 @@ Reads outputs/results/ (made by map_water.py) and writes to web/data/:
     water_area.csv, map_info.json, frequency.png, overlays/<date>.png   copied as they are
     frequency_overlay.png    water-detection frequency as a transparent map layer
     frequency_lookup.json    frequency and valid-observation count on a coarse grid, for map clicks
+    comparison/<date>.png    pixels dark in HH but removed by the coherence rule
+                             (only if results has overlays_hh_only/)
     pans.geojson             salt-pan polygons (only if the pans file exists)
 
 Examples
@@ -29,6 +31,7 @@ from sambhar import config
 
 WEB_DATA = ROOT / "web" / "data"
 LOOKUP_MAX_SIZE = 400   # longest side of the click-lookup grid; keeps the JSON around 1 MB
+COMPARISON_RGBA = (240, 140, 0, 220)   # orange, matches .swatch-stable in web/style.css
 
 
 def frequency_overlay(frequency: np.ndarray, path: Path) -> None:
@@ -41,6 +44,15 @@ def frequency_overlay(frequency: np.ndarray, path: Path) -> None:
     rgba = plt.get_cmap("Blues")(0.3 + 0.7 * f, bytes=True)
     rgba[..., 3] = np.where(f > 0, 220, 0)
     plt.imsave(path, rgba)
+
+
+def comparison_overlay(hh_only_png: Path, final_png: Path, path: Path) -> None:
+    """Transparent PNG: orange where HH alone says "dark" but HH + coherence does not (dark but stable)."""
+    dark = plt.imread(hh_only_png)[..., 3] > 0
+    kept = plt.imread(final_png)[..., 3] > 0
+    image = np.zeros(dark.shape + (4,), dtype=np.uint8)
+    image[dark & ~kept] = COMPARISON_RGBA
+    plt.imsave(path, image)
 
 
 def frequency_lookup(frequency: np.ndarray, n_valid: np.ndarray) -> dict:
@@ -79,6 +91,15 @@ def main():
 
     shutil.rmtree(WEB_DATA / "overlays", ignore_errors=True)   # drop dates from earlier exports
     shutil.copytree(results / "overlays", WEB_DATA / "overlays")
+
+    shutil.rmtree(WEB_DATA / "comparison", ignore_errors=True)
+    if (results / "overlays_hh_only").exists():
+        (WEB_DATA / "comparison").mkdir()
+        for final_png in sorted((results / "overlays").glob("*.png")):
+            comparison_overlay(results / "overlays_hh_only" / final_png.name, final_png,
+                               WEB_DATA / "comparison" / final_png.name)
+    else:
+        print("Note: no overlays_hh_only/ in results, so the map has no HH-only comparison layer.")
 
     saved = np.load(results / "frequency.npz")
     frequency_overlay(saved["frequency"], WEB_DATA / "frequency_overlay.png")

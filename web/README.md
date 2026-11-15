@@ -28,6 +28,21 @@ python scripts/export_web.py           # copies results into web/data/
 
 Salt pans are shown if `data/pans.geojson` exists (or the file given with `--pans`).
 
+### What the site expects from the coherence rule (provisional: HH < T AND coherence < C)
+
+The page works with the plain HH-only results too; these extras switch on the coherence parts.
+
+| In `outputs/results/` | Meaning | Used for |
+|---|---|---|
+| `overlays/<date>.png` | final rule, HH < T AND coherence < C | "Dark unstable surface (water or wet brine)" layer |
+| `overlays_hh_only/<date>.png` | HH < T only, same PNG format, same dates | orange "Dark but stable" comparison layer (`export_web.py` makes `comparison/<date>.png` = HH-only minus final) |
+| `water_area.csv` column `coherence_pairs` | number of 12-day pairs used for that date (1 or 2) | dates with 1 pair: hollow chart points and a note by the slider |
+| `map_info.json` key `coherence_threshold` | the value of C | shown in the explainer next to T (`threshold_db`) |
+
+`make_demo_data.py` writes exactly this format. On demo data, a date with two pairs uses the
+mean of both coherence maps, and a date with no pair (2025-11-12) is left out. The real
+pipeline may choose differently; the website does not depend on that choice.
+
 ## Demo data (FAKE)
 
 To test the page before real results exist:

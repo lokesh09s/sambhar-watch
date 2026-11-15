@@ -61,3 +61,30 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
     that are already tracked stay tracked), and .DS_Store. The old commits still contain .venv and outputs, so clones stay large until history is rewritten.
 - Lesson: to commit only some staged changes, check `git diff --cached --name-only` and run plain `git commit`. Don't use `git commit -- <paths>` after git rm --cached.
 - Next: Optional: `git rm -r --cached sambhar/__pycache__ scripts/__pycache__ tests/__pycache__ .DS_Store` (team's call).
+
+### 18:23 IST - Website and demo data prepared for the provisional coherence rule
+- What:
+  - scripts/make_demo_data.py: new fake surface "smooth dry crust" on the exposed lake bed in Mar-Jun (about -21 dB: dark but stable).
+    Fake 12-day coherence for each of the 19 pairs in data/gunw_pairs.csv (0.15 +- 0.06 where water, brine or wet crust on either date,
+    0.7 +- 0.1 elsewhere), saved as outputs/demo/coherence/<ref>_<sec>.npz in the same format as outputs/coherence/.
+    It then applies HH < T AND coherence < C (demo C = 0.35) itself, because map_water.py has no coherence rule yet (marked "shortcut").
+    Writes overlays/ (final rule), overlays_hh_only/ (map_water.py output), water_area.csv with coherence_pairs, map_info.json with coherence_threshold.
+  - scripts/export_web.py: makes comparison/<date>.png (orange = dark in HH only, removed by coherence) when results has overlays_hh_only/.
+  - web/: layer renamed "Dark unstable surface (water or wet brine)"; new layer "Dark but stable (HH only vs HH + coherence)";
+    chart and popup wording changed; dates with 1 pair get hollow chart points, a tooltip line and a note by the slider;
+    coherence explainer and rule (T and C shown from map_info.json); two limitation bullets updated or added. web/README.md documents the expected files.
+- Why: The team set the provisional water rule to HH < T AND coherence < C. HH alone cannot separate water from smooth crust
+  (real data: dry May and monsoon August lake bed both about -22 dB HH, see decisions-terminal-1.md).
+- Result:
+  - Pairs per date (from gunw_pairs.csv): 2025-11-12 has 0 (left out, so 22 dates instead of 23); 2026-01-11, 03-12, 04-05, 07-22, 08-15 and 10-14 have 1; the rest have 2.
+  - Demo, Mar-Jun: HH only about 144 km2 versus HH + coherence 49-86 km2. Other months change by less than 0.1 km2. 2026-05-11 comparison layer:
+    91.0 km2 orange, which equals 144.2 - 53.2. 2026-03-12 keeps 86 km2 (not 73) because its only pair is with 02-28, when the lake was larger:
+    a surface that changed between passes counts as unstable.
+  - Failure: the first app.js edit stopped on an assertion. The Write tool had stored "\u00b2" as a literal ² in app.js, so the text did not match.
+    No partial write happened (the file is written only at the end). Redone with literal characters; node --check passes.
+  - Screenshot at 1200 px checked: new layers, 1-pair label, hollow points, rule text "(here: HH below -18 dB and coherence below 0.35)".
+    The orange layer can't be seen on the first date (01-11, 0.1 km2); it was checked through the PNG numbers above.
+- Open questions for the processing terminal: how to combine two pairs (demo uses the mean); what to do with 0-pair dates (demo leaves them out);
+  map_water.py output names should match the table in web/README.md.
+  validate.py still classifies with HH only from the crops, so it does not yet test the new rule.
+- Next: once the real rule is in map_water.py, run export_web.py on outputs/results. Update validate.py to the HH + coherence rule.
