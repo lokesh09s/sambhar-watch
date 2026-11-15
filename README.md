@@ -51,6 +51,7 @@ scripts/            the steps you run
   crop_lake.py      step 1
   map_water.py      step 2
   check_coherence.py  water vs salt crust: brightness and coherence of test regions
+  sensitivity.py    how much the areas change with the chosen thresholds
 tests/              synthetic end-to-end test (lake of known area)
 data/               granule and interferogram-pair lists, salt-pan polygons
 outputs/            generated files (not committed)
@@ -70,6 +71,7 @@ python scripts/check_coherence.py 2026-05-11 2026-08-15   # dry season and monso
 python scripts/check_coherence.py all                     # coherence for every 12-day pair
 python scripts/map_water.py --suggest-threshold      # look, then choose a threshold
 python scripts/map_water.py --mode DHDH              # HH + coherence rule, and HH-only for comparison
+python scripts/sensitivity.py --mode DHDH            # areas for a range of thresholds
 ```
 
 A free [NASA Earthdata](https://urs.earthdata.nasa.gov) account is needed to stream NISAR data.
