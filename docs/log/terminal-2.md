@@ -131,3 +131,17 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
   because the fake data is clean; the real median range is about 50 km2 (decisions-terminal-1.md 18:57). Screenshot checked: band, 2 mode lines with a gap,
   triangles, notes, legend. node --check OK.
 - Next: when the QPDH/DHDH consistency check is done, set SPLIT_MODES as decided. Update validate.py to the HH + coherence rule.
+
+### 19:02 IST - validate.py now tests the current rule (HH + coherence) with HH only next to it
+- What: Rewrote scripts/validate.py. For each NISAR date: HH (dB) from the crop, coherence from sambhar.coherence.coherence_for_date
+  (the pair STARTING on the date), then classify_dark_unstable(T, C) and classify_water(T) on the same valid pixels, as in map_water.py.
+  T, C and dates are read from map_info.json. New --coherence option. validation.csv has hh_db, coherence, result_hh_coherence, result_hh_only.
+  The summary has one block per rule, each with the salt-crust and land false-water rates kept separate.
+  Rows with an empty label are now skipped and counted, not an error.
+- Why: Team request. Validation must test the rule we publish. Also, validation_data/points_*.csv (made by another terminal) have empty labels until they are labelled by hand.
+- Result: Demo test, 7 points with known answers: dry smooth crust in May: HH -21.2 dB, coherence 0.775 -> HH only "water" (wrong), HH + coherence "not water" (right).
+  Wet crust in Oct: coherence 0.196 -> both "water" (expected: wet brine is counted by the rule). Lake centre and land right in both.
+  1 no_data (gap date), 1 too_far_in_time (60 days), 1 unlabelled. Salt crust called water: HH only 100% (2/2), HH + coherence 50% (1/2).
+  On the real validation_data/points_2026-05-11.csv: "No labelled points (150 rows without a label)". The file is not labelled yet, so no real result.
+  validation_data columns (id, lon, lat, date, label) are compatible; date there is the NISAR date (S2 is 4-5 days earlier, within --max-days 6).
+- Next: run on real outputs once the points are labelled: python scripts/validate.py validation_data/points_2026-05-11.csv (and 08-15). Then the website feedback.
