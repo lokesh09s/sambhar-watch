@@ -20,7 +20,7 @@ Placeholders in `[BRACKETS]` get filled in once results exist.
 | **0:10–0:13** · How it works (1) | Cloudy optical image next to a clear radar image | Clouds hide the lake. NISAR radar sees through. | "Clouds hide the lake. NISAR radar sees through them." |
 | **0:13–0:16** · How it works (2) | May and August radar images, side by side, looking alike | Dark isn't enough: salt crust looks like water | "But salt crust can look like water." |
 | **0:16–0:18** · How it works (3) | Coherence map fades in | So we added coherence: water changes, crust doesn't | "So we added coherence." |
-| **0:18–0:20** · How it works (4) | Area chart rising and falling, peak marked | Peak: [WATER AREA PEAK km²] · Checked against Sentinel-2 | "Checked against Sentinel-2." |
+| **0:18–0:20** · How it works (4) | Area chart rising and falling, peak marked | Every number with its uncertainty · Checked against Sentinel-2 | "Checked against Sentinel-2." |
 | **0:20–0:25** · Future | App screen recording: a date is picked and the map updates | Next: every new NISAR pass, more wetlands | "Next: every new pass, more wetlands." |
 | **0:25–0:30** · End card | Frequency map in the background | Sambhar Watch · [APP URL]<br>Data: NASA/ASF NISAR · ESA Sentinel-2 | (music only) |
 

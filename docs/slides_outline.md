@@ -2,14 +2,16 @@
 
 **This deck is our main deliverable. The video is optional, only if time allows.**
 
-**Hard limit: 7 slides in total, title and intro included. Do not add any.**
+**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has two drafts (5A and 5B). Only ONE goes in the deck, chosen once the Sentinel-2 check is done.
 
 Placeholders in `[BRACKETS]` get filled in once results exist. Keep the words on each slide short; the notes under each slide are for us, not for the slide.
 
 Required items, and where each one appears:
-- Image of the project: slides 5 and 6
+- Image of the project: slides 4, 5 and 6
 - The user experience: slide 6
 - How NASA/space-agency data make it possible: slides 3 and 4
+
+Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; mention that wet salt crust can look like water and that we tested it.
 
 ---
 
@@ -56,36 +58,59 @@ Required items, and where each one appears:
 
 ---
 
-## Slide 4: Method: test, fail, fix
+## Slide 4: How we tested it
 
-**On slide** (three steps, left to right)
-1. **Test:** does "dark = water" work?
-2. **It fails:** dry May and monsoon August lake bed are both about −22 dB
-3. **Fix:** add coherence from pairs of images 12 days apart
-   - Water changes → low coherence
-   - Salt crust stays put → high coherence
+**On slide**
+1. **Brightness only fails:** dry May and monsoon August lake bed are both about −22 dB
+2. **Add 12-day coherence:** removes 25–40 km² of false "water" on every date (mostly stable dry fields)
+3. **Stress test:** fair settings shift the area by 40–72 km². Dates differ by only ~10 km².
 
-**Footer (small):** Data: 24 NISAR GCOV dates + NISAR GUNW pairs (NASA ASF)
+**Bottom line (large):** No seasonal trend claimed from radar alone. Every number has an uncertainty band.
 
-**Visual:** bar chart showing May and August HH almost equal [IMAGE: HH dB May vs Aug] next to a coherence map [IMAGE: coherence map]
+**Footer (small):** Data: NISAR GCOV + GUNW (NASA ASF) · Lake 152 km², pans inside 49.1 km² (outlines drawn by hand on satellite imagery)
 
-**Notes:** Plain words: radar brightness alone can't separate water from smooth salt crust. Coherence measures how much the ground changes between two passes. That it separates water from crust is a hypothesis we are testing, not a known result. Salt-pan outlines were drawn by hand in geojson.io.
+**Visual:** brightness-only vs brightness + coherence for the same date [IMAGE: outputs/results/rule_comparison.png]
+
+**Notes:**
+- Coherence measures how much the ground changes between two passes 12 days apart. Water and wet brine change; stable dry ground doesn't.
+- Rule (provisional, until Sentinel-2): HH below −18 dB **and** coherence below 0.3.
+- Stress test: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. The 40–72 km² spread is for a single date.
+- Each date uses the 12-day pair that starts on that date.
+- The two radar modes (DHDH, QPDH) are separate lines until a consistency check shows they agree.
 
 ---
 
-## Slide 5: Results: did coherence work?
+## Slide 5A: Results, IF Sentinel-2 confirms dry-season water
+
+*Use this OR 5B, not both.*
+
+**Headline:** NISAR tracks about [X ± Y] km² of water or brine at Sambhar through the year. Coherence removes [Z] km² of false detections.
 
 **On slide**
-- Coherence on water: [COHERENCE WATER]
-- Coherence on salt crust: [COHERENCE CRUST]
-- Our rule: [RULE]
-- Agreement with Sentinel-2: [ACCURACY %]
-- Peak water detected: [WATER AREA PEAK km²] on [PEAK DATE]
-- Inside mapped pans: [PAN SHARE %]
+- Sentinel-2 agrees: [ACCURACY %]
+- Detected inside mapped pans: [PAN WATER km²] of 49.1 km²
+- Water detected on these dates; band = method uncertainty
 
-**Visual:** water-area chart through the year, pans vs natural [IMAGE: area chart] plus the water-frequency map [IMAGE: frequency map]
+**Visual:** in-lake area through the year, uncertainty band, DHDH and QPDH as separate lines [IMAGE: area chart with band] plus the frequency map [IMAGE: outputs/results/frequency.png]
 
-**Notes:** Say "water detected on these dates". If coherence did not separate water and crust well, say so on this slide. Showing a method that failed is still a result.
+**Notes:** Don't say "the lake shrank" or "grew": the band is wider than the change between dates.
+
+---
+
+## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season
+
+*Use this OR 5A, not both.*
+
+**Headline:** At Sambhar, L-band radar maps the active wet lake bed, not open water.
+
+**On slide**
+- Wet salt crust and water look alike, even with coherence
+- Method uncertainty (40–72 km²) > seasonal change (~10 km²)
+- What would fix it: more dates · fusion with optical data · field measurements
+
+**Visual:** the same date as radar map vs Sentinel-2 image, crust marked [IMAGE: radar vs Sentinel-2, DATE] plus the area chart with its band [IMAGE: area chart with band]
+
+**Notes:** This is still a result. We tested the obvious method, showed where it breaks, and measured by how much.
 
 ---
 
@@ -93,7 +118,7 @@ Required items, and where each one appears:
 
 **On slide**
 - Pick a date → see where water was detected
-- Frequency map: how often each spot was wet
+- Every area shown with its range
 - Salt pans outlined
 - [APP URL]
 
@@ -106,9 +131,10 @@ Required items, and where each one appears:
 ## Slide 7: Future
 
 **On slide**
-- Update automatically with each new NISAR pass
-- Add more lakes and wetlands
-- Test coherence on more dates and other salt lakes
-- Alerts when the lake shrinks quickly
+- A continuous monitor for Sambhar and other salt lakes
+- Uncertainty shown on every number
+- Gets better as NISAR's record grows
+- Combined with optical data
+- Ground truth from the wetland authority
 
 **Footer:** Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Sentinel-2
