@@ -4,3 +4,9 @@ __pycache__/
 .pytest_cache/
 *.h5
 .netrc
+.DS_Store
+~$*
+# Sentinel-2 downloads and labelling images: large (~160 MB), remade by scripts/fetch_sentinel2.py
+validation_data/sentinel2/
+validation_data/points_*_numbered.png
+validation_data/points_*_neighbours.png
