@@ -85,3 +85,14 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
 - Result (partial, DHDH, inside lake, km2, chosen [min-max]): 04-05 101.6 [45.8-118.1]; 04-17 110.3 [83.5-121.0]; 04-29 106.3 [77.3-117.1]; 05-11 102.9 [84.5-112.7]; 05-23 107.8 [84.5-119.1]; 06-04 110.4 [82.6-122.2]; 08-15 91.4 [51.0-110.5].
   - Dates with no starting 12-day pair, now dropped: 2025-11-12, 2026-03-12, 2026-07-22, 2026-10-14, 2026-11-07. So 2026-10-14, the only post-monsoon DHDH date, is lost; after 2026-08-15 the DHDH series has no dates.
 - Next: QPDH vs DHDH consistency check (max 20 min).
+
+### 19:08 IST - Radar-mode consistency check, part 1 (scripts/check_modes.py)
+- Correction: the previous entry's heading "18:59" was also an estimate; the clock read 18:57 when it was committed. Headings are now stamped from the system clock.
+- What: new scripts/check_modes.py; config MODE_CHECK_PAIRS (3 mixed-mode and 4 same-mode neighbouring date pairs) and STABLE_COHERENCE = 0.7. Stable ground = coherence >= 0.7 in every cropped 12-day pair touching either date. Compares median HH and HV change on stable ground, and farmland coherence per pair (mixed vs same mode). To fit the 20-minute limit, started a second crop process for 2026-10-14, 10-02, 09-20 (reverse order, so it does not work on the same date as the bulk run at the same time), then their coherence.
+- Why: team decision: check whether QPDH and DHDH agree before mixing; if not, DHDH is the main series.
+- Result so far (dB change first->second date, median (25-75%)):
+  - MIXED QPDH->DHDH 03-12->04-05 (24 d, stable 98.9 km2): HH -0.43 (-1.4 to +0.5), HV -0.10.
+  - same QPDH 02-28->03-12 (12 d, 227.7 km2): HH -0.41, HV -0.87. same DHDH 04-05->04-17 (12 d, 55.0 km2): HH -0.72, HV -0.26. same DHDH 04-05->04-29 (24 d, 36.2 km2): HH -0.30, HV -0.69.
+  - => the first mixed pair's HH change (-0.43 dB) is inside the same-mode range (-0.30 to -0.72 dB): no sign of a mode offset there.
+  - Farmland coherence: QPDH-QPDH Jan-Mar 0.56-0.71; DHDH-DHDH Apr-May 0.50-0.59, Jun 0.33-0.38; MIXED 08-15->08-27 0.51 (not lower than same-mode pairs in Apr-May; needs 08-27->09-08 for a seasonal neighbour).
+- Next: 08-15/08-27 and 10-02/10-14 once 08-27, 10-02, 10-14 are cropped.

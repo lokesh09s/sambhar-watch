@@ -58,6 +58,20 @@ WATER_THRESHOLD_DB = -18.0
 COHERENCE_THRESHOLD = 0.3
 CLASS_NAME = "dark unstable surface (water or wet brine)"   # until Sentinel-2 confirms it is water
 
+# Radar-mode consistency check (scripts/check_modes.py): neighbouring dates compared on stable ground.
+# Same-mode pairs are the yardstick for how much HH changes between dates anyway.
+MODE_CHECK_PAIRS = [
+    ("2026-03-12", "2026-04-05"),   # QPDH -> DHDH, 24 days
+    ("2026-08-15", "2026-08-27"),   # DHDH -> QPDH, 12 days
+    ("2026-10-02", "2026-10-14"),   # QPDH -> DHDH, 12 days
+    ("2026-02-28", "2026-03-12"),   # same mode (QPDH), 12 days
+    ("2026-04-05", "2026-04-17"),   # same mode (DHDH), 12 days
+    ("2026-04-05", "2026-04-29"),   # same mode (DHDH), 24 days
+    ("2026-08-27", "2026-09-08"),   # same mode (QPDH), 12 days
+]
+# "Stable ground": coherence at least this in every 12-day pair touching either date.
+STABLE_COHERENCE = 0.7
+
 # Threshold values tried in the sensitivity check (scripts/sensitivity.py).
 SENSITIVITY_THRESHOLDS_DB = (-17.0, -18.0, -19.0, -20.0)
 SENSITIVITY_COHERENCE = (0.25, 0.30, 0.35)
