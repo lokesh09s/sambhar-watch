@@ -40,6 +40,8 @@ LOOKUP_MAX_SIZE = 400   # longest side of the click-lookup grid; keeps the JSON 
 OPTICAL_DIR = ROOT / "validation_data" / "sentinel2"
 OPTICAL_MAX_DAYS = 6    # same as validate.py: half the 12-day repeat
 COMPARISON_RGBA = (240, 140, 0, 220)   # orange, matches .swatch-stable in web/style.css
+OPTICAL_WIDTH = 1400    # pixels; the page never shows the photos wider than this
+OPTICAL_QUALITY = 78    # JPEG quality of the photos
 
 
 def frequency_overlay(frequency: np.ndarray, path: Path) -> None:
@@ -54,6 +56,22 @@ def frequency_overlay(frequency: np.ndarray, path: Path) -> None:
     plt.imsave(path, rgba)
 
 
+def shrink_layer(path: Path) -> None:
+    """Re-save a one-colour transparent layer as a 1-bit palette PNG: the same pixels in far fewer bytes.
+
+    The map loads one of these per date, so their size decides how quickly dates can be switched.
+    """
+    rgba = np.asarray(Image.open(path).convert("RGBA"))
+    drawn = rgba[..., 3] > 0
+    colours = np.unique(rgba[drawn], axis=0)
+    if len(colours) != 1:
+        return   # not a one-colour layer (or empty): leave it as it is
+    red, green, blue, alpha = (int(v) for v in colours[0])
+    indexed = Image.fromarray(drawn.astype(np.uint8), "P")
+    indexed.putpalette([0, 0, 0, red, green, blue])
+    indexed.save(path, transparency=bytes([0, alpha]), optimize=True, bits=1)
+
+
 def comparison_overlay(hh_only_png: Path, final_png: Path, path: Path) -> None:
     """Transparent PNG: orange where HH alone says "dark" but HH + coherence does not (dark but stable)."""
     dark = plt.imread(hh_only_png)[..., 3] > 0
@@ -61,6 +79,7 @@ def comparison_overlay(hh_only_png: Path, final_png: Path, path: Path) -> None:
     image = np.zeros(dark.shape + (4,), dtype=np.uint8)
     image[dark & ~kept] = COMPARISON_RGBA
     plt.imsave(path, image)
+    shrink_layer(path)
 
 
 def frequency_lookup(frequency: np.ndarray, n_valid: np.ndarray) -> dict:
@@ -106,7 +125,9 @@ def export_optical(radar_dates: list[str]) -> None:
     entries = []
     for png in images:
         s2_date = png.name[:10]
-        Image.open(png).convert("RGB").save(WEB_DATA / "optical" / f"{s2_date}.jpg", quality=80)
+        photo = Image.open(png).convert("RGB")
+        photo.thumbnail((OPTICAL_WIDTH, OPTICAL_WIDTH))   # same shape, fewer pixels: the page scales it to the radar layer
+        photo.save(WEB_DATA / "optical" / f"{s2_date}.jpg", quality=OPTICAL_QUALITY, optimize=True, progressive=True)
         gaps = {d: abs((date.fromisoformat(d) - date.fromisoformat(s2_date)).days) for d in radar_dates}
         nearest = min(gaps, key=gaps.get)
         close = gaps[nearest] <= OPTICAL_MAX_DAYS
@@ -143,6 +164,8 @@ def main():
 
     shutil.rmtree(WEB_DATA / "overlays", ignore_errors=True)   # drop dates from earlier exports
     shutil.copytree(results / "overlays", WEB_DATA / "overlays")
+    for layer in (WEB_DATA / "overlays").glob("*.png"):
+        shrink_layer(layer)
 
     shutil.rmtree(WEB_DATA / "comparison", ignore_errors=True)
     if (results / "overlays_hh_only").exists():

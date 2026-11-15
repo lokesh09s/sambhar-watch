@@ -334,3 +334,15 @@ Notes:
   - web/index.html: background prefetch of the app page, its scripts, Leaflet, Chart.js, the frequency lookup and the first radar layers. web/style.css: loading screen styles. Version tag ?v=11.
 - Check (real Chrome, phone size, throttled to 1.5 Mbit/s with 150 ms delay, local server): opened cold: loading screen visible at once, app ready after 4.6 s; opened after 14 s on the landing page: ready after 1.0 s. Landing result section and table still fill; comparison section still has 6 dates; no console errors on either page at 1280 and 390 px.
 - Not measured: load time before this change on the same throttled connection, so no before/after figure.
+
+### 00:15 IST (16 Nov) - Dates switch instantly: lighter layers, everything loaded before use
+- What: user said selecting a date was slow to render and asked that everything be loaded before interaction. Each date's two map layers were fetched only when selected, and were heavier than needed.
+  - scripts/export_web.py: shrink_layer() re-saves each one-colour transparent layer as a 1-bit palette PNG; photos exported at 1400 px wide, JPEG quality 78 (constants OPTICAL_WIDTH, OPTICAL_QUALITY). Applied to the files already in web/data with a one-off run (a full re-export would drop the two QPDH comparison dates): 28 layers checked pixel-identical before/after; overlays 2.41 -> 1.05 MB, comparison 3.13 -> 1.37 MB, photos 5.61 -> 2.50 MB.
+  - Dead end: PIL's quantize() changed one layer's alpha from 220 to 219 (caught by the pixel check); replaced by an explicit 1-bit palette.
+  - web/app.js: preload() fetches every date's layers while the loading screen shows "Loading radar dates... N%" (waits at most 20 s, then continues in the background); the six photo dates are fetched in the background after that, and the two photo panels dim while a chosen date is still arriving. web/index.html prefetches all 24 date layers. Loading screen's self-lift moved from 12 s to 30 s. Version tag ?v=12.
+- Check (real Chrome, phone size, throttled to 1.5 Mbit/s + 150 ms, local server):
+  - Straight to the app, empty cache: loading screen at once, ready after 16.6 s (it now waits for all dates).
+  - Clean browser, 25 s on the landing page, then the app: ready after 1.3 s.
+  - After the loading screen: stepping through 11 dates, new layer drawn in 0.00 s each. Photo dates 8 s after opening: average 0.11 s, slowest 0.66 s.
+  - No console errors on either page (1280 and 390 px). Tests 6/6.
+- Trade-off: the landing page now downloads about 2.4 MB of app layers in the background for every visitor.

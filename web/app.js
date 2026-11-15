@@ -27,6 +27,10 @@ const ROBUST_DATES = {
   "2026-10-14": "the lowest date for 10 of 12 threshold choices (coherence from a QPDH-to-DHDH pair; provisional)",
 };
 
+// Longest the loading screen waits for the date layers; after that they keep loading in the background.
+const PRELOAD_WAIT_MS = 20000;
+const preloaded = [];   // keeps the fetched images alive, so the browser does not drop them from memory
+
 let current = 0;   // index of the date shown on the map
 let rows = [];     // rows of water_area.csv
 let waterLayer, comparisonLayer, chart;
@@ -67,8 +71,16 @@ async function main() {
     if (has("map")) makeMap(info, lookup, pans, lake, hasComparison);
     if (has("area-chart")) makeChart(info.area_scope);
     if (has("date-slider")) makeSlider();
-    if (has("map")) showDate(0);
-    byId("loading").classList.add("done");   // map and chart are up: lift the loading screen
+    if (has("map")) {
+      showDate(0);
+      // Fetch every date's layers before anyone touches the slider, so switching dates is instant.
+      const layerUrls = rows.flatMap((r, i) => hasComparison ? [overlayUrl(i), comparisonUrl(i)] : [overlayUrl(i)]);
+      const allLayers = preload(layerUrls, (done, total) => {
+        byId("loading-text").textContent = "Loading radar dates\u2026 " + Math.round(100 * done / total) + "%";
+      });
+      await Promise.race([allLayers, new Promise(resolve => setTimeout(resolve, PRELOAD_WAIT_MS))]);
+    }
+    byId("loading").classList.add("done");   // map, chart and date layers are ready: lift the loading screen
     if (has("hero")) await makeHero(info.demo);
     if (has("optical-section")) await makeOptical(info.demo);
   } catch (error) {
@@ -81,6 +93,21 @@ async function main() {
 }
 
 // ---------- loading ----------
+
+/** Fetch images ahead of use. Resolves when every one has loaded or failed; reports progress on the way. */
+function preload(urls, onProgress) {
+  let done = 0;
+  return Promise.all(urls.map(url => new Promise(resolve => {
+    const image = new Image();
+    image.onload = image.onerror = () => {
+      done += 1;
+      if (onProgress) onProgress(done, urls.length);
+      resolve();
+    };
+    image.src = url;
+    preloaded.push(image);
+  })));
+}
 
 async function getText(name) {
   const response = await fetch(DATA + name, { cache: "no-cache" });   // always check for a newer file
@@ -394,12 +421,23 @@ async function makeOptical(demo) {
 
   const start = Math.max(0, images.findIndex(e => e.s2_date === "2026-05-11"));   // the headline date
   buttons[start].click();
+
+  // Fetch the other photo dates in the background, so the buttons respond at once.
+  preload(images.flatMap(e => [DATA + "optical/" + e.s2_date + ".jpg"].concat(
+    e.nisar_date ? [DATA + "overlays/" + e.nisar_date + ".png", DATA + "comparison/" + e.nisar_date + ".png"] : [])));
 }
 
 /** Show one Sentinel-2 date in the left panel and the radar result of its nearest NISAR date in the right panel.
     Both panels are the whole study area on the same grid, so they show exactly the same extent. */
 function showOptical(entry, demo) {
   const optical = DATA + "optical/" + entry.s2_date + ".jpg";
+  // Dim both panels until the chosen date's images have arrived, so a half-loaded pair is never shown as final.
+  const pair = byId("pair");
+  pair.classList.add("busy");
+  const shown = [...pair.querySelectorAll("img")];
+  const settle = () => { if (shown.every(image => image.complete)) pair.classList.remove("busy"); };
+  shown.forEach(image => { image.onload = image.onerror = settle; });
+  setTimeout(settle, 0);
   byId("swipe-optical").src = optical;
   byId("swipe-radar-base").src = optical;
 

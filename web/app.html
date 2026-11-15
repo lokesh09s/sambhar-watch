@@ -7,12 +7,12 @@
   <title>Sambhar Watch: the app</title>
   <meta name="description" content="Explore surface water at Sambhar Salt Lake date by date, from NASA-ISRO NISAR radar.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body class="app">
   <div id="loading" class="loading" role="status" aria-live="polite">
     <span class="spinner" aria-hidden="true"></span>
-    <p>Loading radar data&hellip;</p>
+    <p id="loading-text">Loading radar data&hellip;</p>
   </div>
   <nav class="nav" aria-label="App sections">
     <div class="wrap nav-row">
@@ -75,16 +75,16 @@
       <p class="section-lede">Choose a photo date. Both panels show exactly the same area: the Sentinel-2 photo, and what NISAR radar
         detected on the nearest radar date.</p>
       <div class="optical-tabs" id="optical-tabs" role="group" aria-label="Sentinel-2 image date"></div>
-      <div class="pair">
+      <div class="pair" id="pair">
         <figure>
-          <img id="swipe-optical" loading="lazy" decoding="async" alt="Sentinel-2 true-colour image of Sambhar Salt Lake">
+          <img id="swipe-optical" alt="Sentinel-2 true-colour image of Sambhar Salt Lake">
           <figcaption id="swipe-optical-text">Sentinel-2 optical</figcaption>
         </figure>
         <figure id="swipe-radar">
           <div class="stack">
-            <img id="swipe-radar-base" loading="lazy" decoding="async" alt="">
-            <img id="swipe-radar-removed" class="pixelated" loading="lazy" decoding="async" alt="">
-            <img id="swipe-radar-detected" class="pixelated" loading="lazy" decoding="async" alt="Radar detection overlay">
+            <img id="swipe-radar-base" alt="">
+            <img id="swipe-radar-removed" class="pixelated" alt="">
+            <img id="swipe-radar-detected" class="pixelated" alt="Radar detection overlay">
           </div>
           <figcaption id="swipe-tag-right">NISAR radar</figcaption>
         </figure>
@@ -105,7 +105,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js?v=11"></script>
-  <script src="explorer.js?v=11"></script>
+  <script src="app.js?v=12"></script>
+  <script src="explorer.js?v=12"></script>
 </body>
 </html>
