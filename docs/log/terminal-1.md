@@ -322,3 +322,6 @@ Notes:
 - Check: grep finds none of the removed phrases in those files. Deck rebuilt 3 times: first render had card 2 text overflowing and the slide 4 caption running into the slide number; shortened; final slide 4 checked, slides 5-7 checked on a contact sheet. Website local test (1280 and 390 px, both pages): no overflow, no load error, map and date buttons work, no console errors (only cancelled image loads when the layer swaps). Tests 6/6. Version tag ?v=9.
 - Not changed: docs/slides_outline.md and docs/video_script.md (not in the request) may still use the old wording.
 - Not pushed: waiting for the user.
+
+### 23:29 IST - Urgent website wording; pushed; both live sites confirmed
+- What: web/index.html: exact team sentences for the two-estimates line and the smaller estimated post-monsoon drop; card "Early warning" renamed "Seasonal tracking" with new text; version tag ?v=10. Chart legend names and the Festa citation were already in commit daafc91. Pushed both commits. Fetched both live sites (sambhar-watch.vercel.app and lokesh09s.github.io/sambhar-watch) at 23:28: new sentences present, Festa citation present, chart names "Brightness only" / "Brightness + coherence", none of the removed phrases. Not changed: deck slide 7 and project page still say "Early warning" (request was web/ only).
