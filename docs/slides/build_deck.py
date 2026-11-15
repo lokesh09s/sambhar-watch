@@ -135,7 +135,10 @@ text(s, 0.6, 1.6, 5.9, 1.1, ["Sambhar Watch"], size=58, bold=True)
 text(s, 0.6, 2.75, 5.9, 1.5, [[("A salt lake, ", {}), ("seen through the clouds.", {"color": TEAL})]], size=30, bold=True)
 text(s, 0.6, 4.25, 5.9, 0.9, ["India's largest inland saline lake, followed through one year of NASA–ISRO NISAR radar."], size=18, color=MUTED)
 text(s, 0.6, 5.5, 5.9, 0.4, ["TEAM"], size=11, bold=True, color=TEAL)
-text(s, 0.6, 5.8, 5.9, 0.5, ["Lokesh Chaudhary  ·  Bhagya Modi"], size=20, bold=True)
+text(s, 0.6, 5.8, 5.9, 1.2,
+     [[("Lokesh Chaudhary  ", {"bold": True}), ("Project lead & data analysis", {"color": MUTED})],
+      [("Bhagya Modi  ", {"bold": True}), ("Research, testing & review", {"color": MUTED})],
+      [("Presentation: both", {"color": MUTED})]], size=18)
 freq = Image.open(ROOT / "docs/figures/frequency_map.png").convert("RGB").crop((36, 125, 1105, 672))
 picture(s, freq, 6.75, 1.75, w=6.0)
 text(s, 6.75, 1.75 + 6.0 * freq.height / freq.width + 0.1, 6.0, 0.6,
