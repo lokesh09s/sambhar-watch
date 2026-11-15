@@ -74,7 +74,7 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 **Notes:**
 - Coherence measures how much the ground changes between two passes 12 days apart. Water and wet brine change; stable dry ground doesn't.
 - Rule (provisional, until Sentinel-2): HH below −18 dB **and** coherence below 0.3.
-- Stress test: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. One date's area can shift by 40–72 km², so the small April–August changes (~10 km²) are within uncertainty. 14 October is the lowest date in 10 of 12 settings (slide 5).
+- Stress test: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. One date's area can shift by 40–72 km², so the small April–August changes (~10 km²) are within uncertainty. The August → October drop holds in all 12 of 12 settings (16.9–38.7 km²) (slide 5).
 - [COHERENCE REMOVED km²] was "25–40 km² on every date", but 14 Oct (115 → 55.7 km²) implies ~59 km². Confirm the range before filling it in.
 - Each date uses the 12-day pair that starts on that date.
 - The two radar modes (DHDH, QPDH) are separate lines until a consistency check shows they agree.
@@ -94,7 +94,7 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 | Sentinel-2 | ~55–60% water | ~55–60% white crust |
 
 - Dry crust looks as dark as water, but stays stable. Coherence spots it.
-- 14 Oct is the lowest date in 10 of 12 settings
+- The drop holds under every threshold setting we tested
 - Validation points: [VALIDATION ACCURACY %] agree ([N POINTS] points)
 
 **Visual:** August vs October side by side, with Sentinel-2 on top and the radar map below, and the brightness-only vs brightness + coherence numbers under each [IMAGE: Aug vs Oct, S2 + radar]
@@ -102,12 +102,13 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 **Footer (small):** Water detected on these dates. Sentinel-2: 29 Aug and 13 Oct. Radar: DHDH mode.
 
 **Notes:**
-- Full numbers: brightness + coherence 91.4 → 55.7 km² (range across settings 51–110 → 34–72). 14 Oct is the lowest date in 10 of 12 threshold settings. QPDH dates in Sep–Oct agree (56–60 km²).
+- Full numbers: brightness + coherence 91.4 → 55.7 km² (range across settings 51–110 → 34–72). The Aug → Oct drop holds in all 12 of 12 threshold settings, by 16.9–38.7 km². 14 Oct is the lowest date in 10 of 12 settings. QPDH dates in Sep–Oct agree (56–60 km²).
 - Sentinel-2: 29 Aug ~55–60% water with a crust band at the edges. 13 Oct ~55–60% white crust spread across most of the basin, ~20–25% water; 10 Oct looks the same, so the crust persists.
 - Honest limits (say them if asked):
   - Radar overestimates in October: 56 vs ~30–40 km² optical. This is likely the reservoir and wet edges.
   - April–August changes are within uncertainty.
   - Only April–October is one consistent radar series (radar-mode check).
+  - Radar misses a lot of winter water: in January (QPDH mode) it detects ~50–55% of the lake vs ~85–90% water in Sentinel-2. Possibly the brighter QPDH mode; unconfirmed, so don't state a cause.
   - Wet salt crust can still look like water; we tested this.
 - Supporting points, if time:
   - The 11 May optical trap: a white lake on 11 May only, with water on 6 and 16 May. One optical image can mislead.

@@ -55,3 +55,9 @@ Role: slides and project-page text. Only Terminal 4 writes to this file. Entries
   - Two of my own overstatements were caught and fixed before committing: "the drop holds in 10 of 12 settings" (the team said "14 Oct is the lowest date in 10 of 12") and "radar isn't fooled" by the 11 May film (not shown).
   - **Inconsistency found:** the earlier "coherence removes 25–40 km² on every date" clashes with 14 Oct (115 → 55.7 = ~59 km² removed). Replaced it in slide 4 and step 5 with [COHERENCE REMOVED km²]; the team needs to confirm the range. The shared lines under the superseded versions still say 25–40 and go when those versions are deleted.
 - Next: When the validation numbers arrive, fill [VALIDATION ACCURACY %], [N POINTS], [WATER POINTS CORRECT %] and [CRUST POINTS CORRECT %], confirm [COHERENCE REMOVED km²], delete A/B/C, recheck 7 slides, and commit.
+
+### 19:48 IST - Story D: Aug→Oct drop holds in 12 of 12 settings; January underestimate added as an honest limit
+- What: Edited `docs/slides_outline.md` and `docs/project_page.md`. The slide 5D bullet now reads "The drop holds under every threshold setting we tested", replacing "14 Oct is the lowest date in 10 of 12 settings". The notes, slide 4 notes, project-page summary, step 6, (D) results and limitations now give 12 of 12 (16.9–38.7 km²); "lowest date in 10 of 12" is kept as a secondary detail. Added the January limit (QPDH radar ~50–55% of lake vs ~85–90% Sentinel-2 water; possibly the brighter QPDH mode, unconfirmed) to the slide 5D notes, (D) honest limits, (D) summary and Limitations.
+- Why: Team message 19:48 IST. The stronger 12-of-12 statement is now supported, which resolves my 19:34 caution about the overlapping ranges.
+- Result: The wording grep is clean; 7 slides in the deck. The January cause is worded as unconfirmed everywhere.
+- Next: Same as before: validation numbers, [COHERENCE REMOVED km²], delete A/B/C.

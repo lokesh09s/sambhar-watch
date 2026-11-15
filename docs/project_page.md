@@ -16,7 +16,7 @@ Sambhar Watch
 
 **(D) FINAL**
 
-Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from 91 to 56 km², and 14 October is the lowest date in 10 of 12 threshold settings. Sentinel-2 agrees: the basin goes from about 55–60% water in late August to about 55–60% white crust in mid-October. We are honest about the limits: radar still overestimates in October, and smaller changes earlier in the year are within the uncertainty. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
+Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through the cloudy monsoon and after it. Our finding: Sambhar dries out after the monsoon, and NISAR radar sees it, but only with coherence. Between 15 August and 14 October, radar brightness alone barely changes (125 → 115 km²), because dry, smooth salt crust looks as dark as water. Crust stays stable between passes 12 days apart while water doesn't, so adding interferometric coherence separates them. With coherence, the detected water falls from 91 to 56 km², and the drop holds under every threshold setting we tested. Sentinel-2 agrees: the basin goes from about 55–60% water in late August to about 55–60% white crust in mid-October. We are honest about the limits: radar still overestimates in October, misses a lot of winter water in January, and smaller changes earlier in the year are within the uncertainty. A simple web app lets anyone pick a date and see where water was detected, with an uncertainty band on every number.
 
 **(C) SUPERSEDED by (D)**: Radar agrees in some seasons, not others
 
@@ -52,7 +52,7 @@ Sambhar is a Ramsar site with 24,000 ha designated. A 2026 study by NRSC-ISRO an
 3. **Test the usual method.** Calm water reflects the radar pulse away from the satellite, so it usually looks dark. The standard approach labels dark pixels as water.
 4. **It failed here.** On real NISAR data, the lake bed in the dry season (May) and in the monsoon (August) are both about −22 dB in HH. Dark-but-dry surfaces look the same as water in brightness alone.
 5. **Add coherence.** Coherence measures how much the surface changes between two radar passes 12 days apart. Water and wet brine change, so their coherence is low. Stable ground, including dry, smooth salt crust that is as dark as water, stays coherent. Each date uses the 12-day pair that starts on that date. Our provisional rule: a pixel is detected when HH is below −18 dB **and** coherence is below 0.3. This removes [COHERENCE REMOVED km²] of false "water" inside the lake per date, from dark but stable dry fields and dry crust.
-6. **Stress-test the settings.** We re-ran the rule over a range of reasonable settings: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. On a single date, the lake area can change by 40–72 km². That is more than the small changes between April and August (about 10 km²), so we don't claim those. A change only counts if it holds across settings: 14 October is the lowest date in 10 of 12 settings. Every result is shown with this uncertainty band.
+6. **Stress-test the settings.** We re-ran the rule over a range of reasonable settings: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. On a single date, the lake area can change by 40–72 km². That is more than the small changes between April and August (about 10 km²), so we don't claim those. A change only counts if it holds across settings: the drop from 15 August to 14 October holds in all 12 of 12 settings (by 16.9–38.7 km²). Every result is shown with this uncertainty band.
 7. **Keep radar modes apart.** NISAR alternates two modes over Sambhar (DHDH and QPDH). We show them as separate series until a consistency check shows they agree.
 8. **Check against Sentinel-2.** We compare the maps with labelled points from cloud-free Sentinel-2 images, reporting water and salt crust separately. Wet salt crust can look like water to radar, so this is the key test. *(Validation points running now. An initial by-eye comparison inside the lake outline: about 130 km² of open water on 11 January, mostly shallow water in May under a short-lived white film on 11 May, about 55–60% water with a crust band at the edges on 29 August, and about 55–60% white crust spread across most of the basin with about 20–25% water on 13 October, the same on 10 October.)*
 9. **Compare with the long-term record.** JRC Global Surface Water's long-term record says the lake is rarely wet, which clashes with what we see in January 2026. Our hypothesis, not yet tested: optical records miss shallow brine.
@@ -73,7 +73,7 @@ Water inside the 152 km² lake outline, radar in DHDH mode. Radar areas are wate
 
 - **Brightness alone misses the change.** Dry, smooth salt crust is as dark as water to radar, so brightness drops by only 10 km².
 - **Coherence finds it.** Crust is stable between passes; water isn't. With coherence, the detected area falls by about 35 km².
-- **The low holds across settings.** 14 October is the lowest date in 10 of 12 threshold settings. QPDH-mode dates in September–October agree (56–60 km²).
+- **The drop holds under every threshold setting we tested.** Across all 12 settings, the detected area falls from 15 August to 14 October by 16.9–38.7 km². 14 October is the lowest date in 10 of 12 settings. QPDH-mode dates in September–October agree (56–60 km²).
 - **Sentinel-2 confirms the drying.** White crust covers most of the basin by 13 October; 10 October looks the same, so it persists.
 - **Validation points:** [VALIDATION ACCURACY %] overall agreement from [N POINTS] points; [WATER POINTS CORRECT %] of water points and [CRUST POINTS CORRECT %] of salt-crust points correct.
 
@@ -81,6 +81,7 @@ Water inside the 152 km² lake outline, radar in DHDH mode. Radar areas are wate
 - Radar overestimates in October: 56 km² vs about 30–40 km² from optical. This is likely the reservoir and wet edges.
 - Changes between April and August are within the uncertainty.
 - Only April–October forms one consistent radar series (radar-mode check).
+- Radar misses a lot of winter water: in January (QPDH mode) it detects about 50–55% of the lake vs about 85–90% water in Sentinel-2. This may be because QPDH mode is brighter; that is not confirmed.
 
 **Supporting findings**
 - *The 11 May optical trap:* Sentinel-2 shows a white lake on 11 May but water on 6 and 16 May. A single optical image can mislead.
@@ -133,8 +134,9 @@ Water inside the 152 km² lake outline. Sentinel-2 areas are by eye and will be 
 
 - The rule (HH below −18 dB and coherence below 0.3) is provisional until the Sentinel-2 check is done.
 - Wet salt crust can look like water in radar. This is the main source of error, and we test it explicitly.
-- Settings can change one date's area by 40–72 km², so we only report changes that hold across settings (14 October is the lowest date in 10 of 12). April–August changes are within the uncertainty.
+- Settings can change one date's area by 40–72 km², so we only report changes that hold across settings (the August → October drop holds in all 12 of 12). April–August changes are within the uncertainty.
 - Radar overestimates in October (56 vs about 30–40 km² optical), likely because of the reservoir and wet edges.
+- Radar underestimates winter water: in January (QPDH mode) it detects about 50–55% of the lake vs about 85–90% water in Sentinel-2. Possibly the brighter QPDH mode; unconfirmed.
 - Only April–October forms one consistent radar series. The two radar modes stay as separate series outside that window.
 - The Sentinel-2 areas used so far are by-eye estimates, pending the validation points.
 - The NISAR products are provisional (calibrated, partly validated). One date comes from a later release and is analysed separately.
