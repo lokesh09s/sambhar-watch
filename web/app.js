@@ -338,9 +338,14 @@ async function pairedComparison(before, after) {
   if (!drops.length) return "";
   const lower = drops.filter(d => d > 0);
   const name = date => new Date(Date.parse(date)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const mixedPairs = [before, after].some(r => (r.pair_modes || "").split("-").some(m => m !== r.mode));
   return "At the same threshold settings, " + name(after.date) + " is lower than " + name(before.date) + " in " +
-    lower.length + " of " + drops.length + " combinations" +
-    (lower.length ? " (drop of " + Math.min(...lower).toFixed(1) + "–" + Math.max(...lower).toFixed(1) + " km²)." : ".");
+    (lower.length === drops.length ? "all " : "") + lower.length + " of " + drops.length + " combinations" +
+    (lower.length ? " (drop of " + Math.min(...lower).toFixed(1) + "–" + Math.max(...lower).toFixed(1) + " km²)." : ".") +
+    (before.mode === after.mode && mixedPairs
+      ? " Both dates' HH comes from the same radar mode; only their coherence pairs mix modes, and coherence agreed" +
+        " between modes in our check."
+      : "");
 }
 
 // ---------- optical vs radar ----------

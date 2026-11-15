@@ -231,3 +231,15 @@ NISAR processing (crop_lake.py / map_water.py on real data) runs in another term
     marks that as an overstatement that was withdrawn.
   - No git remote and no repo URL anywhere yet, so the GitHub link stays TODO.
 - Next: GitHub link once the repo exists; validation numbers into "What we found".
+
+### 19:48 IST - Hero caveat wording: "all 12 of 12" plus the radar-mode sentence
+- What: web/app.js pairedComparison(): says "all N of N" when every combination is lower. It adds the team's sentence on modes
+  ("Both dates' HH comes from the same radar mode; only their coherence pairs mix modes, and coherence agreed between modes in our check")
+  only when both dates have the same mode and at least one of their coherence pairs mixes modes (water_area.csv pair_modes: 08-15 DHDH-QPDH, 10-14 QPDH-DHDH).
+  The note about the 14-day optical/radar gap is kept.
+- Why: Team wording update.
+- Result: Rendered text (headless Chrome DOM): "At the same threshold settings, 14 Oct is lower than 15 Aug in all 12 of 12 combinations
+  (drop of 16.9-38.7 km2). Both dates' HH comes from the same radar mode; only their coherence pairs mix modes, and coherence agreed between modes
+  in our check. Radar dates are the nearest DHDH dates: the August optical image is 14 days after its radar date, the October one 1 day before.
+  Results are provisional." node --check OK.
+- Next: GitHub link once the repo exists; validation numbers.
