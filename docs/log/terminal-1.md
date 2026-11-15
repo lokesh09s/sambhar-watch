@@ -201,3 +201,9 @@ Notes:
   5. Limitations: nearest-neighbour 20 m resampling without multilooking; 3x3 smoothing in dB; coarser GUNW coherence window; lake outline misses ~14.5 km2 of SW lake bed. Strength: one track/frame, so constant geometry and incidence angle all year.
 - Why: reviewer-driven wording; method frozen.
 - Note: the deck rebuild (validation slide leading with balanced accuracy) is Terminal 4's job; not touched here.
+
+### 20:37 IST - README: October Sentinel-2 check filled
+- What: README Results finding 3: replaced the October Sentinel-2 placeholder with the team's by-eye reading of 13 Oct 2026 (1 day before NISAR 14 Oct): ~55-60% white crust (~85-90 km2), ~20-25% open water (~30-40 km2), ~15-20% pans/mudflats/shore; same pattern on 10 Oct (persistent crust); crust spread from a thin edge band on 29 Aug to most of the basin. Radar HH+coherence 14 Oct ~56 km2, above the optical water estimate (team: likely shallow reservoir and wet edges). Added one derived sentence from existing numbers: HH alone on 14 Oct is ~115 km2, i.e. it would count most of the crust as water.
+- Why: team request; no method change, no rerun.
+- Result: consistent with the validation framing (HH only = upper bound, over-counts crust; HH+coherence nearer the water but still above the optical estimate on this date).
+- Next: stop and wait for the git history cleanup (~22:00, other terminals paused). Commands are in the 19:30 entry.
