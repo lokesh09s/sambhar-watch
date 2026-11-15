@@ -110,6 +110,26 @@ def test_dark_stable_surface_is_not_detected():
     assert valid.tolist() == [True, True, True, False]
 
 
+def test_interrupted_save_leaves_no_file(tmp_path=Path("/tmp")):
+    from sambhar.storage import save_npz
+
+    class FailsWhileSaving:
+        def __reduce__(self):
+            raise RuntimeError("simulated interruption")
+
+    path = tmp_path / "interrupted.npz"
+    path.unlink(missing_ok=True)
+    try:
+        save_npz(path, ok=np.ones(1000), bad=np.array([FailsWhileSaving()], dtype=object))
+    except RuntimeError:
+        pass
+    assert not path.exists(), "a failed save must not leave a file that later runs would skip"
+
+    save_npz(path, ok=np.ones(3))
+    assert np.load(path)["ok"].tolist() == [1, 1, 1]
+    assert not path.with_name(path.name + ".partial").exists()
+
+
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
     test_lake_area_is_recovered()
@@ -117,4 +137,5 @@ if __name__ == "__main__":
     test_gunw_mask_decoding()
     test_date_coherence_uses_pair_starting_on_date()
     test_dark_stable_surface_is_not_detected()
+    test_interrupted_save_leaves_no_file()
     print("All tests passed.")

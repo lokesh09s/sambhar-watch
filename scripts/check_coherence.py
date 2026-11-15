@@ -22,7 +22,7 @@ from sambhar.coherence import crop_coherence, pair_file
 from sambhar.granules import GunwPair, load_granules, load_gunw_pairs, open_remote
 from sambhar.grid import Grid, box_mask
 from sambhar.plots import coherence_check
-from sambhar.storage import load_crop
+from sambhar.storage import load_crop, save_npz
 from sambhar.water import reduce_speckle, to_decibels
 
 
@@ -34,7 +34,7 @@ def coherence_for(pair: GunwPair, grid: Grid) -> np.ndarray:
     with open_remote(pair.url) as h5:
         coherence = crop_coherence(h5, grid)
     config.COHERENCE_DIR.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(path, coherence=coherence)
+    save_npz(path, coherence=coherence)
     return coherence
 
 

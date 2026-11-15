@@ -138,3 +138,12 @@ Role: NISAR data processing. Only Terminal 1 writes to this file. Entries are ap
   - Threshold range on one date: median 39.7, max 72.4 km2. Between dates (incl. 10-14): 50-61 km2.
   - QPDH separately (km2, chosen [range]): Jan-Mar 71.9-83.9; 08-27 73.0; 09-08 55.9; 09-20 60.3; 10-02 58.1. Sep-Oct QPDH are also low, like 10-14 DHDH.
 - Next: report; method freeze at 20:00.
+
+### 19:24 IST - Atomic .npz saves (bug fix); METHOD FREEZE
+- What: sambhar/storage.py save_npz(): writes <name>.npz.partial in the same folder, then os.replace() onto the real name (atomic on one file system). Used by save_crop(), scripts/check_coherence.py (coherence per pair) and scripts/map_water.py (frequency.npz). New test test_interrupted_save_leaves_no_file: a save that fails mid-way (object that cannot be pickled) must leave no file; a normal save loads and leaves no .partial. Tests 6/6.
+  - Checked the test is meaningful: the old direct np.savez_compressed() with the same failing object leaves a 425-byte file (like the real 436-byte 08-27 file at ~19:13).
+  - Leftover *.npz.partial files after a crash are harmless: load_all_crops() reads only *.npz.
+  - Not changed: scripts/make_demo_data.py (another terminal's file) still calls np.savez_compressed directly; it writes only to outputs/demo/. Reported to the user.
+- Why: team request after my worker-1 incident; judges read the code.
+- Result: no change to any result (existing files were all test-loaded at 19:18).
+- Method freeze: from now on only reruns, validation and results. Next: README Results section once validation numbers arrive.

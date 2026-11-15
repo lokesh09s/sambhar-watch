@@ -45,7 +45,7 @@ from sambhar.coherence import coherence_for_date
 from sambhar.granules import load_granules, load_gunw_pairs
 from sambhar.pans import pans_mask
 from sambhar.plots import frequency_map, rule_comparison, water_overlay
-from sambhar.storage import load_all_crops
+from sambhar.storage import load_all_crops, save_npz
 from sambhar.water import (classify_dark_unstable, classify_water, detection_frequency,
                            otsu_threshold, reduce_speckle, to_decibels)
 
@@ -180,7 +180,7 @@ def main():
 
     frequency, n_valid = detection_frequency(np.array(detected_stack), np.array(valid_stack))
     frequency_map(frequency, n_valid, out / "frequency.png")
-    np.savez_compressed(out / "frequency.npz", frequency=frequency, n_valid=n_valid)
+    save_npz(out / "frequency.npz", frequency=frequency, n_valid=n_valid)
 
     with open(out / "map_info.json", "w") as f:
         json.dump({"bounds_latlon": grid.bounds_latlon(), "epsg": grid.epsg,
