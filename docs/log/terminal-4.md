@@ -92,3 +92,7 @@ Role: slides and project-page text. Only Terminal 4 writes to this file. Entries
 - Why: Reviewer-driven wording request (~20:35 IST); no method changes, no reruns.
 - Result: Checked the team's arithmetic: (119+12)/177 = 74.0%, (80+33)/177 = 63.8%, 134/177 = 75.7%, balanced (88.8+27.9)/2 = 58.4% and (59.7+76.7)/2 = 68.2%. All consistent. The first slide-5 render had the left text touching the trade-off card and a 3-line caption near the bottom edge; widened the text box and shortened the caption wording (all requested content kept); the re-render is clean. validate.py passed; PDF 7 pages. Removed the old "brighter QPDH mode" explanation of January; the team's hypothesis list replaces it.
 - Next: Rerun build_deck.py and the PowerPoint export when [TEAM NAME], [MEMBERS], [APP URL] and [REPO URL] arrive.
+
+### 20:49 IST - Wrap-up
+- What: Checked `git status` for every file this terminal created or edited: docs/slides_outline.md, docs/project_page.md, docs/video_script.md, docs/slides/build_deck.py, docs/slides/assets/app_map.jpg, docs/slides/Sambhar_Watch.pptx, docs/slides/Sambhar_Watch.pdf, docs/log/terminal-4.md, docs/log/decisions-terminal-4.md, docs/log/terminal-1.md, docs/log/decisions-terminal-1.md, validation_data/labels/points_2026-0{1-11,5-11,8-29}_labelled.csv, validation_data/LOG.md. All were already committed (last: 5251d00); only this entry is new. Not pushed.
+- Open: [TEAM NAME], [MEMBERS], [APP URL], [REPO URL] in build_deck.py and the docs; [COHERENCE REMOVED km²] still unconfirmed (14 Oct implies ~59 km²).
