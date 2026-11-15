@@ -1,6 +1,7 @@
 """Figures: quick-looks for checking data, and images for the web app."""
 import matplotlib
 matplotlib.use("Agg")  # draw to files, no window needed
+import matplotlib.dates
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm
@@ -106,15 +107,21 @@ def slide_area_over_time(main, other_mode, path):
                     fmt="s", color=OTHER_MODE_COLOUR, markerfacecolor="white", markersize=8, capsize=4,
                     label="quad-pol dates (not comparable: ~0.9 dB brighter)")
         last_day, last_km2 = days[-1], main["km2"][-1]
+        # Label sits in the empty band under the whiskers, so it covers no data.
         ax.annotate("14 Oct: lowest in\n10 of 12 threshold choices", xy=(last_day, last_km2),
-                    xytext=(last_day - np.timedelta64(75, "D"), 25), fontsize=15,
+                    xytext=(last_day - np.timedelta64(62, "D"), 5), fontsize=15,
                     arrowprops={"arrowstyle": "->", "color": "black"})
         ax.set_ylim(0, 150)
         ax.set_ylabel("km² inside lake outline")
         ax.set_title("Dark unstable surface (water or wet brine), Sambhar Lake")
-        ax.legend(loc="lower left", frameon=False)
-        fig.autofmt_xdate()
-        _save(fig, path)
+        ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
+        ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%b"))
+        ax.set_xlabel("2026")
+        # Legend goes under the plot: inside it, it would cover the quad-pol points.
+        fig.tight_layout(rect=(0, 0.17, 1, 1))
+        fig.legend(loc="lower center", ncol=2, frameon=False)
+        fig.savefig(path, dpi=110)
+        plt.close(fig)
 
 
 def slide_comparison(hh_db, coherence, detected, hh_dark, lake, title, path):

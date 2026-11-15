@@ -219,3 +219,11 @@ Notes:
   - Rendered pages 4 and 7 of the PDF and checked them by eye: no overlaps, text readable. PDF: 7 pages, 960x540 pt.
 - Risk for the user: PowerPoint still has the OLD Sambhar_Watch.pptx open. If it is saved from that window, it overwrites the rebuilt deck. Close it without saving (or reopen).
 - Next: wait for GitHub URL, team name and members; then history cleanup, push, Pages, final deck rebuild.
+
+### 21:09 IST - Deck design pass: chart legend off the data, larger method figure, slide numbers
+- What: rendered all 7 slides and fixed what was visibly wrong.
+  - sambhar/plots.py slide_area_over_time: legend moved under the plot (it covered the quad-pol points), "14 Oct" label moved to the empty band under the whiskers, month names on the x axis. docs/figures regenerated (also improves the README figure). No numbers changed.
+  - docs/slides/build_deck.py: slide 3 key statement in a card (fills the empty lower third); slide 4 figure trimmed of its own title and white margins and shown full width, with a one-line date/rule subtitle; slide 6 chart cropped to the plot (legend restated at 18 pt, plus a "grey squares" line); slide numbers on slides 2-7.
+  - Rebuilt PPTX; PDF exported through a PowerPoint copy; checked slides 3, 4, 5, 6 by eye after the rebuild.
+- Why: user asked for a readable, professional deck with no image bugs.
+- Still open: placeholders [TEAM NAME], [MEMBERS], [APP URL], [REPO URL].

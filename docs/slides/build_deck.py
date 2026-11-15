@@ -7,7 +7,7 @@ outputs/results/overlays and web/data/comparison; the app screenshot is docs/sli
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
@@ -42,6 +42,12 @@ def picture(slide, img, x, y, w=None, h=None):
     if h is not None:
         kw["height"] = Inches(h)
     return slide.shapes.add_picture(buf, Inches(x), Inches(y), **kw)
+
+
+def trim(img):
+    """Cut the white margins off a figure."""
+    white = Image.new("RGB", img.size, (255, 255, 255))
+    return img.crop(ImageChops.difference(img, white).getbbox())
 
 
 def lake(path, max_w=1400):
@@ -164,9 +170,10 @@ for i, (d, lab) in enumerate([("2026-05-06", "6 May: water"), ("2026-05-11", "11
     picture(s, im, x, y0, w=w)
     text(s, x, y0 + w * im.height / im.width + 0.15, w, 0.5, [lab], size=20, bold=True,
          color=TEAL if d == "2026-05-11" else INK, align=PP_ALIGN.CENTER)
-text(s, 0.6, 5.35, 12.1, 1.2,
-     [[("One optical image can mislead. ", {"bold": True}),
-       ("Can radar tell water from salt crust? We tested it.", {})]], size=22)
+card(s, 0.6, 5.5, 12.15, 1.1)
+text(s, 0.85, 5.5, 11.7, 1.1,
+     [[("One optical image can mislead. ", {"bold": True, "color": TEAL}),
+       ("Can radar tell water from salt crust? We tested it.", {})]], size=24, anchor=MSO_ANCHOR.MIDDLE)
 credit(s, f"{CREDIT_S2}, 6, 11 and 16 May 2026. NISAR is a NASA–ISRO mission; data free from NASA's ASF archive.")
 notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but white on 11 May. "
          "A single optical image can mislead. We don't yet know what the white surface is.")
@@ -174,10 +181,12 @@ notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but wh
 # 4. Method -----------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)
 title(s, "How we tested it")
+text(s, 0.6, 1.15, 12.1, 0.45, ["11 May 2026. Rule: HH below −18 dB and 12-day coherence below 0.3."], size=18)
 cmp_ = Image.open(ROOT / "docs/figures/comparison_2026-05-11.png").convert("RGB")
-cmp_w = 10.4   # leaves room for the polarization line under the figure
-picture(s, cmp_, 0.6 + (12.1 - cmp_w) / 2, 1.3, w=cmp_w)
-text(s, 0.6, 1.3 + cmp_w * cmp_.height / cmp_.width + 0.05, 12.1, 0.6,
+cmp_ = trim(cmp_.crop((0, int(0.19 * cmp_.height), cmp_.width, cmp_.height)))   # drop the figure's own title
+cmp_w = min(12.1, 2.95 * cmp_.width / cmp_.height)   # as wide as fits above the polarization line
+picture(s, cmp_, 0.6 + (12.1 - cmp_w) / 2, 1.7, w=cmp_w)
+text(s, 0.6, 4.78, 12.1, 0.6,
      [[("Polarization: ", {"bold": True, "color": TEAL}),
        ("HH brightness + 12-day coherence (coherence measures stability, it is not a polarization). "
         "HV not tested: over the lake it is likely near the noise floor (about −26.8 dB). "
@@ -296,15 +305,16 @@ text(s, 0.6, 1.4 + aw * app.height / app.width + 0.15, aw, 1.0,
       [("Yellow: ", {"bold": True, "color": GOLD}), ("lake outline   ", {}),
        ("Dashed: ", {"bold": True}), ("salt works and pans", {})]], size=18)
 area = Image.open(ROOT / "docs/figures/area_over_time.png").convert("RGB")
-area = area.crop((0, 60, area.width, area.height))   # drop the figure's own title
+area = area.crop((0, 60, area.width, int(0.83 * area.height)))   # drop the figure's title and small legend
 cx, cwid = 7.1, 5.65
 picture(s, area, cx, 1.4, w=cwid)
 ky = 1.4 + cwid * area.height / area.width + 0.15
 text(s, cx, ky, cwid, 1.25,
      [[("Orange: ", {"bold": True, "color": ORANGE}), ("brightness only (upper bound)", {})],
       [("Blue: ", {"bold": True, "color": BLUE}), ("+ coherence (lower bound)", {})],
-      [("Band: ", {"bold": True, "color": BLUE}), ("range over 12 threshold settings", {})]], size=18)
-text(s, cx, ky + 1.4, cwid, 1.3,
+      [("Band: ", {"bold": True, "color": BLUE}), ("range over 12 threshold settings", {})],
+      [("Grey squares: ", {"bold": True, "color": MUTED}), ("quad-pol dates, not comparable", {})]], size=18)
+text(s, cx, ky + 1.6, cwid, 1.1,
      ["Drag the slider: see each radar date",
       [("[APP URL]", {"bold": True, "color": TEAL})]], size=18, space_after=6)
 credit(s, f"Screenshot of our web app (map imagery © Esri, Maxar, Earthstar Geographics). Radar: {CREDIT_NISAR}.")
@@ -350,6 +360,10 @@ credit(s, "Thank you · [REPO URL] · Data: NASA/ASF NISAR (GCOV, GUNW), ESA Cop
 notes(s, "Everything on this slide is a proposed use, not something already running. The three drivers are a "
          "hypothesis, not proven: monsoon inflow, evaporation after the rains, and the salt works pumping brine "
          "into the mapped pans. We did not see a clear monsoon rise in radar water area.")
+
+for number, slide in enumerate(prs.slides, start=1):
+    if number > 1:
+        text(slide, 11.9, 7.05, 0.85, 0.3, [f"{number} / {len(prs.slides)}"], size=11, color=MUTED, align=PP_ALIGN.RIGHT)
 
 prs.save(OUT)
 print(f"wrote {OUT} ({len(prs.slides)} slides)")
