@@ -32,6 +32,8 @@ let rows = [];     // rows of water_area.csv
 let waterLayer, comparisonLayer, chart;
 let className = "water";   // replaced by map_info.json class_name
 let pansLabel = "mapped pans";   // replaced by map_info.json pans_label
+// Name of the hand-drawn outlines in the map legend and layer box: they are rough zones, not surveyed pans.
+const PANS_LAYER_NAME = "Salt-works zones (approximate, hand-drawn)";
 
 async function main() {
   try {
@@ -129,7 +131,7 @@ function makeMap(info, lookup, pans, lake, hasComparison) {
   }
   layers["Detection frequency"] = frequencyLayer;
   if (pans) {
-    layers[capitalise(pansLabel)] = L.geoJSON(pans, {
+    layers[PANS_LAYER_NAME] = L.geoJSON(pans, {
       style: { color: "#ffffff", weight: 2, dashArray: "6 4", fill: false },
       interactive: false,
     }).addTo(map);

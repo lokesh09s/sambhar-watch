@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">   <!-- no icon file: stops the browser asking for favicon.ico -->
   <title>Sambhar Watch: the app</title>
   <meta name="description" content="Explore surface water at Sambhar Salt Lake date by date, from NASA-ISRO NISAR radar.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body class="app">
   <nav class="nav" aria-label="App sections">
@@ -44,7 +45,7 @@
         <li id="legend-stable" hidden><span class="swatch swatch-stable"></span>Removed by coherence check (dark but stable)</li>
         <li><span class="swatch swatch-frequency"></span>Detection frequency, low to high</li>
         <li id="legend-lake" hidden><span class="swatch swatch-lake"></span>Lake outline (hand-drawn)</li>
-        <li><span class="swatch swatch-pans"></span><span class="pans-label-cap">Mapped salt pans</span> (hand-drawn)</li>
+        <li><span class="swatch swatch-pans"></span>Salt-works zones (approximate, hand-drawn)</li>
       </ul>
       <p class="hint">Use the layer box on the map to switch layers. Tap any spot to see how often it was detected.
         Two fingers move the map on a phone.</p>
@@ -99,7 +100,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="app.js?v=7"></script>
-  <script src="explorer.js?v=7"></script>
+  <script src="app.js?v=8"></script>
+  <script src="explorer.js?v=8"></script>
 </body>
 </html>

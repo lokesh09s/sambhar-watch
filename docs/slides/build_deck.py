@@ -174,23 +174,39 @@ s = prs.slides.add_slide(BLANK)
 title(s, "Why radar: clouds, and optical traps", label="Why radar")
 text(s, 0.6, 1.3, 12.1, 0.9,
      ["Monsoon clouds hide the lake from optical satellites. NISAR's L-band radar sees through them."], size=20)
-w, gap, y0 = 3.9, 0.2, 2.35
+w, gap, y0 = 3.0, 0.2, 1.9   # smaller photos leave room for the comparison with existing tools
+x0 = 0.6 + (12.1 - 3 * w - 2 * gap) / 2
 for i, (d, lab) in enumerate([("2026-05-06", "6 May: water"), ("2026-05-11", "11 May: white"),
                               ("2026-05-16", "16 May: water")]):
-    x = 0.6 + i * (w + gap)
+    x = x0 + i * (w + gap)
     im = lake(S2 / f"{d}_truecolour.png", 1000)
     if d == "2026-05-11":
         card(s, x - 0.07, y0 - 0.07, w + 0.14, w * im.height / im.width + 0.14, fill=TEAL)
     picture(s, im, x, y0, w=w, radius=0)
-    text(s, x, y0 + w * im.height / im.width + 0.15, w, 0.5, [lab], size=20, bold=True,
+    text(s, x, y0 + w * im.height / im.width + 0.08, w, 0.4, [lab], size=18, bold=True,
          color=TEAL if d == "2026-05-11" else INK, align=PP_ALIGN.CENTER)
-card(s, 0.6, 5.5, 12.15, 1.1)
-text(s, 0.85, 5.5, 11.7, 1.1,
+text(s, 0.6, 4.05, 12.1, 0.5,
      [[("One optical image can mislead. ", {"bold": True, "color": TEAL}),
-       ("Can radar tell water from salt crust? We tested it.", {})]], size=24, anchor=MSO_ANCHOR.MIDDLE)
+       ("Can radar tell water from salt crust? We tested it.", {})]], size=20, align=PP_ALIGN.CENTER)
+card(s, 0.6, 4.7, 12.15, 2.25)
+text(s, 0.85, 4.78, 11.7, 0.4, ["How we are different from what already exists"], size=18, bold=True, color=TEAL)
+text(s, 0.85, 5.2, 11.7, 1.7,
+     [[("Optical water maps: ", {"bold": True}), ("blocked by monsoon clouds; white salt crust can look like water.", {})],
+      [("Radar flood tools: ", {"bold": True}), ("brightness only, so crust looks like water (about 125 → 115 km² vs 91 → 56 km² with coherence).", {})],
+      [("Published Sambhar studies we found: ", {"bold": True}), ("yearly figures. We update every 12 days, through clouds.", {})],
+      [("We add: ", {"bold": True, "color": TEAL}), ("NISAR, a coherence test for water vs crust, open reliability, salt works kept separate.", {})]],
+     size=16, space_after=3)
 credit(s, f"{CREDIT_S2}, 6, 11 and 16 May 2026. NISAR is a NASA–ISRO mission; data free from NASA's ASF archive.")
 notes(s, "Sentinel-2 shows the main basin as green water on 6 and 16 May, but white on 11 May. "
-         "A single optical image can mislead. We don't yet know what the white surface is.")
+         "A single optical image can mislead. We don't yet know what the white surface is. "
+         "How we are different from what already exists: Optical water maps (e.g. JRC Global Surface Water) can't see "
+         "through monsoon clouds and can confuse white salt crust with water; the JRC record we used ends in 2021. "
+         "Radar flood tools usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. "
+         "With brightness alone, the post-monsoon drying almost disappears (about 125 to 115 km2 vs 91 to 56 km2 with "
+         "coherence). Published Sambhar studies we found give yearly figures; we update every 12 days, through clouds. "
+         "What we add: NISAR (launched 2025); a test for water vs salt crust using coherence; open reliability "
+         "(177 check points, 12 threshold settings, stated limits); salt works separated from the natural lake; "
+         "built for non-experts.")
 
 # 4. Method -----------------------------------------------------------------
 s = prs.slides.add_slide(BLANK)

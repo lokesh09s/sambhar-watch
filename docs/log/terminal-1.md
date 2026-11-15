@@ -299,3 +299,12 @@ Notes:
 - Re-check on the local copy: 4 page loads ok, 12 comparison checks ok; phone map, phone chart, phone table and desktop chart viewed and correct.
 - Deck: docs/slides/assets/app_map.jpg replaced with a capture of the new app page (controls + map); build_deck.py no longer crops it; PPTX + PDF rebuilt; slide 6 checked.
 - Still open: scripts/export_web.py does not know about the QPDH comparison layers (would drop them if re-run); no Vercel deployment tried.
+
+### 23:02 IST - "How we are different" section (website, deck slide 3, README, project page); legend rename
+- What (team wording, no numbers/data/analysis changed, no "first"/"only" claim):
+  - web/index.html: new section before Results, three cards (optical water maps / radar flood tools / Sambhar studies) plus "What we add".
+  - web/app.html + web/app.js: the hand-drawn outlines are now called "Salt-works zones (approximate, hand-drawn)" in the legend and the map's layer box (chart labels unchanged). Version tag ?v=8. Added an empty inline favicon to both pages.
+  - docs/slides/build_deck.py: slide 3 (still 7 slides): photos made smaller, the "one optical image can mislead" line kept, and a compact 4-line "How we are different" card added; full text in the speaker notes. PPTX + PDF rebuilt.
+  - README.md and docs/project_page.md: same section, before "Why does the lake change?".
+- Check: slide 3 rendered and viewed: no overlap. Local site in real Chrome at 1280 and 390 px, both pages: no overflow, no load error, map tiles load, date label updates with the next button, legend and layer box show the new name, new section renders. Console: one 404 on the first load was the browser asking for favicon.ico (fixed with the inline icon); the only other entries were cancelled image loads when the map layer was swapped (not errors). Tests 6/6.
+- Not pushed: waiting for the user's go-ahead (their instruction).

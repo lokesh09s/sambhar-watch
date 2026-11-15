@@ -111,6 +111,14 @@ Both radar dates use mixed-mode coherence pairs, so they're treated alike. Our m
 - The lake outline was hand-drawn from optical imagery and misses part of the western lake bed (about 10 km², visible in the radar). Reported areas are inside the outline only, so they understate the full lake bed. Including it does not change the August → October drop (about 91 → 56 km² inside the outline; about 98 → 59 km² with the western arm added).
 - The maps show surface changes only. They say nothing about whether any use of the lake is permitted.
 
+### How we are different from what already exists
+
+- **Optical water maps** (e.g. JRC Global Surface Water) can't see through monsoon clouds and can confuse white salt crust with water; the JRC record we used ends in 2021.
+- **Radar flood tools** usually use brightness only. At a salt lake that fails: flat crust looks as dark as water. With brightness alone, the post-monsoon drying almost disappears (about 125 → 115 km² vs 91 → 56 km² with coherence).
+- **Published Sambhar studies** we found give yearly figures; we update every 12 days, through clouds.
+
+**What we add:** NISAR (launched 2025); a test for water vs salt crust using coherence; open reliability (177 check points, 12 threshold settings, stated limits); salt works separated from the natural lake; built for non-experts.
+
 ### Why does the lake change? (hypothesis, not proven)
 
 - **Monsoon (roughly July–September):** rain and seasonal streams flow into the shallow lake.
