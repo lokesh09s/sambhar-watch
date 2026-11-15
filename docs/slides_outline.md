@@ -2,7 +2,7 @@
 
 **This deck is our main deliverable. The video is optional, only if time allows.**
 
-**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has two drafts (5A and 5B). Only ONE goes in the deck, chosen once the Sentinel-2 check is done.
+**Hard limit: 7 slides in total, title and intro included. Do not add any.** Slide 5 has two drafts (5A and 5B). Only ONE goes in the deck. **Current lean: 5A** (early Sentinel-2 look, 19:05 IST). Keep 5B as the fallback until validation confirms.
 
 Placeholders in `[BRACKETS]` get filled in once results exist. Keep the words on each slide short; the notes under each slide are for us, not for the slide.
 
@@ -80,26 +80,34 @@ Wording rules: never "first"; nothing "illegal"; say "detected on these dates"; 
 
 ---
 
-## Slide 5A: Results, IF Sentinel-2 confirms dry-season water
+## Slide 5A: Results, IF Sentinel-2 confirms dry-season water (CURRENT LEAN)
 
 *Use this OR 5B, not both.*
 
-**Headline:** NISAR tracks about [X ± Y] km² of water or brine at Sambhar through the year. Coherence removes [Z] km² of false detections.
+**Headline:** Sambhar appears to keep shallow water or brine through the dry season.
 
 **On slide**
+- NISAR tracks about [X ± Y] km² of water or brine through the year
+- Coherence removes [Z] km² of false detections
 - Sentinel-2 agrees: [ACCURACY %]
+- **Highlight (placeholder until validation confirms):** On 11 May an optical image shows a white lake; [NISAR RESULT ON 11 MAY]
 - Detected inside mapped pans: [PAN WATER km²] of 49.1 km²
 - Water detected on these dates; band = method uncertainty
 
 **Visual:** in-lake area through the year, uncertainty band, DHDH and QPDH as separate lines [IMAGE: area chart with band] plus the frequency map [IMAGE: outputs/results/frequency.png]
 
-**Notes:** Don't say "the lake shrank" or "grew": the band is wider than the change between dates.
+**Optional visual for the highlight:** 11 May Sentinel-2 (white lake) next to the 11 May NISAR map [IMAGE: Sentinel-2 vs NISAR, 11 May]
+
+**Notes:**
+- Don't say "the lake shrank" or "grew": the band is wider than the change between dates.
+- Keep "appears to". The early Sentinel-2 look: the main basin is mostly shallow water (green) on 6 and 16 May, with a short-lived white surface on 11 May. Not yet a finished validation.
+- Drop the highlight if validation doesn't support it. Don't say what the white surface is until we know.
 
 ---
 
-## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season
+## Slide 5B: Results, IF Sentinel-2 shows dry crust in the dry season (FALLBACK)
 
-*Use this OR 5A, not both.*
+*Use this OR 5A, not both. Keep until validation confirms 5A.*
 
 **Headline:** At Sambhar, L-band radar maps the active wet lake bed, not open water.
 

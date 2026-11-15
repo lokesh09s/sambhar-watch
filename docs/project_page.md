@@ -2,7 +2,7 @@
 
 Copy each section into the matching field on the project page. Placeholders in `[BRACKETS]` get filled in once results exist. Delete any line marked *(if used)* that doesn't apply.
 
-**Two versions are drafted where the Sentinel-2 check decides the story: (A) Sentinel-2 confirms dry-season water, (B) Sentinel-2 shows dry crust. Keep one and delete the other before submitting.**
+**Two versions are drafted where the Sentinel-2 check decides the story: (A) Sentinel-2 confirms dry-season water, (B) Sentinel-2 shows dry crust. Keep one and delete the other before submitting.** **Current lean: (A)** (early Sentinel-2 look, 19:05 IST). Keep (B) as the fallback until validation confirms.
 
 ---
 
@@ -16,11 +16,11 @@ Sambhar Watch
 
 *Pick (A) or (B).*
 
-**(A) If Sentinel-2 confirms dry-season water**
+**(A) If Sentinel-2 confirms dry-season water (current lean)**
 
-Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through a full year, including the cloudy monsoon. Radar brightness alone failed: the dry-season and monsoon lake bed look equally dark. Adding 12-day interferometric coherence fixed most of this. NISAR tracks about [X ± Y] km² of water or brine at Sambhar through the year, and coherence removes [Z] km² of false detections. We stress-tested our settings and found the uncertainty is larger than the change between dates, so we show every result with an uncertainty band and don't claim a seasonal trend from radar alone. A simple web app lets anyone pick a date and see where water was detected.
+Sambhar Watch uses NASA–ISRO NISAR radar to track surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through a full year, including the cloudy monsoon. Radar brightness alone failed: the dry-season and monsoon lake bed look equally dark. Adding 12-day interferometric coherence fixed most of this. Sambhar appears to keep shallow water or brine through the dry season: NISAR tracks about [X ± Y] km² of water or brine at Sambhar through the year, and coherence removes [Z] km² of false detections. We stress-tested our settings and found the uncertainty is larger than the change between dates, so we show every result with an uncertainty band and don't claim a seasonal trend from radar alone. A simple web app lets anyone pick a date and see where water was detected.
 
-**(B) If Sentinel-2 shows dry crust in the dry season**
+**(B) If Sentinel-2 shows dry crust in the dry season (fallback)**
 
 Sambhar Watch uses NASA–ISRO NISAR radar to study surface water at Sambhar Salt Lake, India's largest inland saline lake and a Ramsar wetland, through a full year, including the cloudy monsoon. We found that at Sambhar, L-band radar maps the active wet lake bed, not open water: wet salt crust and water look alike, even after adding 12-day interferometric coherence. A stress test showed that the method's uncertainty is larger than the seasonal signal, so we don't claim a seasonal trend. We show what the radar can and can't see, with an uncertainty band on every number, and what would fix it: more dates, fusion with optical data, and field measurements. A simple web app lets anyone pick a date and see where wet lake bed was detected.
 
@@ -48,7 +48,7 @@ Sambhar is a Ramsar site with 24,000 ha designated. A 2026 study by NRSC-ISRO an
 5. **Add coherence.** Coherence measures how much the surface changes between two radar passes 12 days apart. Water and wet brine change, so their coherence is low; stable ground stays coherent. Each date uses the 12-day pair that starts on that date. Our provisional rule: a pixel is detected when HH is below −18 dB **and** coherence is below 0.3. This removes 25–40 km² of false "water" inside the lake on every date, mostly dark but stable dry fields.
 6. **Stress-test the settings.** We re-ran the rule over a range of reasonable settings: HH threshold −17 to −20 dB, coherence threshold 0.25 to 0.35. On a single date, the lake area changes by 40–72 km². That is more than the difference between dates (about 10 km²). So we don't claim a seasonal trend from radar alone, and every result is shown with this uncertainty band.
 7. **Keep radar modes apart.** NISAR alternates two modes over Sambhar (DHDH and QPDH). We show them as separate series until a consistency check shows they agree.
-8. **Check against Sentinel-2.** We compare the maps with labelled points from cloud-free Sentinel-2 images, reporting water and salt crust separately. Wet salt crust can look like water to radar, so this is the key test. *(Running now.)*
+8. **Check against Sentinel-2.** We compare the maps with labelled points from cloud-free Sentinel-2 images, reporting water and salt crust separately. Wet salt crust can look like water to radar, so this is the key test. *(Running now. Early look: in May the main basin appears mostly shallow water on 6 and 16 May, with a short-lived white surface on 11 May.)*
 
 ### Results
 
@@ -59,13 +59,15 @@ Sambhar is a Ramsar site with 24,000 ha designated. A 2026 study by NRSC-ISRO an
 - Coherence removes 25–40 km² of false detections inside the lake on every date.
 - Method uncertainty on one date: 40–72 km². Difference between dates: about 10 km².
 
-**(A) Sentinel-2 confirms dry-season water**
+**(A) Sentinel-2 confirms dry-season water (current lean)**
+- Sambhar appears to keep shallow water or brine through the dry season.
 - NISAR tracks about [X ± Y] km² of water or brine at Sambhar through the year.
 - Coherence removes [Z] km² of false detections.
 - Agreement with Sentinel-2: [ACCURACY %]
 - Detected inside mapped pans: [PAN WATER km²] of 49.1 km²
+- *(Placeholder until validation confirms; delete if not supported.)* On 11 May an optical image shows a white lake; [NISAR RESULT ON 11 MAY].
 
-**(B) Sentinel-2 shows dry crust in the dry season**
+**(B) Sentinel-2 shows dry crust in the dry season (fallback)**
 - At Sambhar, L-band radar maps the active wet lake bed, not open water. Wet salt crust and water look alike, even with coherence.
 - Method uncertainty is larger than the seasonal signal.
 - Sentinel-2 points labelled crust but detected by radar: [CRUST ERROR %]
